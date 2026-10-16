@@ -102,6 +102,17 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .under{display:flex;justify-content:flex-end;gap:14px;margin-top:-6px;padding-right:6px}
 .under button{font-size:13px;color:var(--muted);padding:2px 4px}
 .under .undo{color:var(--warn)}
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.mi{--c:#5B73E8;position:relative;min-height:128px;border-radius:18px;background:var(--card);border:3px solid color-mix(in srgb,var(--c) 45%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 8px;text-align:center;box-shadow:0 2px 0 var(--line)}
+.mi .e{font-size:40px;line-height:1.1}
+.mi .n{font-size:18px;font-weight:800;color:var(--ink)}
+.mi .tm{font-size:12px;font-weight:700;border-radius:8px;padding:1px 8px;background:rgba(0,0,0,.18);color:#fff}
+.mi.on{background:var(--c);border-color:var(--c);box-shadow:inset 0 -6px 0 rgba(0,0,0,.14)}
+.mi.on .n{color:#fff}
+.mi .no{position:absolute;top:-10px;left:-8px;width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:900;display:grid;place-items:center;font-size:17px}
+.mi.add{border:3px dashed var(--line);color:var(--muted);box-shadow:none;background:transparent}
+.mi.add .e{font-size:34px;color:var(--muted)}.mi.add .n{color:var(--muted)}
+@media (max-width:600px){.menu{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.mi{min-height:106px}.mi .e{font-size:32px}.mi .n{font-size:15px}}
 .btn{border-radius:14px;padding:12px 20px;font-weight:700;background:var(--card);border:1.5px solid var(--line)}
 .btn.main{background:var(--blue);border-color:var(--blue);color:#fff}
 .btn:disabled{opacity:.4;cursor:default}
@@ -361,9 +372,9 @@ const DEFAULT = {
   tasks: [
     {id:"raz", emo:"📗", name:"Raz 阅读", hint:"读 1–2 本，录音要读完", color:"#5B73E8",
       days:{1:D(0),2:D(1),3:D(1),4:D(1),5:D(1),6:D(0),0:D(0)}},
-    {id:"zheng", emo:"🎵", name:"古筝练习", hint:"指法 40 分钟 + 曲子 10 分钟", color:"#E8780C",
+    {id:"zheng", emo:"🎵", name:"古筝练习", hint:"指法 40 分钟 + 曲子 10 分钟", color:"#E8780C", by:"18:30",
       days:{1:D(1,"","19:30"),2:D(1,"","18:30"),3:D(1,"","18:30"),4:D(1,"","18:30"),5:D(1,"","19:30"),6:D(0),0:D(0)}},
-    {id:"tutor", emo:"💻", name:"英语外教 Power Up", hint:"提前 2 分钟打开电脑、戴好耳机", color:"#E5483D",
+    {id:"tutor", emo:"💻", name:"英语外教 Power Up", hint:"提前 2 分钟打开电脑、戴好耳机", color:"#E5483D", at:"19:00",
       days:{1:D(1,"19:30"),2:D(1,"19:00"),3:D(1,"19:00"),4:D(1,"19:00"),5:D(1,"20:00"),6:D(0),0:D(0)}},
     {id:"hw", emo:"✏️", name:"学校作业", hint:"认真写，写完给爸爸妈妈看", color:"#2E9E5B",
       days:{1:D(1),2:D(1),3:D(1),4:D(1),5:D(0),6:D(0),0:D(0)}},
@@ -400,7 +411,8 @@ function load(){
   try{ S = JSON.parse(localStorage.getItem(KEY)); }catch(e){ S = null; }
   if (!S || !S.tasks) S = {...JSON.parse(JSON.stringify(DEFAULT)), log:{}};
   S.log ||= {}; S.rewards ||= [];
-  S.tasks.forEach((t,i)=>{ t.color ||= OLD_COLORS[t.id] || COLORS[i%COLORS.length]; });
+  S.tasks.forEach((t,i)=>{ t.color ||= OLD_COLORS[t.id] || COLORS[i%COLORS.length];
+    if (t.at===undefined && t.by===undefined && t.days){ const c={}; Object.values(t.days).forEach(d=>{ if(d.on&&(d.at||d.by)){ const key=(d.at?'a':'b')+(d.at||d.by); c[key]=(c[key]||0)+1; } }); const top=Object.entries(c).sort((x,y)=>y[1]-x[1])[0]; t.at=top&&top[0][0]==='a'?top[0].slice(1):''; t.by=top&&top[0][0]==='b'?top[0].slice(1):''; } });
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast("没存上，iPad 空间可能满了"); } }
 load();
@@ -409,7 +421,6 @@ try{ navigator.storage && navigator.storage.persist && navigator.storage.persist
 function todayKey(){ return dkey(now()); }
 function tasksOn(dow){ return S.tasks.filter(t=>t.days[dow] && t.days[dow].on); }
 function dayLog(k){ return S.log[k] ||= {order:null, done:{}, rest:null, mood:null}; }
-function tagOf(t, dow){ const d=t.days[dow]; if (!d) return ""; if (d.at) return d.at+" 开始"; if (d.by) return d.by+" 前做完"; return ""; }
 function restUsedThisWeek(){
   const m = monday(now());
   for (let i=0;i<7;i++){ const x=new Date(m); x.setDate(m.getDate()+i); const l=S.log[dkey(x)]; if (l && l.rest) return dkey(x); }
@@ -428,8 +439,8 @@ function showTab(t){
 Object.keys(TABS).forEach(k=>$(TABS[k][1]).onclick=()=>showTab(k));
 
 function render(){
-  const n=now(), tasks=tasksOn(n.getDay()), L=S.log[todayKey()];
-  const left = L && L.order ? tasks.filter(t=>!L.done[t.id] && L.rest!==t.id).length : tasks.length;
+  const n=now(), L=S.log[todayKey()];
+  const left = L && L.order ? L.order.filter(id=>!L.done[id] && L.rest!==id).length : 0;
   $("badge").hidden = !left; $("badge").textContent = left;
   $("tiToday").innerHTML = `<span class="dateico"><i></i><b>${n.getDate()}</b></span>`;
   if (tab==="today"){ renderCal(); renderToday(); }
@@ -470,83 +481,122 @@ function renderCal(){
   });
 }
 
-// ---------- today ----------
-let picking = [], undoArm = null;
+// ---------- today: pick from the project menu, then tick off ----------
+// Each day keeps its own times in L.times = {id:{at,by}}; a project's own at/by is only the starting value.
+function timesFor(id, k){ const L=S.log[k]; if (L && L.times && L.times[id]) return L.times[id]; const t=taskById(id); return {at:t.at||"", by:t.by||""}; }
+function tagTxt(tm){ return tm.at ? tm.at+" 开始" : tm.by ? tm.by+" 前做完" : ""; }
+function tagOf(id, k){ return tagTxt(timesFor(id,k)); }
+// B: start from the same weekday last week (up to 4 weeks back); else the old weekly schedule.
+function prefill(k){
+  const exists=id=>S.tasks.some(t=>t.id===id);
+  for (let w=1; w<=4; w++){
+    const pk=addDays(k,-7*w), P=S.log[pk];
+    if (P && P.order && P.order.length){ const order=P.order.filter(exists), times={}; order.forEach(id=>times[id]={...timesFor(id,pk)}); return {order, times, from: w===1?"上周"+DAY[new Date(k+"T12:00").getDay()]:"之前的周"+DAY[new Date(k+"T12:00").getDay()]}; }
+  }
+  const dow=new Date(k+"T12:00").getDay(), order=[], times={};
+  S.tasks.forEach(t=>{ const d=t.days && t.days[dow]; if (d && d.on){ order.push(t.id); times[t.id]={at:d.at||t.at||"", by:d.by||t.by||""}; } });
+  return {order, times, from: order.length ? "平时的安排" : ""};
+}
+let picking=[], pickTimes={}, pickFor=null, pickFrom="", undoArm=null;
+function startPicking(k, keep){
+  const p=prefill(k); pickFor=k;
+  if (keep){ picking=[...keep]; pickTimes={}; keep.forEach(id=>pickTimes[id]={...timesFor(id,k)}); pickFrom=""; }
+  else { picking=p.order; pickTimes=p.times; pickFrom=p.from; }
+}
 function renderToday(){
   const tk=todayKey(), k=selDay, isToday=k===tk, d=new Date(k+"T12:00"), dow=d.getDay();
   const tb=$("todayBody");
   $("rules").hidden = !isToday;
   if (!isToday) $("banner").hidden = true;
-  if (isToday){
-    const rules=[]; tasksOn(dow).forEach(t=>{ const g=tagOf(t,dow); if (g) rules.push(`${t.emo} ${t.name} ${g}`); });
-    rules.push(`🌙 ${S.bed} 准备睡觉`);
-    (S.extraRules||"").split("\n").map(s=>s.trim()).filter(Boolean).forEach(r=>rules.push("⭐ "+r));
-    $("rules").innerHTML = "<h2>今天不能变的事</h2>" + rules.map(r=>`<div>${esc(r)}</div>`).join("");
-  }
   if (!isToday){
     const L=S.log[k];
     let h=`<div class="past">📖 这是 ${d.getMonth()+1} 月 ${d.getDate()} 日（周${DAY[dow]}）的记录，只能看不能改<span style="flex:1"></span><button class="linkb" id="backToday" type="button">回到今天</button></div>`;
     if (!L || !L.order) h+=`<div class="allgood empty">这一天没有打卡记录</div>`;
-    else { h+=`<ol class="tcards">`+L.order.map((id,i)=>cardHTML(taskById(id), dow, {num:i+1, done:L.done[id], rest:L.rest===id})).join("")+`</ol>`;
+    else { h+=`<ol class="tcards">`+L.order.map((id,i)=>cardHTML(taskById(id), k, {num:i+1, done:L.done[id], rest:L.rest===id})).join("")+`</ol>`;
       if (L.mood) h+=`<div class="allgood"><div>那天的心情</div><div class="moods"><button type="button" aria-pressed="true" disabled>${L.mood}</button></div></div>`; }
     tb.innerHTML=h; $("backToday").onclick=()=>$("calToday").click(); return;
   }
-  const L=dayLog(k), tasks=tasksOn(dow);
-  if (!tasks.length){ tb.innerHTML=`<div class="allgood"><b>今天没有任务</b><div class="m">好好休息！</div></div>`; return; }
-  if (L.order){ L.order=L.order.filter(id=>tasks.some(t=>t.id===id)); tasks.forEach(t=>{ if(!L.order.includes(t.id)) L.order.push(t.id); }); }
+  const L=dayLog(k);
+  if (L.order) L.order=L.order.filter(id=>S.tasks.some(t=>t.id===id));
+  const ids = L.order || (pickFor===k ? picking : (startPicking(k), picking));
+  const tmOf = id => L.order ? timesFor(id,k) : (pickTimes[id] || timesFor(id,k));
+  const rules=[]; ids.forEach(id=>{ const t=taskById(id), g=tagTxt(tmOf(id)); if (g) rules.push(`${t.emo} ${t.name} ${g}`); });
+  rules.push(`🌙 ${S.bed} 准备睡觉`);
+  (S.extraRules||"").split("\n").map(s=>s.trim()).filter(Boolean).forEach(r=>rules.push("⭐ "+r));
+  $("rules").innerHTML = "<h2>今天不能变的事</h2>" + rules.map(r=>`<div>${esc(r)}</div>`).join("");
 
-  if (!L.order){ // the child picks the order
-    tb.innerHTML = `<div class="hintline"><b>先排一排今天的顺序</b>按你想做的先后，一张一张点卡片</div>
-      <ol class="tcards" id="cards">${tasks.map(t=>{ const i=picking.indexOf(t.id); return cardHTML(t, dow, {pick:true, num:i>=0?i+1:0}); }).join("")}</ol>
-      <div class="pickbar"><button class="btn main" id="pickOk" type="button" ${picking.length===tasks.length?"":"disabled"}>${picking.length===tasks.length?"排好了，开始！":`还有 ${tasks.length-picking.length} 张没排`}</button><button class="btn" id="pickReset" type="button">重新排</button></div>`;
-    tb.querySelectorAll(".tc").forEach(c=>c.onclick=()=>{ const id=c.dataset.id, j=picking.indexOf(id); if (j>=0) picking.splice(j,1); else picking.push(id); renderToday(); });
-    $("pickOk").onclick=()=>{ L.order=[...picking]; picking=[]; save(); render(); toast("计划排好啦，加油！"); };
-    $("pickReset").onclick=()=>{ picking=[]; renderToday(); };
+  if (!L.order){ // the menu: tap in the order you'll do them
+    tb.innerHTML = `<div class="hintline"><b>今天要做什么？</b>按做的先后点一点，再点一下就取消</div>
+      ${pickFrom && picking.length ? `<div class="past">✨ 已经帮你选好了和${esc(pickFrom)}一样的，要改就点一点</div>`:""}
+      <div class="menu" id="menu">${S.tasks.map(t=>{ const i=picking.indexOf(t.id), tm=i>=0?tagTxt(pickTimes[t.id]||timesFor(t.id,k)):"";
+        return `<button type="button" class="mi${i>=0?" on":""}" data-id="${esc(t.id)}" style="--c:${t.color}" aria-pressed="${i>=0}">
+          ${i>=0?`<span class="no">${i+1}</span>`:""}<span class="e">${esc(t.emo)}</span><span class="n">${esc(t.name)}</span>${tm?`<span class="tm">⏰ ${esc(tm)}</span>`:""}</button>`; }).join("")}
+        <button type="button" class="mi add" id="newProj"><span class="e">＋</span><span class="n">新项目</span></button></div>
+      <div class="pickbar"><button class="btn main" id="pickOk" type="button" ${picking.length?"":"disabled"}>${picking.length?`好了，开始！（${picking.length} 件）`:"先选一件吧"}</button><button class="btn" id="pickReset" type="button">全部清空</button></div>`;
+    tb.querySelectorAll(".mi[data-id]").forEach(c=>c.onclick=()=>{ const id=c.dataset.id, j=picking.indexOf(id);
+      if (j>=0){ picking.splice(j,1); } else { picking.push(id); pickTimes[id] ||= {...timesFor(id,k)}; } pickFrom=""; renderToday(); });
+    $("newProj").onclick=()=>editTask(-1, {fromHome:true});
+    $("pickOk").onclick=()=>{ L.order=[...picking]; L.times={}; picking.forEach(id=>L.times[id]={...(pickTimes[id]||timesFor(id,k))}); picking=[]; pickFor=null; save(); render(); toast("计划排好啦，加油！"); };
+    $("pickReset").onclick=()=>{ picking=[]; pickFrom=""; renderToday(); };
     return;
   }
-  const byId=Object.fromEntries(tasks.map(t=>[t.id,t]));
   const nextId=L.order.find(id=>!L.done[id] && L.rest!==id);
   const doneN=L.order.filter(id=>L.done[id]||L.rest===id).length;
   const restWeek=restUsedThisWeek();
-  let h=`<div class="hintline"><b>今天 ★ ${doneN} / ${L.order.length}</b>${nextId?"做完一件，点一下卡片":""}<span class="sp"></span><button class="linkb" id="reorder" type="button">重新排顺序</button></div><ol class="tcards" id="cards">`;
-  L.order.forEach((id,i)=>{ const t=byId[id]; if(!t) return;
+  let h=`<div class="hintline"><b>今天 ★ ${doneN} / ${L.order.length}</b>${nextId?"做完一件，点一下卡片":""}<span class="sp"></span><button class="linkb" id="reorder" type="button">重新选</button></div><ol class="tcards" id="cards">`;
+  L.order.forEach((id,i)=>{ const t=taskById(id);
     const done=!!L.done[id], rest=L.rest===id;
-    h+=cardHTML(t, dow, {num:i+1, done:L.done[id], rest, next:id===nextId});
+    h+=cardHTML(t, k, {num:i+1, done:L.done[id], rest, next:id===nextId});
     if (done && undoArm===id) h+=`<div class="under"><span class="m">再点一下卡片就撤销</span></div>`;
     else if (rest) h+=`<div class="under"><button type="button" class="undo" data-unrest="1">不用休息券了</button></div>`;
-    else if (!done && !restWeek) h+=`<div class="under"><button type="button" data-rest="${id}">🎟 用休息券（每周 1 张）</button></div>`;
+    else if (!done) h+=`<div class="under"><button type="button" data-time="${esc(id)}">⏰ 改今天的时间</button>${restWeek?"":`<button type="button" data-rest="${esc(id)}">🎟 用休息券（每周 1 张）</button>`}</div>`;
   });
   h+=`</ol>`;
   if (!nextId) h+=`<div class="allgood"><b>今天的任务全部完成！🎉</b><div>今天感觉怎么样？</div><div class="moods">${MOODS.map(x=>`<button type="button" data-mood="${x}" aria-pressed="${L.mood===x}">${x}</button>`).join("")}</div></div>`;
   tb.innerHTML=h;
-  $("reorder").onclick=()=>{ picking=L.order.filter(id=>L.done[id]||L.rest===id); L.order=null; save(); render(); };
-  tb.querySelectorAll(".tc").forEach(c=>c.onclick=(e)=>{
-    const id=c.dataset.id, t=byId[id];
+  $("reorder").onclick=()=>{ startPicking(k, L.order); L.order=null; save(); render(); };
+  tb.querySelectorAll(".tc").forEach(c=>c.onclick=()=>{
+    const id=c.dataset.id, t=taskById(id);
     if (L.rest===id) return;
     if (L.done[id]){ if (undoArm===id){ delete L.done[id]; undoArm=null; save(); render(); } else { undoArm=id; renderToday(); } return; }
     const before=totalStars(); L.done[id]=hhmm(now()); undoArm=null; save(); celebrate(c.querySelector(".box2"), t); render(); petGotStar(before);
   });
   tb.querySelectorAll("[data-rest]").forEach(b=>b.onclick=()=>{ L.rest=b.dataset.rest; save(); render(); toast("这周的休息券用掉啦"); });
   tb.querySelectorAll("[data-unrest]").forEach(b=>b.onclick=()=>{ L.rest=null; save(); render(); });
+  tb.querySelectorAll("[data-time]").forEach(b=>b.onclick=()=>editTodayTime(b.dataset.time, k));
   tb.querySelectorAll("[data-mood]").forEach(b=>b.onclick=()=>{ L.mood=b.dataset.mood; save(); renderToday(); });
 }
-function cardHTML(t, dow, o){
-  const tag=tagOf(t,dow), sub = o.rest ? "🎟 用了休息券" : o.done ? `✓ ${o.done} 做完` : (t.hint||"");
-  const cls = "tc"+(o.done?" done":"")+(o.rest?" rest":"")+(o.next?" next":"")+(o.pick?" pick":"")+(o.pick&&o.num?" picked":"");
-  const box = o.pick ? (o.num?o.num:"") : o.done ? "✓" : o.rest ? "🎟" : "";
+function timeFields(tm){
+  const kind = tm.at ? "at" : tm.by ? "by" : "";
+  return `<div class="row2"><label class="f">时间规矩<select id="tmKind"><option value="" ${!kind?"selected":""}>不限时间</option><option value="at" ${kind==="at"?"selected":""}>几点开始</option><option value="by" ${kind==="by"?"selected":""}>几点前做完</option></select></label>
+    <label class="f" id="tmValL">时间<input type="time" id="tmVal" value="${tm.at||tm.by||""}"></label></div>`;
+}
+function bindTimeFields(){ const s=()=>{ $("tmValL").hidden=!$("tmKind").value; }; $("tmKind").onchange=s; s(); }
+function readTimeFields(){ const k=$("tmKind").value, v=$("tmVal").value; return {at:k==="at"?v:"", by:k==="by"?v:""}; }
+function editTodayTime(id, k){
+  const t=taskById(id), L=dayLog(k);
+  sheet(`<h2>${esc(t.emo+" "+t.name)}：今天的时间</h2>${timeFields(timesFor(id,k))}
+    <p class="small">只改今天。下周同一天会自动用今天的时间。</p>
+    <div class="row2"><button class="btn main" id="tmOk" type="button">保存</button><button class="btn" id="close" type="button">取消</button></div>`);
+  bindTimeFields();
+  $("tmOk").onclick=()=>{ L.times ||= {}; L.times[id]=readTimeFields(); save(); closeSheet(); };
+}
+function cardHTML(t, k, o){
+  const tag=tagOf(t.id,k), sub = o.rest ? "🎟 用了休息券" : o.done ? `✓ ${o.done} 做完` : (t.hint||"");
+  const cls = "tc"+(o.done?" done":"")+(o.rest?" rest":"")+(o.next?" next":"");
+  const box = o.done ? "✓" : o.rest ? "🎟" : "";
   return `<li><button type="button" class="${cls}" data-id="${esc(t.id)}" style="--c:${t.color}" aria-label="${esc(t.name)}${o.done?"，已完成":""}">
-    ${o.num && !o.pick ? `<span class="num">${o.num}</span>` : ""}
+    ${o.num ? `<span class="num">${o.num}</span>` : ""}
     <span class="ic">${esc(t.emo)}</span>
     <span class="tx"><span class="nm">${o.next?'<span class="nextlbl">下一件</span>':""}${esc(t.name)}</span><span class="ht" style="display:block">${esc(sub)}</span>${tag && !o.done && !o.rest ? `<span class="tg">${esc(tag)}</span>`:""}</span>
     <span class="box2">${box}</span></button></li>`;
 }
 
 // ---------- projects: streaks per task + rewards ----------
-function taskDayState(t, k){ // "done" | "rest" | "miss" | "off" (not scheduled / not active)
-  const L=S.log[k], dow=new Date(k+"T12:00").getDay();
+function taskDayState(t, k){ // "done" | "rest" | "miss" (picked, not done) | "off" (not picked)
+  const L=S.log[k];
   if (L && L.order && L.order.includes(t.id)){ if (L.done[t.id]) return "done"; if (L.rest===t.id) return "rest"; return "miss"; }
-  const st=startKey(); if (!st || k<st) return "off";
-  return (t.days[dow] && t.days[dow].on) ? "miss" : "off";
+  return "off"; // not picked that day: neither keeps nor breaks a streak
 }
 function streakInfo(t, fromKey){
   const tk=todayKey(), st=startKey(); if (!st) return {cur:0, best:0, total:0, month:0, since:null};
@@ -577,7 +627,7 @@ function renderProj(){
   $("rws").querySelectorAll("[data-redeem]").forEach(b=>b.onclick=()=>gate(()=>{ const r=S.rewards.find(x=>x.id===b.dataset.redeem); r.redeemed=todayKey(); save(); closeSheet(); chime(); toast("🎉 兑换成功："+r.name); speak("恭喜你，兑换了"+r.name); }, "兑换奖励要爸爸妈妈确认"));
   $("pjs").innerHTML = S.tasks.map(t=>{ const s=streakInfo(t); const tk=todayKey();
     const strip=[...Array(14)].map((_,i)=>{ const k=addDays(tk,i-13), st=taskDayState(t,k); return `<i class="${st==="done"?"y":st==="rest"?"r":""}" title="${k.slice(5)}"></i>`; }).join("");
-    const on = Object.values(t.days).some(d=>d.on);
+    const on = true;
     return `<div class="pj"><div class="hd" style="--c:${t.color}"><span class="ic">${esc(t.emo)}</span><div><div class="nm">${esc(t.name)}</div><div class="ht">${esc(t.hint||"")}</div></div>
         <div class="big"><b>${s.cur}</b><small>连续天</small></div></div>
       <div class="st"><div><span>本月完成天数</span><b>${s.month}<small>天</small></b></div><div><span>最长连续</span><b>${s.best}<small>天</small></b></div><div><span>一共完成</span><b>${s.total}<small>天</small></b></div></div>
@@ -595,7 +645,7 @@ function dayInfo(k){
   return {k, dow, d, active:true, L, ids, done:done.length, planned:ids.length, rest:L.rest};
 }
 function taskById(id){ return S.tasks.find(t=>t.id===id) || {id, emo:"•", name:"已删除的任务", days:{}}; }
-function lateness(id, k, dow){ const t=taskById(id), dd=t.days[dow], L=S.log[k]; if(!dd||!dd.by||!L||!L.done[id]) return null; return mins(L.done[id]) > mins(dd.by); }
+function lateness(id, k, dow){ const dd=timesFor(id,k), L=S.log[k]; if(!dd||!dd.by||!L||!L.done[id]) return null; return mins(L.done[id]) > mins(dd.by); }
 function weekDays(off){ const m=monday(now()); m.setDate(m.getDate()+off*7); return [...Array(7)].map((_,i)=>{ const x=new Date(m); x.setDate(m.getDate()+i); return dkey(x); }); }
 function weekStats(off){
   const days=weekDays(off).map(dayInfo).filter(x=>x.active);
@@ -679,7 +729,7 @@ function timeTable(off){
       if (!x.ids.includes(id)) return `<td></td>`;
       if (x.rest===id) return `<td class="rest">🎟 券</td>`;
       const tm=x.L.done[id]; if (!tm) return `<td class="miss">—</td>`;
-      const late=lateness(id,x.k,x.dow), dd=t.days[x.dow];
+      const late=lateness(id,x.k,x.dow), dd=timesFor(id,x.k);
       return late ? `<td class="late" title="规定 ${dd.by} 前">⚠ ${tm}</td>` : `<td class="ok">✓ ${tm}</td>`;
     }).join("")+`</tr>`; });
   return h+`</table></div>`;
@@ -701,7 +751,7 @@ function weekFacts(W){
 function dayHTML(k){
   const x=dayInfo(k);
   if (!x.active) return `<div class="card empty">${x.before?"这一天还没开始用星星打卡。":"这一天没有记录。"}</div>`;
-  const dd=id=>taskById(id).days[x.dow]||{};
+  const dd=id=>timesFor(id,k);
   const items=x.ids.map((id,i)=>{ const t=taskById(id), tm=x.L.done[id], late=lateness(id,k,x.dow);
     const pill = x.rest===id ? `<span class="pill rest">🎟 休息券</span>` : !tm ? `<span class="pill miss">没做</span>` : late ? `<span class="pill late">⚠ ${tm} 超时</span>` : `<span class="pill ok">✓ ${tm}</span>`;
     return `<li><span class="o">${i+1}</span><span class="e">${esc(t.emo)}</span><span>${esc(t.name)}${dd(id).by?` <small class="m">${dd(id).by} 前</small>`:dd(id).at?` <small class="m">${dd(id).at} 开始</small>`:""}</span>${pill}</li>`; }).join("");
@@ -718,7 +768,7 @@ function dayHTML(k){
 function dayTimeline(x){
   const W=700, base=96, pts=[];
   x.ids.forEach(id=>{ const tm=x.L.done[id]; if (tm) pts.push({id, m:mins(tm), tm}); });
-  const marks=[]; x.ids.forEach(id=>{ const d=taskById(id).days[x.dow]||{}; if (d.by) marks.push({m:mins(d.by), lab:taskById(id).name+" "+d.by+" 前"}); if (d.at) marks.push({m:mins(d.at), lab:taskById(id).name+" "+d.at}); });
+  const marks=[]; x.ids.forEach(id=>{ const d=timesFor(id,x.k); if (d.by) marks.push({m:mins(d.by), lab:taskById(id).name+" "+d.by+" 前"}); if (d.at) marks.push({m:mins(d.at), lab:taskById(id).name+" "+d.at}); });
   marks.push({m:mins(S.bed), lab:"🌙 "+S.bed});
   const all=[...pts.map(p=>p.m), ...marks.map(m=>m.m)];
   let t0=Math.floor((Math.min(...all)-30)/60)*60, t1=Math.ceil((Math.max(...all)+20)/60)*60;
@@ -864,8 +914,8 @@ const fired = new Set();
 function checkReminders(){
   const n=now(), dow=n.getDay(), k=dkey(n), cm=n.getHours()*60+n.getMinutes(), L=dayLog(k);
   const msgs=[];
-  tasksOn(dow).forEach(t=>{
-    const d=t.days[dow]; if (L.done[t.id] || L.rest===t.id) return;
+  (L.order||[]).map(taskById).forEach(t=>{
+    const d=timesFor(t.id,k); if (L.done[t.id] || L.rest===t.id) return;
     if (d.at){ const a=mins(d.at);
       if (cm>=a-5 && cm<a) msgs.push({id:k+t.id+"at", say:`${t.name}${a-cm}分钟后开始，快准备！`, show:`${t.emo} ${t.name} ${d.at} 开始，快准备！`});
       else if (cm>=a && cm<a+10) msgs.push({id:k+t.id+"now", say:`${t.name}开始了！`, show:`${t.emo} ${t.name} 开始了！`}); }
@@ -883,7 +933,7 @@ $("soundBtn").onclick=()=>{
   $("soundBtn").setAttribute("aria-label", soundOn ? "提醒已开" : "开启提醒");
   if (soundOn){ chime(true); speak("提醒已经打开"); const n=now(), k=dkey(n), cm=n.getHours()*60+n.getMinutes();
     // don't replay a reminder that started more than 2 minutes ago
-    tasksOn(n.getDay()).forEach(t=>{ const d=t.days[n.getDay()]; if (d.at && cm>mins(d.at)+2) fired.add(k+t.id+"now"); if (d.by && cm>mins(d.by)-58) fired.add(k+t.id+"by"); if (d.at && cm>mins(d.at)-3) fired.add(k+t.id+"at"); });
+    ((S.log[k]&&S.log[k].order)||[]).forEach(id=>{ const t={id}, d=timesFor(id,k); if (d.at && cm>mins(d.at)+2) fired.add(k+t.id+"now"); if (d.by && cm>mins(d.by)-58) fired.add(k+t.id+"by"); if (d.at && cm>mins(d.at)-3) fired.add(k+t.id+"at"); });
   }
 };
 
@@ -902,11 +952,11 @@ function sheet(html){ $("sheet").innerHTML=html; $("shade").hidden=false; const 
 function closeSheet(){ $("shade").hidden=true; render(); }
 $("shade").addEventListener("click", e=>{ if (e.target===$("shade")) closeSheet(); });
 
-function daysTxt(t){ return Object.keys(t.days).filter(d=>t.days[d].on).sort((a,b)=>((+a+6)%7)-((+b+6)%7)).map(d=>"周"+DAY[d]).join(" ") || "暂停中"; }
+function daysTxt(t){ return [tagTxt({at:t.at||"", by:t.by||""}), t.hint].filter(Boolean).join(" · ") || "不限时间"; }
 function parentHome(){
   sheet(`<h2>家长设置</h2>
-    <h3>任务卡</h3><div class="tlist">${S.tasks.map((t,i)=>`<div class="tl-item"><span class="emo" style="background:${t.color}">${esc(t.emo)}</span><div><div class="nm">${esc(t.name)}</div><div class="ds">${daysTxt(t)}</div></div><button type="button" data-t="${i}">修改</button></div>`).join("")}</div>
-    <div class="row2"><button class="btn" id="addT" type="button">＋ 加一张任务卡</button><button class="btn" id="goRw" type="button">🎁 设置奖励</button></div>
+    <h3>项目菜单</h3><div class="tlist">${S.tasks.map((t,i)=>`<div class="tl-item"><span class="emo" style="background:${t.color}">${esc(t.emo)}</span><div><div class="nm">${esc(t.name)}</div><div class="ds">${daysTxt(t)}</div></div><button type="button" data-t="${i}">修改</button></div>`).join("")}</div>
+    <div class="row2"><button class="btn" id="addT" type="button">＋ 新项目</button><button class="btn" id="goRw" type="button">🎁 设置奖励</button></div>
     <h3>其他</h3>
     <div class="row2"><label class="f">几点准备睡觉<input type="time" id="bed" value="${S.bed}"></label>
       <label class="f">每周达标线（%）<input id="target" inputmode="numeric" value="${S.target}" style="width:90px"></label></div>
@@ -931,35 +981,34 @@ function restore(){
     <div class="row2"><button class="btn main" id="rOk" type="button">恢复</button><button class="btn" id="close" type="button">取消</button></div>`);
   $("rOk").onclick=()=>{ try{ const x=JSON.parse($("rst").value); if(!x.tasks||!x.log) throw 0; localStorage.setItem(KEY, JSON.stringify(x)); load(); closeSheet(); toast("恢复好了"); }catch(e){ $("rErr").hidden=false; $("rErr").textContent="这段文字不是备份，请重新复制。"; } };
 }
-function editTask(i){
-  const t = i>=0 ? S.tasks[i] : {id:"t"+Date.now().toString(36), emo:"⭐", name:"", hint:"", color:COLORS[S.tasks.length%COLORS.length], days:{1:D(1),2:D(1),3:D(1),4:D(1),5:D(1),6:D(0),0:D(0)}};
+function editTask(i, opt={}){
+  const t = i>=0 ? S.tasks[i] : {id:"t"+Date.now().toString(36), emo:"⭐", name:"", hint:"", color:COLORS[S.tasks.length%COLORS.length], at:"", by:""};
   let color=t.color;
-  const order=[1,2,3,4,5,6,0];
-  sheet(`<h2>${i>=0?"修改任务卡":"新任务卡"}</h2>
+  sheet(`<h2>${i>=0?"修改项目":"新项目"}</h2>
     <div class="row2"><label class="f">图标<input id="tEmo" value="${esc(t.emo)}" style="width:70px;font-size:26px;text-align:center"></label>
-      <label class="f" style="flex:1">名称<input id="tName" value="${esc(t.name)}" maxlength="14"></label></div>
-    <label class="f">小提示（显示在卡片上）<input id="tHint" value="${esc(t.hint||"")}" maxlength="30"></label>
-    <div class="f" style="font-size:13px;color:var(--muted)">卡片颜色<div class="swatches" id="sw">${COLORS.map(c=>`<button type="button" data-c="${c}" style="background:${c}" aria-label="颜色" aria-pressed="${c===color}"></button>`).join("")}</div></div>
-    <div style="overflow-x:auto"><table class="dtab"><tr><th></th><th>要做</th><th>固定几点开始（可不填）</th><th>几点前做完（可不填）</th></tr>
-      ${order.map(d=>`<tr><td>周${DAY[d]}</td><td><input type="checkbox" id="on${d}" ${t.days[d]&&t.days[d].on?"checked":""}></td>
-        <td><input type="time" id="at${d}" value="${t.days[d]?t.days[d].at:""}"></td><td><input type="time" id="by${d}" value="${t.days[d]?t.days[d].by:""}"></td></tr>`).join("")}
-    </table></div>
-    <p class="small">只有像外教课这样约好时间的才填“几点开始”；古筝这类有最晚时间的填“几点前做完”。其他的不填，让孩子自己安排。七天都不勾就是暂停。</p>
+      <label class="f" style="flex:1">名称<input id="tName" value="${esc(t.name)}" maxlength="14" placeholder="比如：跳绳"></label></div>
+    <label class="f">小提示（显示在卡片上，可以不填）<input id="tHint" value="${esc(t.hint||"")}" maxlength="30"></label>
+    <div class="f" style="font-size:13px;color:var(--muted)">颜色<div class="swatches" id="sw">${COLORS.map(c=>`<button type="button" data-c="${c}" style="background:${c}" aria-label="颜色" aria-pressed="${c===color}"></button>`).join("")}</div></div>
+    ${timeFields({at:t.at||"", by:t.by||""})}
+    <p class="small">时间可以不填。填了会显示在“今天不能变的事”里，到点提醒。某一天不一样的话，在当天的卡片下面点“改今天的时间”。</p>
     <p class="err" id="tErr" hidden></p>
-    <div class="row2"><button class="btn main" id="tOk" type="button">保存</button><button class="btn" id="tBack" type="button">返回</button>
-      ${i>=0?'<button class="btn danger" id="tDel" type="button" style="margin-left:auto">删除这张卡</button>':""}</div>`);
+    <div class="row2"><button class="btn main" id="tOk" type="button">${opt.fromHome?"加到菜单":"保存"}</button><button class="btn" id="tBack" type="button">${opt.fromHome?"取消":"返回"}</button>
+      ${i>=0?'<button class="btn danger" id="tDel" type="button" style="margin-left:auto">删除这个项目</button>':""}</div>`);
+  bindTimeFields();
   $("sw").querySelectorAll("button").forEach(b=>b.onclick=()=>{ color=b.dataset.c; $("sw").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); });
-  $("tBack").onclick=parentHome;
+  $("tBack").onclick= opt.fromHome ? closeSheet : parentHome;
   $("tOk").onclick=()=>{
     const name=$("tName").value.trim(); if(!name){ $("tErr").hidden=false; $("tErr").textContent="请写上名称。"; return; }
-    const days={}; order.forEach(d=>days[d]={on:$("on"+d).checked?1:0, at:$("at"+d).value, by:$("by"+d).value});
-    const nt={...t, emo:$("tEmo").value.trim()||"⭐", name, hint:$("tHint").value.trim(), color, days};
+    const tm=readTimeFields();
+    const nt={...t, emo:$("tEmo").value.trim()||"⭐", name, hint:$("tHint").value.trim(), color, at:tm.at, by:tm.by};
     if (i>=0) S.tasks[i]=nt; else S.tasks.push(nt);
-    save(); parentHome();
+    save();
+    if (opt.fromHome){ if (!picking.includes(nt.id)){ picking.push(nt.id); pickTimes[nt.id]={at:nt.at, by:nt.by}; } closeSheet(); toast("新项目加好了"); }
+    else parentHome();
   };
   if (i>=0) $("tDel").onclick=()=>{
     if ($("tDel").dataset.arm){ S.tasks.splice(i,1); save(); parentHome(); }
-    else { $("tDel").dataset.arm=1; $("tDel").textContent="再点一下确认删除"; }
+    else { $("tDel").dataset.arm=1; $("tDel").textContent="再点一下确认删除（以前的记录会保留）"; }
   };
 }
 function rewardsHome(){
