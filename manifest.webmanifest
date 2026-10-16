@@ -1,6 +1,6 @@
 {
-  "name": "星星打卡",
-  "short_name": "星星打卡",
+  "name": "Yuni打卡",
+  "short_name": "Yuni打卡",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

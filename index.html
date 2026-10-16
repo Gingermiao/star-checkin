@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>星星打卡</title>
+<title>Yuni打卡</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="星星打卡">
+<meta name="apple-mobile-web-app-title" content="Yuni打卡">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F2F0EC">
 <link rel="manifest" href="manifest.webmanifest">
@@ -322,7 +322,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 <div class="wrap">
   <div class="topbar">
     <button class="round" id="soundBtn" type="button" aria-label="开启提醒">🔔</button>
-    <div class="ttl">星星打卡<span>|</span><em id="ttlSub">今天</em></div>
+    <div class="ttl">Yuni打卡<span>|</span><em id="ttlSub">今天</em></div>
     <button class="round" id="parentBtn" type="button" aria-label="家长设置">⚙️</button>
   </div>
 
@@ -336,7 +336,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
     <section class="rules" id="rules"></section>
     <div class="banner" id="banner" hidden></div>
     <div id="todayBody" class="tabpage"></div>
-    <div class="foot"><b>星星打卡</b>每天进步一点点</div>
+    <div class="foot"><b>Yuni打卡</b>每天进步一点点</div>
   </section>
 
   <!-- 项目 -->
@@ -760,7 +760,7 @@ function weekFacts(W){
 
 function dayHTML(k){
   const x=dayInfo(k);
-  if (!x.active) return `<div class="card empty">${x.before?"这一天还没开始用星星打卡。":"这一天没有记录。"}</div>`;
+  if (!x.active) return `<div class="card empty">${x.before?"这一天还没开始用Yuni打卡。":"这一天没有记录。"}</div>`;
   const dd=id=>timesFor(id,k);
   const items=x.ids.map((id,i)=>{ const t=taskById(id), tm=x.L.done[id], late=lateness(id,k,x.dow);
     const pill = x.rest===id ? `<span class="pill rest">🎟 休息券</span>` : !tm ? `<span class="pill miss">没做</span>` : late ? `<span class="pill late">⚠ ${tm} 超时</span>` : `<span class="pill ok">✓ ${tm}</span>`;
