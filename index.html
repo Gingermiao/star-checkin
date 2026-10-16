@@ -396,6 +396,99 @@ h1,h2,h3,b,strong,th{font-weight:normal}
 .sheet h2,.sheet h3{font-family:var(--f);color:var(--coral)}
 @media (max-width:600px){.ttl{font-size:23px}.coach img{width:96px}.coach .say{font-size:18px}}
 @media (prefers-reduced-motion: reduce){.coach img{animation:none}}
+
+/* ============ compact + cuter (2026-10, v2): smaller blocks, pastel task colours, stars for done ============ */
+body{font-size:16px}
+.wrap{gap:12px;padding-block:10px calc(100px + env(safe-area-inset-bottom,0px))}
+.ttl{font-size:26px}
+.ttl::before{content:"🐰";margin-right:6px;font-size:.9em;text-shadow:none}
+.round{min-width:42px;height:42px;font-size:18px}
+/* bunny greeting */
+.coach img{width:92px;margin:-12px -12px -6px -14px}
+.coach .say{font-size:18px;padding:8px 14px;margin-bottom:10px;border-radius:20px}
+.coach .say small{font-size:13px}
+/* calendar: short cells instead of big squares */
+.box{padding:10px 12px;border-radius:22px}
+.cal-h{margin-bottom:2px}.cal-h b{font-size:18px}.cal-h button{width:34px;height:34px;font-size:18px}
+.cal-dn{font-size:13px;padding:2px 0}
+.cal-grid{gap:5px}
+.cell{aspect-ratio:auto;height:46px;max-height:none;font-size:18px;border-radius:14px;border-width:2.5px}
+.cell .mo{font-size:9px}
+.cell .dots{height:6px;margin-top:1px}.cell .dots i{width:6px;height:6px}
+.cell.full::after{content:"⭐";top:-7px;right:-5px;font-size:17px}
+.cal-foot{margin-top:6px}.cal-foot button{padding:4px 12px;font-size:13px}
+/* rules strip */
+.rules{padding:8px 14px;border-radius:20px;gap:4px 14px;box-shadow:0 4px 0 #7F66E0}
+.rules h2{font-size:12px}
+.rules div,.rules .rb{font-size:14px}
+.rules .rb{padding:2px 12px}
+.hintline{font-size:14px}.hintline b{font-size:19px}
+/* task cards: shorter, pastel */
+.tcards{gap:12px}
+.tc{min-height:70px;padding:10px 14px;gap:12px;border-radius:22px;background:color-mix(in srgb,var(--c) 82%,#fff);box-shadow:0 5px 0 color-mix(in srgb,var(--c) 75%,#000)}
+.tc .ic{width:46px;height:46px;font-size:26px;background:rgba(255,255,255,.4)}
+.tc .nm{font-size:21px}
+.tc .ht{font-size:13px}
+.tc .tg{font-size:12px;margin-top:3px}
+.tc .box2{width:42px;height:42px;font-size:26px;border-radius:14px}
+.tc.done .box2{color:var(--gold);text-shadow:0 2px 0 #E89B00}
+.tc.done{opacity:.8}
+.tc.done::after{content:"✨";position:absolute;right:62px;top:6px;font-size:18px}
+.tc .num{width:30px;height:30px;font-size:14px;top:-8px;left:-6px;border-width:2.5px}
+.tc .nextlbl{font-size:11px}
+.under{margin-top:-4px}
+.zlink{font-size:14px;padding:5px 14px;border-width:2px}
+.menu{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.mi{min-height:96px;border-radius:20px;padding:8px 6px}
+.mi .e{font-size:32px}.mi .n{font-size:16px}
+.mi.on{background:color-mix(in srgb,var(--c) 82%,#fff)}
+.btn{padding:9px 18px}
+.allgood{padding:14px}.allgood b{font-size:22px}
+.moods button{font-size:30px;padding:4px 8px}
+/* projects: two columns of small cards */
+#pjs{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.pj{border-radius:22px;box-shadow:0 4px 0 var(--line)}
+.pj .hd{padding:8px 12px;gap:10px;background:color-mix(in srgb,var(--c) 82%,#fff)}
+.pj .hd .ic{width:38px;height:38px;font-size:22px;border-radius:50%;background:rgba(255,255,255,.4)}
+.pj .hd .nm{font-size:18px}
+.pj .hd .ht{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pj .hd>div:nth-child(2){min-width:0}
+.pj .hd .big b{font-size:26px}
+.pj .hd .big small{font-size:11px}
+.pj .st{padding:6px 12px;gap:6px}
+.pj .st span{font-size:12px}
+.pj .st b{font-size:19px}
+.pj .st b small{font-size:10px;padding:0 4px}
+.pj .ft{padding:6px 12px;font-size:13px;gap:8px}
+.pj .ft .since{font-size:11px}
+.pj .strip{gap:2px}.pj .strip i{width:9px;height:9px}
+.rw-h{font-size:15px}
+.rws{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-top:8px}
+.rw{padding:8px 10px;gap:6px;border-radius:18px}
+.rw .t{font-size:15px}.rw .t .e{font-size:20px}
+.rw.add{min-height:54px;font-size:15px}
+/* pet */
+.pet{padding:18px 16px 16px;gap:10px}
+.pet .stage{width:240px;height:240px}.petscale{height:232px}
+.pet .pname{font-size:24px}
+/* summary */
+.tiles{gap:10px}.tile{padding:10px 12px;border-radius:20px}.tile .v{font-size:24px}
+.card{padding:12px 14px;border-radius:22px}
+.seg button{padding:6px 18px}
+.navb{width:38px;height:38px;font-size:22px}
+.nav h2{font-size:19px}
+/* tab bar */
+.tabbar{padding:6px 16px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar .ti{font-size:26px}
+.tabbar button[aria-selected="true"] .ti{animation:wiggle .5s}
+@keyframes wiggle{30%{transform:rotate(-12deg) scale(1.15)}60%{transform:rotate(10deg) scale(1.1)}}
+@media (max-width:600px){
+  .ttl{font-size:21px}.coach img{width:80px}.coach .say{font-size:16px}
+  .cell{height:40px;font-size:15px}.cell.full::after{font-size:14px}
+  .tc .nm{font-size:18px}.tc .ic{width:40px;height:40px;font-size:22px}
+  #pjs{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){.tabbar button[aria-selected="true"] .ti{animation:none}}
 </style>
 </head>
 <body>
@@ -705,7 +798,7 @@ function editTodayTime(id, k){
 function cardHTML(t, k, o){
   const tag=tagOf(t.id,k), sub = o.rest ? "🎟 用了休息券" : o.done ? `✓ ${o.done} 做完` : (t.hint||"");
   const cls = "tc"+(o.done?" done":"")+(o.rest?" rest":"")+(o.next?" next":"");
-  const box = o.done ? "✓" : o.rest ? "🎟" : "";
+  const box = o.done ? "★" : o.rest ? "🎟" : "";
   return `<li><button type="button" class="${cls}" data-id="${esc(t.id)}" style="--c:${t.color}" aria-label="${esc(t.name)}${o.done?"，已完成":""}">
     ${o.num ? `<span class="num">${o.num}</span>` : ""}
     <span class="ic">${esc(t.emo)}</span>
