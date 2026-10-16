@@ -178,6 +178,58 @@ ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;ga
   .task .no{display:none}.task .emo{grid-area:e}.task .info{grid-area:i}.task .acts{grid-area:a;flex-direction:row;justify-content:space-between}
   .day .st{font-size:16px}
 }
+
+.wrap-in{display:flex;flex-direction:column;gap:20px}
+.sumtop{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.seg{margin-left:auto;display:flex;background:var(--card);border-radius:12px;padding:4px;border:1.5px solid var(--line)}
+.seg button{padding:8px 18px;border-radius:9px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--night);color:#fff}
+@media (prefers-color-scheme: dark){.seg button[aria-pressed="true"]{background:#3A4590}}
+.nav{display:flex;align-items:center;gap:12px}
+.nav h2{margin:0;font-size:22px;flex:1;text-align:center}
+.navb{width:44px;height:44px;border-radius:50%;background:var(--card);border:1.5px solid var(--line);font-size:26px;line-height:1}
+.navb:disabled{opacity:.3;cursor:default}
+.sumbody{display:flex;flex-direction:column;gap:16px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{background:var(--card);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.tile .k{font-size:13px;color:var(--muted)}
+.tile .v{font-size:32px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile .d{font-size:13px;color:var(--muted)}
+.tile .up{color:var(--ok);font-weight:700}.tile .down{color:var(--warn);font-weight:700}
+.card{background:var(--card);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h3{margin:0;font-size:17px}
+.card .sub{margin:0;font-size:13px;color:var(--muted)}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--f);fill:var(--muted);font-size:13px}
+.chart .val{fill:var(--ink);font-weight:700;font-size:14px}
+.hb{display:grid;grid-template-columns:110px 1fr 56px;gap:10px;align-items:center;font-size:15px}
+.hb .tr{height:14px;background:var(--line);border-radius:7px;overflow:hidden}
+.hb .fi{height:100%;background:var(--gold);border-radius:7px}
+.hb .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.tscroll{overflow-x:auto}
+.ttab{border-collapse:separate;border-spacing:4px;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+.ttab th{font-weight:600;color:var(--muted);font-size:13px;padding:2px 4px;text-align:center;white-space:nowrap}
+.ttab th:first-child{text-align:left}
+.ttab td{text-align:center;border-radius:8px;padding:6px 4px;white-space:nowrap}
+.ttab td:first-child{text-align:left;font-weight:700;white-space:nowrap}
+.ttab .ok{background:var(--ok-soft)}
+.ttab .late{background:var(--warn-soft);color:var(--warn);font-weight:700}
+.ttab .miss{color:var(--muted)}
+.ttab .rest{background:var(--gold-soft)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.facts{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.dlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.dlist li{display:grid;grid-template-columns:28px 34px 1fr auto;gap:8px;align-items:center;font-size:16px}
+.dlist .o{color:var(--muted);font-weight:700;text-align:center}
+.dlist .e{font-size:24px}
+.pill{font-size:13px;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.late{background:var(--warn-soft);color:var(--warn)}
+.pill.miss{background:var(--bg);color:var(--muted)}
+.pill.rest{background:var(--gold-soft);color:var(--ink)}
+.empty{color:var(--muted);text-align:center;padding:24px}
+@media (max-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.hb{grid-template-columns:90px 1fr 48px}}
 @media (prefers-reduced-motion: reduce){.fly{transition:none}}
 </style>
 </head>
@@ -187,9 +239,11 @@ ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;ga
     <div class="date"><b id="hello">你好！</b><span id="dateTxt"></span></div>
     <div class="score" aria-live="polite"><span class="s">★</span><span id="scoreTxt">0 / 0</span></div>
     <button class="iconbtn" id="soundBtn" type="button">🔔 开启提醒</button>
+    <button class="iconbtn" id="sumBtn" type="button">📊 总结</button>
     <button class="iconbtn" id="parentBtn" type="button">家长</button>
   </header>
 
+  <div id="home" class="wrap-in">
   <section class="pet" id="pet">
     <div class="stage" id="petStage" role="button" tabindex="0" aria-label="摸摸小兔子"><div class="bubble" id="bubble">今天也一起加油吧！</div><div id="petArt" aria-hidden="true"></div></div>
     <div class="info" id="petInfo"></div>
@@ -221,11 +275,18 @@ ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;ga
     <div class="allgood"><b>今天没有任务卡</b><div class="small">好好休息！</div></div>
   </section>
 
-  <section class="sec">
-    <div class="sec-h"><h2>这一周</h2><p class="weeksum" id="weekSum"></p></div>
-    <div class="week" id="week"></div>
-    <div class="detail" id="detail" hidden></div>
-  </section>
+  </div>
+
+  <div id="sum" class="wrap-in" hidden>
+    <div class="sumtop">
+      <button class="btn" id="sumBack" type="button">← 回到打卡</button>
+      <div class="seg" role="group" aria-label="总结类型">
+        <button type="button" id="segWeek" aria-pressed="true">每周</button><button type="button" id="segDay" aria-pressed="false">每天</button>
+      </div>
+    </div>
+    <div class="nav"><button class="navb" id="prevB" type="button" aria-label="上一个">‹</button><h2 id="sumTitle"></h2><button class="navb" id="nextB" type="button" aria-label="下一个">›</button></div>
+    <div id="sumBody" class="sumbody"></div>
+  </div>
 </div>
 
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
@@ -319,8 +380,8 @@ function render(){
   $("doSec").hidden = !(tasks.length>0 && L.order);
   if (ordering) renderPick(tasks, dow);
   else if (tasks.length) renderList(tasks, dow, L);
-  renderWeek();
   renderPet();
+  if (!$("sum").hidden) renderSum();
 }
 
 function renderPick(tasks, dow){
@@ -389,34 +450,156 @@ function renderList(tasks, dow, L){
   }
 }
 
-let openDay = null;
-function renderWeek(){
-  const m = monday(now()), tk = todayKey();
-  const w = $("week"); w.innerHTML = "";
-  let sumDone=0, sumAll=0;
-  for (let i=0;i<7;i++){
-    const d=new Date(m); d.setDate(m.getDate()+i);
-    const k=dkey(d), dow=d.getDay(), L=S.log[k];
-    const total = (L && L.order) ? L.order.length : tasksOn(dow).length;
-    const done = L ? Object.keys(L.done).filter(id=>!L.order || L.order.includes(id)).length + (L.rest?1:0) : 0;
-    if (k<=tk){ sumDone+=done; sumAll+=total; }
-    const b=document.createElement("button"); b.type="button"; b.className="day"+(k===tk?" today":"");
-    b.setAttribute("aria-pressed", String(openDay===k));
-    b.innerHTML = `<span class="dn">周${DAY[dow]}</span><span class="st ${total && done>=total?"full":""}">${k>tk||!total?"–":done+"/"+total}</span><span class="md">${L&&L.mood?L.mood:""}</span>`;
-    b.onclick=()=>{ openDay = openDay===k?null:k; renderWeek(); };
-    w.appendChild(b);
+// ---------- summary (每周 / 每天) ----------
+// Days before the first time the child sorted a plan don't count.
+function startKey(){ const ks=Object.keys(S.log).filter(k=>S.log[k] && S.log[k].order).sort(); return ks[0] || null; }
+function dayInfo(k){
+  const d=new Date(k+"T12:00"), dow=d.getDay(), L=S.log[k], st=startKey(), tk=todayKey();
+  if (!st || k<st || k>tk || !L || !L.order) return {k, dow, d, active:false, future:k>tk, before:!st||k<st};
+  const ids=L.order, done=ids.filter(id=>L.done[id]);
+  return {k, dow, d, active:true, L, ids, done:done.length, planned:ids.length, rest:L.rest};
+}
+function taskById(id){ return S.tasks.find(t=>t.id===id) || {id, emo:"•", name:"已删除的任务", days:{}}; }
+function lateness(id, k, dow){ const t=taskById(id), dd=t.days[dow], L=S.log[k]; if(!dd||!dd.by||!L||!L.done[id]) return null; return mins(L.done[id]) > mins(dd.by); }
+function weekDays(off){ const m=monday(now()); m.setDate(m.getDate()+off*7); return [...Array(7)].map((_,i)=>{ const x=new Date(m); x.setDate(m.getDate()+i); return dkey(x); }); }
+function weekStats(off){
+  const days=weekDays(off).map(dayInfo).filter(x=>x.active);
+  const planned=days.reduce((a,x)=>a+x.planned-(x.rest?1:0),0), done=days.reduce((a,x)=>a+x.done,0);
+  let byN=0, byOk=0; days.forEach(x=>x.ids.forEach(id=>{ const l=lateness(id,x.k,x.dow); if(l!==null){ byN++; if(!l) byOk++; } }));
+  return {days, planned, done, pct: planned? Math.round(done/planned*100) : null, byN, byOk};
+}
+let sumMode="week", weekOff=0, dayOff=0;
+$("sumBtn").onclick=()=>{ $("home").hidden=true; $("sum").hidden=false; weekOff=0; dayOff=0; renderSum(); scrollTo(0,0); };
+$("sumBack").onclick=()=>{ $("sum").hidden=true; $("home").hidden=false; render(); };
+$("segWeek").onclick=()=>{ sumMode="week"; renderSum(); };
+$("segDay").onclick=()=>{ sumMode="day"; renderSum(); };
+$("prevB").onclick=()=>{ if(sumMode==="week") weekOff--; else dayOff--; renderSum(); };
+$("nextB").onclick=()=>{ if(sumMode==="week") weekOff++; else dayOff++; renderSum(); };
+
+function renderSum(){
+  $("segWeek").setAttribute("aria-pressed", String(sumMode==="week"));
+  $("segDay").setAttribute("aria-pressed", String(sumMode==="day"));
+  $("nextB").disabled = sumMode==="week" ? weekOff>=0 : dayOff>=0;
+  const st=startKey();
+  if (sumMode==="week"){
+    const ks=weekDays(weekOff), a=new Date(ks[0]+"T12:00"), b=new Date(ks[6]+"T12:00");
+    $("sumTitle").textContent = (weekOff===0?"本周 ":weekOff===-1?"上周 ":"")+`${a.getMonth()+1}/${a.getDate()} – ${b.getMonth()+1}/${b.getDate()}`;
+    $("prevB").disabled = !st || ks[0] <= st;
+    $("sumBody").innerHTML = weekHTML(weekOff);
+  } else {
+    const d=now(); d.setDate(d.getDate()+dayOff); const k=dkey(d);
+    $("sumTitle").textContent = (dayOff===0?"今天 ":dayOff===-1?"昨天 ":"")+`${d.getMonth()+1}/${d.getDate()} 星期${DAY[d.getDay()]}`;
+    $("prevB").disabled = !st || k <= st;
+    $("sumBody").innerHTML = dayHTML(k);
   }
-  const pct = sumAll ? Math.round(sumDone/sumAll*100) : 0;
-  $("weekSum").innerHTML = sumAll ? `到今天完成 <b>${sumDone} / ${sumAll}</b>（${pct}%）` + (pct>=S.target ? ` · <span class="hit">达标啦！</span>` : ` · 目标 ${S.target}%`) : "";
-  const det=$("detail");
-  if (openDay && S.log[openDay] && S.log[openDay].order){
-    const L=S.log[openDay], d=new Date(openDay+"T12:00");
-    const name = id => { const t=S.tasks.find(t=>t.id===id); return t ? t.emo+" "+t.name : id; };
-    det.innerHTML = `<h3>周${DAY[d.getDay()]}（${d.getMonth()+1}/${d.getDate()}）他排的顺序</h3><ol>${
-      L.order.map(id=>`<li>${esc(name(id))} <span class="m">${L.done[id]? "✓ "+L.done[id] : L.rest===id ? "休息券" : "没做"}</span></li>`).join("")}</ol>`;
-    det.hidden=false;
-  } else if (openDay){ det.innerHTML='<span class="m">这一天没有记录。</span>'; det.hidden=false; }
-  else det.hidden=true;
+}
+
+function weekHTML(off){
+  const W=weekStats(off), P=weekStats(off-1);
+  if (!W.days.length) return `<div class="card empty">这一周还没有打卡记录。<br>从孩子第一次“排好顺序”的那天开始统计。</div>`;
+  const diff = (P.pct!==null && W.pct!==null) ? W.pct-P.pct : null;
+  const moods = W.days.map(x=>x.L.mood).filter(Boolean);
+  const topMood = moods.length ? Object.entries(moods.reduce((a,m)=>(a[m]=(a[m]||0)+1,a),{})).sort((x,y)=>y[1]-x[1])[0][0] : "—";
+  const tiles = `<div class="tiles">
+    <div class="tile"><span class="k">完成率</span><span class="v">${W.pct}%</span><span class="d">${diff===null?"目标 "+S.target+"%":`比上周 <span class="${diff>=0?"up":"down"}">${diff>=0?"↑":"↓"} ${Math.abs(diff)}%</span>`}</span></div>
+    <div class="tile"><span class="k">得到星星</span><span class="v">★ ${W.done}</span><span class="d">${W.pct>=S.target?'<span class="up">✓ 本周达标</span>':"达标线 "+S.target+"%"}</span></div>
+    <div class="tile"><span class="k">按时完成</span><span class="v">${W.byN?W.byOk+"/"+W.byN:"—"}</span><span class="d">有“几点前做完”的任务</span></div>
+    <div class="tile"><span class="k">心情</span><span class="v">${topMood}</span><span class="d">这周最多的</span></div>
+  </div>`;
+  return tiles + `<div class="card"><h3>每天完成了几件</h3><p class="sub">金色是做完的，浅色是当天一共要做的</p>${weekBars(off)}</div>`
+    + `<div class="card"><h3>每件事这周做了几次</h3>${taskBars(W)}</div>`
+    + `<div class="card"><h3>每件事几点做完</h3>${timeTable(off)}
+       <div class="legend"><span><i style="background:var(--ok-soft)"></i>✓ 做完</span><span><i style="background:var(--warn-soft)"></i>⚠ 超过规定时间</span><span><i style="background:var(--gold-soft)"></i>🎟 休息券</span><span>— 没做</span></div></div>`
+    + `<div class="card"><h3>这周的发现</h3><ul class="facts">${weekFacts(W)}</ul></div>`;
+}
+function weekBars(off){
+  const ks=weekDays(off), info=ks.map(dayInfo);
+  const maxN=Math.max(5,...info.filter(x=>x.active).map(x=>x.planned));
+  const Wd=700, H=230, top=26, base=190, slot=Wd/7, bw=46, h=n=>n/maxN*(base-top);
+  let g=`<line x1="10" x2="${Wd-10}" y1="${base}" y2="${base}" stroke="var(--line)" stroke-width="2"/>`;
+  info.forEach((x,i)=>{
+    const cx=slot*i+slot/2, lbl=`周${DAY[x.dow]}`;
+    if (x.active){
+      const ph=h(x.planned), dh=h(x.done);
+      g+=`<g><title>${lbl}：做完 ${x.done} 件，共 ${x.planned} 件${x.rest?"（用了休息券）":""}</title>
+        <rect x="${cx-bw/2}" y="${base-ph}" width="${bw}" height="${ph}" rx="4" fill="var(--line)" opacity=".7"/>
+        ${x.done?`<rect x="${cx-bw/2}" y="${base-dh}" width="${bw}" height="${dh}" rx="4" fill="var(--gold)"/>`:""}
+        <text class="val" x="${cx}" y="${base-ph-8}" text-anchor="middle">${x.done}/${x.planned}</text></g>`;
+      if (x.L.mood) g+=`<text x="${cx}" y="${base+44}" text-anchor="middle" style="font-size:18px">${x.L.mood}</text>`;
+    } else g+=`<text x="${cx}" y="${base-10}" text-anchor="middle">${x.future?"":"未开始"}</text>`;
+    g+=`<text x="${cx}" y="${base+22}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${lbl}</text>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${Wd} ${H+20}" role="img" aria-label="每天完成件数">${g}</svg>`;
+}
+function taskBars(W){
+  const agg={};
+  W.days.forEach(x=>x.ids.forEach(id=>{ agg[id] ||= {p:0,d:0,r:0}; if (x.rest===id) agg[id].r++; else { agg[id].p++; if (x.L.done[id]) agg[id].d++; } }));
+  return Object.entries(agg).map(([id,v])=>{ const t=taskById(id), pc=v.p?Math.round(v.d/v.p*100):0;
+    return `<div class="hb"><span>${esc(t.emo+" "+t.name)}</span><span class="tr" title="${pc}%"><span class="fi" style="width:${pc}%;display:block"></span></span><span class="n">${v.d}/${v.p}${v.r?` <small class="m">+券</small>`:""}</span></div>`; }).join("");
+}
+function timeTable(off){
+  const ks=weekDays(off), info=ks.map(dayInfo).filter(x=>x.active);
+  const ids=[...new Set(info.flatMap(x=>x.ids))];
+  let h=`<div class="tscroll"><table class="ttab"><tr><th>任务</th>${info.map(x=>`<th>周${DAY[x.dow]}</th>`).join("")}</tr>`;
+  ids.forEach(id=>{ const t=taskById(id);
+    h+=`<tr><td>${esc(t.emo+" "+t.name)}</td>`+info.map(x=>{
+      if (!x.ids.includes(id)) return `<td></td>`;
+      if (x.rest===id) return `<td class="rest">🎟 券</td>`;
+      const tm=x.L.done[id]; if (!tm) return `<td class="miss">—</td>`;
+      const late=lateness(id,x.k,x.dow), dd=t.days[x.dow];
+      return late ? `<td class="late" title="规定 ${dd.by} 前">⚠ ${tm}</td>` : `<td class="ok">✓ ${tm}</td>`;
+    }).join("")+`</tr>`; });
+  return h+`</table></div>`;
+}
+function weekFacts(W){
+  const f=[];
+  const first={}; W.days.forEach(x=>{ const id=x.ids[0]; first[id]=(first[id]||0)+1; });
+  const fe=Object.entries(first).sort((a,b)=>b[1]-a[1])[0];
+  if (fe) f.push(`最常第一个做：<b>${esc(taskById(fe[0]).emo+" "+taskById(fe[0]).name)}</b>（${fe[1]} 天）`);
+  const full=W.days.filter(x=>x.done + (x.rest?1:0) >= x.planned).length;
+  f.push(`全部做完的日子：<b>${full}</b> / ${W.days.length} 天`);
+  const lastT=W.days.map(x=>Object.values(x.L.done).sort().pop()).filter(Boolean).sort();
+  if (lastT.length) f.push(`最后一件事最晚 <b>${lastT[lastT.length-1]}</b> 做完`);
+  const restDay=W.days.find(x=>x.rest); if (restDay) f.push(`休息券用在 周${DAY[restDay.dow]} 的 ${esc(taskById(restDay.rest).name)}`);
+  if (W.byN && W.byOk<W.byN) f.push(`有 ${W.byN-W.byOk} 次超过了规定时间，可以和孩子聊聊怎么排顺序`);
+  return f.map(x=>`<li>${x}</li>`).join("");
+}
+
+function dayHTML(k){
+  const x=dayInfo(k);
+  if (!x.active) return `<div class="card empty">${x.before?"这一天还没开始用星星打卡。":"这一天没有记录。"}</div>`;
+  const dd=id=>taskById(id).days[x.dow]||{};
+  const items=x.ids.map((id,i)=>{ const t=taskById(id), tm=x.L.done[id], late=lateness(id,k,x.dow);
+    const pill = x.rest===id ? `<span class="pill rest">🎟 休息券</span>` : !tm ? `<span class="pill miss">没做</span>` : late ? `<span class="pill late">⚠ ${tm} 超时</span>` : `<span class="pill ok">✓ ${tm}</span>`;
+    return `<li><span class="o">${i+1}</span><span class="e">${esc(t.emo)}</span><span>${esc(t.name)}${dd(id).by?` <small class="m">${dd(id).by} 前</small>`:dd(id).at?` <small class="m">${dd(id).at} 开始</small>`:""}</span>${pill}</li>`; }).join("");
+  const pct=Math.round(x.done/Math.max(1,x.planned-(x.rest?1:0))*100);
+  return `<div class="tiles">
+      <div class="tile"><span class="k">完成</span><span class="v">${x.done}/${x.planned}</span><span class="d">${pct}%${x.rest?" · 用了休息券":""}</span></div>
+      <div class="tile"><span class="k">得到星星</span><span class="v">★ ${x.done}</span><span class="d">&nbsp;</span></div>
+      <div class="tile"><span class="k">最后一件做完</span><span class="v">${Object.values(x.L.done).sort().pop()||"—"}</span><span class="d">睡觉准备 ${S.bed}</span></div>
+      <div class="tile"><span class="k">心情</span><span class="v">${x.L.mood||"—"}</span><span class="d">&nbsp;</span></div>
+    </div>
+    <div class="card"><h3>他排的顺序和完成情况</h3><ol class="dlist">${items}</ol></div>
+    <div class="card"><h3>时间线</h3><p class="sub">每件事做完的时间；虚线是规定的时间</p>${dayTimeline(x)}</div>`;
+}
+function dayTimeline(x){
+  const W=700, base=96, pts=[];
+  x.ids.forEach(id=>{ const tm=x.L.done[id]; if (tm) pts.push({id, m:mins(tm), tm}); });
+  const marks=[]; x.ids.forEach(id=>{ const d=taskById(id).days[x.dow]||{}; if (d.by) marks.push({m:mins(d.by), lab:taskById(id).name+" "+d.by+" 前"}); if (d.at) marks.push({m:mins(d.at), lab:taskById(id).name+" "+d.at}); });
+  marks.push({m:mins(S.bed), lab:"🌙 "+S.bed});
+  const all=[...pts.map(p=>p.m), ...marks.map(m=>m.m)];
+  let t0=Math.floor((Math.min(...all)-30)/60)*60, t1=Math.ceil((Math.max(...all)+20)/60)*60;
+  const X=m=>30+(m-t0)/(t1-t0)*(W-60);
+  let g=`<line x1="30" x2="${W-30}" y1="${base}" y2="${base}" stroke="var(--line)" stroke-width="2"/>`;
+  for (let h=t0; h<=t1; h+=60) g+=`<line x1="${X(h)}" x2="${X(h)}" y1="${base-4}" y2="${base+4}" stroke="var(--line)" stroke-width="2"/><text x="${X(h)}" y="${base+22}" text-anchor="middle">${h/60}:00</text>`;
+  marks.sort((a,b)=>a.m-b.m).forEach((mk,i)=>{ g+=`<line x1="${X(mk.m)}" x2="${X(mk.m)}" y1="20" y2="${base}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/><text x="${X(mk.m)}" y="${i%2?150:136}" text-anchor="middle" style="font-size:12px">${esc(mk.lab)}</text>`; });
+  pts.sort((a,b)=>a.m-b.m); let lastX=-99, lvl=0;
+  pts.forEach(p=>{ const px=X(p.m); lvl = px-lastX<44 ? (lvl+1)%2 : 0; lastX=px; const ey=lvl?32:56;
+    const late=lateness(p.id,x.k,x.dow);
+    g+=`<g><title>${esc(taskById(p.id).name)} ${p.tm} 做完${late?"（超时）":""}</title><line x1="${px}" x2="${px}" y1="${ey+8}" y2="${base}" stroke="${late?"var(--warn)":"var(--gold)"}" stroke-width="2"/>
+      <circle cx="${px}" cy="${base}" r="8" fill="${late?"var(--warn)":"var(--gold)"}" stroke="var(--card)" stroke-width="2"/>
+      <text x="${px}" y="${ey}" text-anchor="middle" style="font-size:20px">${esc(taskById(p.id).emo)}</text></g>`; });
+  return `<svg class="chart" viewBox="0 0 ${W} 160" role="img" aria-label="完成时间线">${g}</svg>`;
 }
 
 // ---------- feedback ----------
