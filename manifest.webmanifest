@@ -1,0 +1,13 @@
+{
+  "name": "星星打卡",
+  "short_name": "星星打卡",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F1F3FA",
+  "theme_color": "#F1F3FA",
+  "icons": [
+    {"src": "icon-180.png", "sizes": "180x180", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

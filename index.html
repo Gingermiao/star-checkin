@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>星星打卡</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="星星打卡">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F1F3FA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<style>
+/* Layout: header with today's stars, rules strip, task cards (pick order, then tick off), week record at the bottom. */
+:root{
+  --bg:#F1F3FA; --card:#FFFFFF; --ink:#1C2340; --muted:#5E6785; --line:#DCE0EE;
+  --gold:#E8A325; --gold-soft:#FDF1D8; --night:#27306B; --ok:#2F9A6A; --ok-soft:#E1F3EA; --warn:#C8483B; --warn-soft:#FBE4E1;
+  --shade:rgba(20,24,41,.45); --meadow:#DDF0D8; --fur:#FFFFFF; --furline:#3B3F5C; --pink:#F6A9C0;
+  --f:ui-rounded,"SF Pro Rounded","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#141829; --card:#1F2440; --ink:#EEF0F8; --muted:#A6ADC8; --line:#323A5A;
+  --gold:#F4B848; --gold-soft:#3B311C; --night:#9AA6F2; --ok:#5CCB97; --ok-soft:#1C3329; --warn:#EE7A6C; --warn-soft:#3A2224;
+  --shade:rgba(0,0,0,.6); --meadow:#22382A; --fur:#FFFFFF; --furline:#2A2E48; --pink:#F6A9C0; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:17px;line-height:1.45;-webkit-tap-highlight-color:transparent;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:900px;margin:0 auto;padding-block:20px 60px;
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:20px}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.date{display:flex;flex-direction:column}
+.date b{font-size:28px;line-height:1.15}
+.date span{color:var(--muted);font-size:15px}
+.score{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--card);border-radius:999px;padding:8px 16px;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.score .s{color:var(--gold);font-size:24px}
+.iconbtn{background:var(--card);border-radius:999px;padding:9px 14px;font-size:15px;color:var(--muted);border:1.5px solid var(--line)}
+.iconbtn.on{border-color:var(--gold);color:var(--ink);background:var(--gold-soft)}
+
+.rules{background:var(--night);color:#fff;border-radius:18px;padding:14px 18px;display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center}
+@media (prefers-color-scheme: dark){.rules{background:#2A3160}}
+.rules h2{font-size:14px;margin:0;opacity:.8;letter-spacing:.06em;width:100%}
+.rules div{font-size:17px;font-weight:600}
+.banner{background:var(--gold-soft);border:2px solid var(--gold);border-radius:16px;padding:12px 16px;font-weight:700;font-size:18px}
+
+.sec{display:flex;flex-direction:column;gap:12px}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sec-h h2{margin:0;font-size:22px}
+.sec-h p{margin:0;color:var(--muted);font-size:15px}
+.sec-h .link{margin-left:auto;color:var(--night);font-size:15px;font-weight:600;padding:6px 4px}
+@media (prefers-color-scheme: dark){.sec-h .link{color:var(--night)}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.pick{position:relative;background:var(--card);border-radius:20px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border:3px solid transparent;min-height:150px;justify-content:center}
+.pick .emo{font-size:46px;line-height:1}
+.pick .nm{font-size:20px;font-weight:700}
+.pick .tm{font-size:13px;color:var(--muted)}
+.pick.chosen{border-color:var(--gold);background:var(--gold-soft)}
+.pick .no{position:absolute;top:10px;left:12px;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#1C1406;font-weight:800;font-size:19px;display:grid;place-items:center}
+.pickbar{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border-radius:14px;padding:12px 20px;font-weight:700;background:var(--card);border:1.5px solid var(--line)}
+.btn.main{background:var(--gold);border-color:var(--gold);color:#1C1406}
+.btn:disabled{opacity:.4;cursor:default}
+
+ol.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.task{display:grid;grid-template-columns:auto 64px 1fr auto;gap:14px;align-items:center;background:var(--card);border-radius:20px;padding:14px 16px;border:3px solid transparent}
+.task .no{font-weight:800;color:var(--muted);font-size:18px;width:22px;text-align:center;font-variant-numeric:tabular-nums}
+.task .emo{font-size:44px;text-align:center;line-height:1}
+.task .info{min-width:0}
+.task .nm{font-size:21px;font-weight:700}
+.task .hint{font-size:14px;color:var(--muted)}
+.task .tag{display:inline-block;font-size:13px;font-weight:700;border-radius:8px;padding:1px 8px;margin-top:4px;background:var(--gold-soft);color:var(--ink)}
+.task.next{border-color:var(--gold)}
+.task.next .no::after{content:""}
+.task .nextlbl{display:none;font-size:13px;font-weight:800;color:var(--gold);letter-spacing:.05em}
+.task.next .nextlbl{display:block}
+.task.done{background:var(--ok-soft)}
+.task.done .nm{color:var(--ok)}
+.task.rest{opacity:.65}
+.acts{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.done-btn{background:var(--ok);color:#fff;border-radius:16px;padding:14px 20px;font-size:19px;font-weight:800;min-width:128px}
+.task.done .done-btn{background:transparent;color:var(--ok);border:2px solid var(--ok)}
+.rest-btn{font-size:13px;color:var(--muted);padding:4px}
+.undo{font-size:13px;color:var(--warn);padding:4px}
+
+.allgood{background:var(--card);border-radius:20px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.allgood b{font-size:26px}
+.moods{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.moods button{font-size:40px;border-radius:16px;padding:6px 10px;border:3px solid transparent;background:var(--bg)}
+.moods button[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft)}
+
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{background:var(--card);border-radius:16px;padding:10px 4px;text-align:center;display:flex;flex-direction:column;gap:2px;align-items:center;border:2.5px solid transparent}
+.day .dn{font-size:14px;color:var(--muted)}
+.day .st{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.day .st.full{color:var(--gold)}
+.day .md{font-size:20px;min-height:26px}
+.day.today{border-color:var(--gold)}
+.day[aria-pressed="true"]{background:var(--gold-soft)}
+.weeksum{font-size:16px;color:var(--muted)}
+.weeksum b{color:var(--ink)}
+.weeksum .hit{color:var(--ok);font-weight:800}
+.detail{background:var(--card);border-radius:16px;padding:14px 16px;font-size:15px}
+.detail h3{margin:0 0 6px;font-size:16px}
+.detail ol{margin:0;padding-left:22px}
+.detail .m{color:var(--muted)}
+
+.toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--night);color:#fff;padding:12px 22px;border-radius:999px;font-weight:700;font-size:18px;z-index:30;pointer-events:none}
+.fly{position:fixed;font-size:48px;z-index:40;pointer-events:none;transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .9s}
+
+/* parent sheet */
+.shade{position:fixed;inset:0;background:var(--shade);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.sheet{background:var(--card);color:var(--ink);width:100%;max-width:680px;max-height:100%;overflow:auto;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.sheet h2{margin:0;font-size:22px}
+.sheet h3{margin:0;font-size:17px}
+.sheet .row2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sheet label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.sheet input,.sheet textarea{font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);min-width:0}
+.sheet textarea{width:100%;min-height:90px}
+.tlist{display:flex;flex-direction:column;gap:8px}
+.tl-item{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:14px;padding:10px 14px}
+.tl-item .emo{font-size:30px}
+.tl-item .nm{font-weight:700}
+.tl-item .ds{font-size:13px;color:var(--muted)}
+.tl-item button{margin-left:auto;color:var(--night);font-weight:700}
+.dtab{width:100%;border-collapse:collapse;font-size:15px}
+.dtab th{font-weight:600;color:var(--muted);font-size:13px;text-align:left;padding:4px}
+.dtab td{padding:4px}
+.dtab input[type=checkbox]{width:22px;height:22px;accent-color:var(--gold)}
+.dtab input[type=time]{width:100%}
+.err{color:var(--warn);font-size:14px;margin:0}
+.small{font-size:13px;color:var(--muted);margin:0}
+.danger{color:var(--warn)!important}
+
+/* pet */
+.pet{background:var(--card);border-radius:24px;padding:26px 20px 16px;display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:center}
+.pet .stage{position:relative;width:200px;height:200px;background:radial-gradient(circle at 50% 78%,var(--meadow) 0 46%,transparent 47%);border-radius:20px;cursor:pointer}
+#petArt{position:absolute;inset:0}
+.petshadow{position:absolute;left:50%;bottom:4px;width:120px;height:14px;margin-left:-60px;border-radius:50%;background:rgba(0,0,0,.13)}
+.petscale{position:absolute;left:0;right:0;bottom:6px;height:196px;transform-origin:50% 100%}
+#bun{position:absolute;inset:0;transform-origin:50% 100%}
+#bun img,#bun svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pet .bubble{position:absolute;top:-20px;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:2;background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:4px 10px;font-size:14px;font-weight:700;transition:opacity .3s}
+.pet .info{min-width:0;display:flex;flex-direction:column;gap:8px}
+.pet .pname{font-size:24px;font-weight:800;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.pet .pname small{font-size:15px;font-weight:600;color:var(--muted)}
+.pet .rename{font-size:13px;color:var(--night);font-weight:600}
+.pet .pbar{height:14px;border-radius:8px;background:var(--line);overflow:hidden}
+.pet .pbar i{display:block;height:100%;background:var(--gold);border-radius:8px;transition:width .8s}
+.pet .pnext{font-size:15px;color:var(--muted)}
+.pet .pnext b{color:var(--ink)}
+.wardrobe{display:flex;flex-wrap:wrap;gap:8px}
+.wardrobe button{border-radius:999px;padding:5px 12px;font-size:15px;background:var(--bg);border:2px solid var(--line)}
+.wardrobe button[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft);font-weight:700}
+.wardrobe .lock{border-style:dashed;color:var(--muted);cursor:default}
+.namebox{display:flex;gap:8px;flex-wrap:wrap}
+.namebox input{font:inherit;font-size:18px;border:2px solid var(--gold);border-radius:12px;padding:8px 12px;background:var(--bg);color:var(--ink);min-width:0;flex:1}
+#bun{animation:breathe 3.2s ease-in-out infinite}
+#bun.hop{animation:hop .7s ease-out}
+@keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.02)}}
+@keyframes hop{0%{transform:translateY(0)}30%{transform:translateY(-26px) scaleY(1.05)}60%{transform:translateY(0) scaleY(.95)}80%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes twitch{0%,88%,100%{transform:rotate(0)}91%{transform:rotate(9deg)}94%{transform:rotate(-4deg)}}
+.heart{position:absolute;font-size:26px;pointer-events:none;animation:up 1.2s ease-out forwards}
+@keyframes up{from{transform:translateY(0);opacity:1}to{transform:translateY(-70px);opacity:0}}
+@media (max-width:560px){.pet{grid-template-columns:1fr;justify-items:center;text-align:center}.pet .info{width:100%}.wardrobe,.namebox{justify-content:center}.pet .pname{justify-content:center}}
+@media (prefers-reduced-motion: reduce){#bun,#bun.hop{animation:none}}
+@media (max-width:560px){
+  .task{grid-template-columns:52px 1fr;grid-template-areas:"e i" "a a"}
+  .task .no{display:none}.task .emo{grid-area:e}.task .info{grid-area:i}.task .acts{grid-area:a;flex-direction:row;justify-content:space-between}
+  .day .st{font-size:16px}
+}
+@media (prefers-reduced-motion: reduce){.fly{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="date"><b id="hello">你好！</b><span id="dateTxt"></span></div>
+    <div class="score" aria-live="polite"><span class="s">★</span><span id="scoreTxt">0 / 0</span></div>
+    <button class="iconbtn" id="soundBtn" type="button">🔔 开启提醒</button>
+    <button class="iconbtn" id="parentBtn" type="button">家长</button>
+  </header>
+
+  <section class="pet" id="pet">
+    <div class="stage" id="petStage" role="button" tabindex="0" aria-label="摸摸小兔子"><div class="bubble" id="bubble">今天也一起加油吧！</div><div id="petArt" aria-hidden="true"></div></div>
+    <div class="info" id="petInfo"></div>
+  </section>
+
+  <section class="rules" id="rules"></section>
+  <div class="banner" id="banner" hidden></div>
+
+  <section class="sec" id="pickSec">
+    <div class="sec-h"><h2>先排一排今天的顺序</h2><p>按你想做的先后，一个一个点卡片</p></div>
+    <div class="grid" id="pickGrid"></div>
+    <div class="pickbar">
+      <button class="btn main" id="pickOk" type="button" disabled>排好了，开始！</button>
+      <button class="btn" id="pickReset" type="button">重新排</button>
+    </div>
+  </section>
+
+  <section class="sec" id="doSec" hidden>
+    <div class="sec-h"><h2>今天的任务</h2><p id="doSub"></p><button class="link" id="reorder" type="button">重新排顺序</button></div>
+    <ol class="list" id="list"></ol>
+    <div class="allgood" id="allgood" hidden>
+      <b>今天的任务全部完成！🎉</b>
+      <div>今天感觉怎么样？</div>
+      <div class="moods" id="moods"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="emptySec" hidden>
+    <div class="allgood"><b>今天没有任务卡</b><div class="small">好好休息！</div></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>这一周</h2><p class="weeksum" id="weekSum"></p></div>
+    <div class="week" id="week"></div>
+    <div class="detail" id="detail" hidden></div>
+  </section>
+</div>
+
+<div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+
+<script>
+// ---------- defaults (the parent can change all of this in 家长) ----------
+const D = (on, at="", by="") => ({on, at, by});
+const DEFAULT = {
+  tasks: [
+    {id:"zheng", emo:"🎵", name:"古筝", hint:"指法 40 分钟 + 曲子 10 分钟",
+      days:{1:D(1,"","19:30"),2:D(1,"","18:30"),3:D(1,"","18:30"),4:D(1,"","18:30"),5:D(1,"","19:30"),6:D(0),0:D(0)}},
+    {id:"tutor", emo:"💻", name:"外教课", hint:"提前 2 分钟打开电脑、戴好耳机",
+      days:{1:D(1,"19:30"),2:D(1,"19:00"),3:D(1,"19:00"),4:D(1,"19:00"),5:D(1,"20:00"),6:D(0),0:D(0)}},
+    {id:"raz", emo:"📗", name:"Raz 阅读", hint:"读 1–2 本，录音要读完",
+      days:{1:D(0),2:D(1),3:D(1),4:D(1),5:D(1),6:D(0),0:D(0)}},
+    {id:"hw", emo:"✏️", name:"学校作业", hint:"认真写，写完给爸爸妈妈看",
+      days:{1:D(1),2:D(1),3:D(1),4:D(1),5:D(0),6:D(0),0:D(0)}},
+    {id:"cn", emo:"📚", name:"中文阅读", hint:"睡前在床上读",
+      days:{1:D(1),2:D(1),3:D(1),4:D(1),5:D(1),6:D(0),0:D(0)}},
+  ],
+  bed: "21:45",
+  target: 80,
+  extraRules: "外教课按时上，不迟到",
+};
+const DAY = ["日","一","二","三","四","五","六"];
+const MOODS = ["😄","🙂","😐","😣"];
+const KEY = "star-checkin-v1";
+
+// ---------- time (#t1910d2 previews 19:10 on a Tuesday) ----------
+let offset = 0;
+const hm = /^#t(\d\d)(\d\d)d(\d)$/.exec(location.hash);
+if (hm){ const d=new Date(); d.setDate(d.getDate()+((+hm[3]-d.getDay()+7)%7)); d.setHours(+hm[1],+hm[2],0,0); offset=d-Date.now(); }
+const now = () => new Date(Date.now()+offset);
+const pad = n => String(n).padStart(2,"0");
+const dkey = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const hhmm = d => pad(d.getHours())+":"+pad(d.getMinutes());
+const mins = s => s ? (+s.slice(0,2))*60 + +s.slice(3,5) : null;
+const monday = d => { const x=new Date(d); x.setHours(12,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---------- storage ----------
+let S;
+function load(){
+  try{ S = JSON.parse(localStorage.getItem(KEY)); }catch(e){ S = null; }
+  if (!S || !S.tasks) S = {...JSON.parse(JSON.stringify(DEFAULT)), log:{}};
+  S.log ||= {};
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast("没存上，iPad 空间可能满了"); } }
+load();
+try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+
+function todayKey(){ return dkey(now()); }
+function tasksOn(dow){ return S.tasks.filter(t=>t.days[dow] && t.days[dow].on); }
+function dayLog(k){ return S.log[k] ||= {order:null, done:{}, rest:null, mood:null}; }
+function tagOf(t, dow){
+  const d=t.days[dow]; if (!d) return "";
+  if (d.at) return d.at+" 开始";
+  if (d.by) return d.by+" 前做完";
+  return "";
+}
+function restUsedThisWeek(){
+  const m = monday(now());
+  for (let i=0;i<7;i++){ const x=new Date(m); x.setDate(m.getDate()+i); const l=S.log[dkey(x)]; if (l && l.rest) return dkey(x); }
+  return null;
+}
+
+// ---------- render ----------
+let picking = [];
+function render(){
+  const n = now(), dow = n.getDay(), k = dkey(n), L = dayLog(k);
+  $("hello").textContent = n.getHours()<12 ? "早上好！" : n.getHours()<18 ? "下午好！" : "晚上好！";
+  $("dateTxt").textContent = `${n.getMonth()+1} 月 ${n.getDate()} 日 星期${DAY[dow]}`;
+  const tasks = tasksOn(dow);
+  const doneN = tasks.filter(t=>L.done[t.id] || L.rest===t.id).length;
+  $("scoreTxt").textContent = `${doneN} / ${tasks.length}`;
+
+  // rules
+  const rules = [];
+  tasks.forEach(t=>{ const g=tagOf(t,dow); if (g) rules.push(`${t.emo} ${t.name} ${g}`); });
+  rules.push(`🌙 ${S.bed} 准备睡觉`);
+  (S.extraRules||"").split("\n").map(s=>s.trim()).filter(Boolean).forEach(r=>rules.push("⭐ "+r));
+  $("rules").innerHTML = "<h2>今天不能变的事</h2>" + rules.map(r=>`<div>${esc(r)}</div>`).join("");
+
+  // drop ids no longer on today's list, add new ones at the end
+  if (L.order){ L.order = L.order.filter(id=>tasks.some(t=>t.id===id)); tasks.forEach(t=>{ if(!L.order.includes(t.id)) L.order.push(t.id); }); }
+
+  $("emptySec").hidden = tasks.length>0;
+  const ordering = tasks.length>0 && !L.order;
+  $("pickSec").hidden = !ordering;
+  $("doSec").hidden = !(tasks.length>0 && L.order);
+  if (ordering) renderPick(tasks, dow);
+  else if (tasks.length) renderList(tasks, dow, L);
+  renderWeek();
+  renderPet();
+}
+
+function renderPick(tasks, dow){
+  const g = $("pickGrid"); g.innerHTML = "";
+  tasks.forEach(t=>{
+    const b=document.createElement("button"); b.type="button"; b.className="pick";
+    const i = picking.indexOf(t.id);
+    if (i>=0) b.classList.add("chosen");
+    b.innerHTML = (i>=0?`<span class="no">${i+1}</span>`:"") + `<span class="emo">${esc(t.emo)}</span><span class="nm">${esc(t.name)}</span><span class="tm">${esc(tagOf(t,dow))}</span>`;
+    b.setAttribute("aria-label", t.name + (i>=0 ? "，第"+(i+1)+"个" : ""));
+    b.onclick = ()=>{ const j=picking.indexOf(t.id); if (j>=0) picking.splice(j,1); else picking.push(t.id); render(); };
+    g.appendChild(b);
+  });
+  $("pickOk").disabled = picking.length !== tasks.length;
+  $("pickOk").textContent = picking.length === tasks.length ? "排好了，开始！" : `还有 ${tasks.length-picking.length} 张没排`;
+}
+$("pickOk").onclick = ()=>{ const L=dayLog(todayKey()); L.order=[...picking]; picking=[]; save(); render(); toast("计划排好啦，加油！"); };
+$("pickReset").onclick = ()=>{ picking=[]; render(); };
+$("reorder").onclick = ()=>{ const L=dayLog(todayKey()); picking = L.order.filter(id=>L.done[id] || L.rest===id); L.order=null; save(); render(); };
+
+let undoArm = null;
+function renderList(tasks, dow, L){
+  const list = $("list"); list.innerHTML = "";
+  const byId = Object.fromEntries(tasks.map(t=>[t.id,t]));
+  const nextId = L.order.find(id=>!L.done[id] && L.rest!==id);
+  const restWeek = restUsedThisWeek();
+  $("doSub").textContent = nextId ? "做完一件，点一下“做完了”" : "";
+  L.order.forEach((id, i)=>{
+    const t = byId[id]; if (!t) return;
+    const li = document.createElement("li"); li.className="task";
+    const done = !!L.done[id], rest = L.rest===id;
+    if (done) li.classList.add("done"); if (rest) li.classList.add("rest"); if (id===nextId) li.classList.add("next");
+    const tag = tagOf(t,dow);
+    li.innerHTML = `<span class="no">${i+1}</span><span class="emo">${esc(t.emo)}</span>
+      <div class="info"><span class="nextlbl">下一件</span><div class="nm">${esc(t.name)}</div><div class="hint">${
+        done ? "✓ "+L.done[id]+" 做完" : rest ? "🎟️ 今天用了休息券" : esc(t.hint||"")}</div>${tag && !done && !rest ? `<span class="tag">${esc(tag)}</span>`:""}</div>
+      <div class="acts"></div>`;
+    const acts = li.querySelector(".acts");
+    if (rest){
+      const u=document.createElement("button"); u.type="button"; u.className="undo"; u.textContent="不用休息券了";
+      u.onclick=()=>{ L.rest=null; save(); render(); }; acts.appendChild(u);
+    } else if (done){
+      const b=document.createElement("button"); b.type="button"; b.className="done-btn"; b.textContent="★ 完成";
+      b.setAttribute("aria-label", t.name+" 已完成，点两下可以撤销");
+      b.onclick=()=>{ if (undoArm===id){ delete L.done[id]; undoArm=null; save(); render(); } else { undoArm=id; render(); } };
+      acts.appendChild(b);
+      if (undoArm===id){ const h=document.createElement("span"); h.className="undo"; h.textContent="再点一下就撤销"; acts.appendChild(h); }
+    } else {
+      const b=document.createElement("button"); b.type="button"; b.className="done-btn"; b.textContent="做完了 ✓";
+      b.onclick=(e)=>{ const before=totalStars(); L.done[id]=hhmm(now()); undoArm=null; save(); celebrate(e.currentTarget, t); render(); petGotStar(before); };
+      acts.appendChild(b);
+      if (!restWeek){
+        const r=document.createElement("button"); r.type="button"; r.className="rest-btn"; r.textContent="🎟️ 用休息券（每周 1 张）";
+        r.onclick=()=>{ L.rest=id; save(); render(); toast("这周的休息券用掉啦"); };
+        acts.appendChild(r);
+      }
+    }
+    list.appendChild(li);
+  });
+  const all = !nextId;
+  $("allgood").hidden = !all;
+  if (all){
+    const m=$("moods"); m.innerHTML="";
+    MOODS.forEach(x=>{ const b=document.createElement("button"); b.type="button"; b.textContent=x; b.setAttribute("aria-pressed", String(L.mood===x));
+      b.onclick=()=>{ L.mood=x; save(); render(); }; m.appendChild(b); });
+  }
+}
+
+let openDay = null;
+function renderWeek(){
+  const m = monday(now()), tk = todayKey();
+  const w = $("week"); w.innerHTML = "";
+  let sumDone=0, sumAll=0;
+  for (let i=0;i<7;i++){
+    const d=new Date(m); d.setDate(m.getDate()+i);
+    const k=dkey(d), dow=d.getDay(), L=S.log[k];
+    const total = (L && L.order) ? L.order.length : tasksOn(dow).length;
+    const done = L ? Object.keys(L.done).filter(id=>!L.order || L.order.includes(id)).length + (L.rest?1:0) : 0;
+    if (k<=tk){ sumDone+=done; sumAll+=total; }
+    const b=document.createElement("button"); b.type="button"; b.className="day"+(k===tk?" today":"");
+    b.setAttribute("aria-pressed", String(openDay===k));
+    b.innerHTML = `<span class="dn">周${DAY[dow]}</span><span class="st ${total && done>=total?"full":""}">${k>tk||!total?"–":done+"/"+total}</span><span class="md">${L&&L.mood?L.mood:""}</span>`;
+    b.onclick=()=>{ openDay = openDay===k?null:k; renderWeek(); };
+    w.appendChild(b);
+  }
+  const pct = sumAll ? Math.round(sumDone/sumAll*100) : 0;
+  $("weekSum").innerHTML = sumAll ? `到今天完成 <b>${sumDone} / ${sumAll}</b>（${pct}%）` + (pct>=S.target ? ` · <span class="hit">达标啦！</span>` : ` · 目标 ${S.target}%`) : "";
+  const det=$("detail");
+  if (openDay && S.log[openDay] && S.log[openDay].order){
+    const L=S.log[openDay], d=new Date(openDay+"T12:00");
+    const name = id => { const t=S.tasks.find(t=>t.id===id); return t ? t.emo+" "+t.name : id; };
+    det.innerHTML = `<h3>周${DAY[d.getDay()]}（${d.getMonth()+1}/${d.getDate()}）他排的顺序</h3><ol>${
+      L.order.map(id=>`<li>${esc(name(id))} <span class="m">${L.done[id]? "✓ "+L.done[id] : L.rest===id ? "休息券" : "没做"}</span></li>`).join("")}</ol>`;
+    det.hidden=false;
+  } else if (openDay){ det.innerHTML='<span class="m">这一天没有记录。</span>'; det.hidden=false; }
+  else det.hidden=true;
+}
+
+// ---------- feedback ----------
+let ctx=null, soundOn=false;
+function chime(soft){
+  try{
+    ctx = ctx || new (window.AudioContext||window.webkitAudioContext)();
+    if (ctx.state==="suspended") ctx.resume();
+    (soft?[784]:[659,784,988,1319]).forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain(), t0=ctx.currentTime+i*0.12;
+      o.type="triangle"; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(0.3,t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t0+0.5);
+      o.connect(g).connect(ctx.destination); o.start(t0); o.stop(t0+0.55);
+    });
+  }catch(e){}
+}
+function speak(text){
+  try{ const u=new SpeechSynthesisUtterance(text); u.lang="zh-CN"; const v=speechSynthesis.getVoices().find(v=>/^zh[-_]CN/i.test(v.lang)); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){}
+}
+function toast(msg){
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2200);
+}
+function celebrate(el, t){
+  chime();
+  const r = el.getBoundingClientRect(), target = $("petStage").getBoundingClientRect();
+  const s=document.createElement("div"); s.className="fly"; s.textContent="⭐";
+  s.style.left=(r.left+r.width/2-24)+"px"; s.style.top=(r.top-10)+"px"; document.body.appendChild(s);
+  requestAnimationFrame(()=>{ s.style.transform=`translate(${target.left+target.width/2-r.left-r.width/2}px,${target.top+target.height/2-r.top}px) scale(.6)`; s.style.opacity="0.2"; });
+  setTimeout(()=>s.remove(), 950);
+  const praise = ["太棒了！","又一颗星星！","真厉害！","做得好！"];
+  toast(t.name+" 完成，"+praise[Math.floor(Math.random()*praise.length)]);
+}
+
+
+// ---------- pet: a bunny that grows with every star (stars never go down, except undo) ----------
+const STAGES = [
+  {at:0,   name:"小兔宝宝", scale:.62},
+  {at:15,  name:"小兔子",   scale:.8},
+  {at:40,  name:"大兔子",   scale:.98},
+];
+const ITEMS = [
+  {id:"carrot", at:25,  name:"胡萝卜", emo:"🥕"},
+  {id:"bow",    at:55,  name:"蝴蝶结", emo:"🎀"},
+  {id:"scarf",  at:75,  name:"围巾",   emo:"🧣"},
+  {id:"flower", at:100, name:"小花",   emo:"🌼"},
+  {id:"glasses",at:130, name:"眼镜",   emo:"👓"},
+  {id:"badge",  at:160, name:"星星徽章", emo:"⭐"},
+  {id:"crown",  at:200, name:"小王冠", emo:"👑"},
+];
+function totalStars(){ let n=0; for (const k in S.log){ const L=S.log[k]; n += Object.keys(L.done||{}).length; } return n; }
+function stageOf(n){ let st=STAGES[0]; STAGES.forEach(x=>{ if(n>=x.at) st=x; }); return st; }
+function nextGoal(n){
+  const goals=[...STAGES.slice(1).map(x=>({at:x.at, txt:"长成"+x.name})), ...ITEMS.map(x=>({at:x.at, txt:"得到"+x.emo+x.name}))].sort((a,b)=>a.at-b.at);
+  return goals.find(g=>g.at>n) || null;
+}
+function prevGoalAt(n){ const all=[0,...STAGES.map(x=>x.at),...ITEMS.map(x=>x.at)].filter(a=>a<=n); return Math.max(...all); }
+
+// The picture is bunny.png (600×600). Accessories are drawn on top in the same 600×600 space.
+const ACC = {
+  carrot:`<g transform="rotate(-18 336 470)"><path d="M320 428 L352 428 L336 500 Z" fill="#F08A2C" stroke="#B85F12" stroke-width="4" stroke-linejoin="round"/><path d="M327 448 h13 M330 468 h10 M333 486 h6" stroke="#B85F12" stroke-width="3" stroke-linecap="round"/><path d="M336 432 l-14-30 M336 432 l0-34 M336 432 l14-30" stroke="#3E9B4F" stroke-width="9" stroke-linecap="round"/></g>`,
+  bow:`<g transform="translate(398 192) rotate(18)"><path d="M0 0 L-38 -24 Q-46 0 -38 24 Z M0 0 L38 -24 Q46 0 38 24 Z" fill="#F06292" stroke="#B83B67" stroke-width="4" stroke-linejoin="round"/><circle r="11" fill="#F48FB1" stroke="#B83B67" stroke-width="4"/></g>`,
+  scarf:`<path d="M222 386 Q322 424 432 382 L438 402 Q322 448 218 406 Z" fill="#E25B55" stroke="#A3332F" stroke-width="4" stroke-linejoin="round"/><path d="M392 414 l20 58 l26-10 l-16-56z" fill="#E25B55" stroke="#A3332F" stroke-width="4" stroke-linejoin="round"/><path d="M250 401 v10 M280 409 v10 M310 413 v10 M340 413 v10 M370 408 v10" stroke="#F8D2D0" stroke-width="5" stroke-linecap="round"/>`,
+  flower:`<g transform="translate(238 196)">${[0,72,144,216,288].map(a=>`<ellipse rx="15" ry="22" cy="-20" fill="#FFFFFF" stroke="#E2B93B" stroke-width="3" transform="rotate(${a})"/>`).join("")}<circle r="14" fill="#F4B848" stroke="#D49A22" stroke-width="3"/></g>`,
+  glasses:`<g fill="rgba(255,255,255,.12)" stroke="#6B4423" stroke-width="7"><circle cx="265" cy="320" r="40"/><circle cx="389" cy="297" r="40"/><path d="M304 310 Q326 296 350 302" fill="none"/></g>`,
+  badge:`<path transform="translate(0 14)" d="M330 498 l12 24 27 4-19.5 19 4.5 27-24-12.7-24 12.7 4.5-27-19.5-19 27-4z" fill="#F4B848" stroke="#C98A1B" stroke-width="4" stroke-linejoin="round"/>`,
+  crown:`<g transform="rotate(-6 322 150)"><path d="M272 172 L280 112 L304 140 L322 98 L340 140 L364 112 L372 172 Z" fill="#F7C64B" stroke="#C98A1B" stroke-width="5" stroke-linejoin="round"/><circle cx="322" cy="146" r="9" fill="#E2554F"/><circle cx="292" cy="158" r="6" fill="#5FB3E8"/><circle cx="352" cy="158" r="6" fill="#5FB3E8"/></g>`,
+};
+const ACC_ORDER = ["scarf","badge","carrot","glasses","flower","bow","crown"];
+function bunnyArt(st, wear){
+  return `<div class="petshadow" style="transform:scale(${st.scale})"></div>
+  <div class="petscale" style="transform:scale(${st.scale})"><div id="bun">
+    <img src="bunny.png" alt="">
+    <svg viewBox="0 0 600 600">${ACC_ORDER.filter(id=>wear.includes(id)).map(id=>ACC[id]).join("")}</svg>
+  </div></div>`;
+}
+
+let bubbleTimer=null;
+function sayPet(msg){ const b=$("bubble"); b.textContent=msg; b.style.opacity=1; clearTimeout(bubbleTimer); bubbleTimer=setTimeout(()=>{ b.style.opacity=0; }, 4000); }
+function hopPet(){
+  const g=$("bun"); if(!g) return; g.classList.remove("hop"); void g.getBoundingClientRect(); g.classList.add("hop");
+  const h=document.createElement("div"); h.className="heart"; h.textContent="💗"; h.style.left=(70+Math.random()*50)+"px"; h.style.top="40px"; $("petStage").appendChild(h); setTimeout(()=>h.remove(),1300);
+}
+function renderPet(){
+  S.pet ||= {name:"", wear:[]};
+  const n=totalStars(), st=stageOf(n), unlocked=ITEMS.filter(x=>n>=x.at);
+  S.pet.wear = S.pet.wear.filter(id=>unlocked.some(x=>x.id===id));
+  $("petArt").innerHTML = bunnyArt(st, S.pet.wear);
+  const info=$("petInfo");
+  if (!S.pet.name){
+    info.innerHTML = `<div class="pname">你的小兔子来啦！</div><div class="pnext">给它取个名字吧：</div>
+      <div class="namebox"><input id="petName" maxlength="8" placeholder="比如：棉花糖"><button class="btn main" id="petNameOk" type="button">就叫这个</button></div>`;
+    $("petNameOk").onclick=()=>{ const v=$("petName").value.trim(); if(!v) return; S.pet.name=v; save(); renderPet(); sayPet("我叫"+v+"！"); hopPet(); };
+    return;
+  }
+  const goal=nextGoal(n), from=prevGoalAt(n);
+  const pct = goal ? Math.round((n-from)/(goal.at-from)*100) : 100;
+  info.innerHTML = `<div class="pname">${esc(S.pet.name)}<small>${st.name} · 一共 ${n} 颗星</small><button class="rename" id="rename" type="button">改名字</button></div>
+    <div class="pbar"><i style="width:${pct}%"></i></div>
+    <div class="pnext">${goal ? `再得 <b>${goal.at-n}</b> 颗星，就能${goal.txt}` : "所有装扮都解锁啦，你是超级小主人！"}</div>
+    <div class="wardrobe" id="wardrobe"></div>`;
+  const wd=$("wardrobe");
+  ITEMS.forEach(x=>{
+    const b=document.createElement("button"); b.type="button";
+    if (n>=x.at){ b.textContent=x.emo+" "+x.name; b.setAttribute("aria-pressed", String(S.pet.wear.includes(x.id)));
+      b.onclick=()=>{ const i=S.pet.wear.indexOf(x.id); if(i>=0) S.pet.wear.splice(i,1); else S.pet.wear.push(x.id); save(); renderPet(); hopPet(); };
+    } else { b.className="lock"; b.textContent="🔒 "+x.at+" 星"; b.disabled=true; }
+    wd.appendChild(b);
+  });
+  $("rename").onclick=()=>{ S.pet.name=""; renderPet(); };
+}
+$("petStage").onclick=()=>{ hopPet(); const m=["好舒服～","嘿嘿，痒痒！","我们一起加油！","今天做了几件事呀？","我最喜欢你啦！"]; sayPet(m[Math.floor(Math.random()*m.length)]); };
+$("petStage").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("petStage").click(); } };
+function petGotStar(before){
+  const after=totalStars();
+  const st0=stageOf(before), st1=stageOf(after);
+  const newItem=ITEMS.find(x=>before<x.at && after>=x.at);
+  setTimeout(()=>{
+    hopPet();
+    if (st1!==st0){ sayPet("我长大啦！"); toast("🎉 "+S.pet.name+" 长成"+st1.name+"啦！"); speak(S.pet.name+"长大啦！"); }
+    else if (newItem){ S.pet.wear.push(newItem.id); save(); renderPet(); sayPet("哇，"+newItem.name+"！"); toast("🎁 解锁了"+newItem.emo+newItem.name+"！"); }
+    else sayPet(["谢谢你的星星！","好开心！","又长大一点点！","你真棒！"][Math.floor(Math.random()*4)]);
+  }, 850);
+}
+
+// ---------- reminders while the app is open ----------
+const fired = new Set();
+function checkReminders(){
+  const n=now(), dow=n.getDay(), k=dkey(n), cm=n.getHours()*60+n.getMinutes(), L=dayLog(k);
+  const msgs=[];
+  tasksOn(dow).forEach(t=>{
+    const d=t.days[dow]; if (L.done[t.id] || L.rest===t.id) return;
+    if (d.at){ const a=mins(d.at);
+      if (cm>=a-5 && cm<a) msgs.push({id:k+t.id+"at", say:`${t.name}${a-cm}分钟后开始，快准备！`, show:`${t.emo} ${t.name} ${d.at} 开始，快准备！`});
+      else if (cm>=a && cm<a+10) msgs.push({id:k+t.id+"now", say:`${t.name}开始了！`, show:`${t.emo} ${t.name} 开始了！`}); }
+    if (d.by){ const b=mins(d.by);
+      if (cm>=b-60 && cm<b) msgs.push({id:k+t.id+"by", say:`${t.name}要在${d.by.replace(":","点")}分前做完哦。`, show:`${t.emo} ${t.name}要在 ${d.by} 前做完哦`}); }
+  });
+  const bed=mins(S.bed);
+  if (cm>=bed && cm<bed+30) msgs.push({id:k+"bed", say:"该准备睡觉啦。", show:"🌙 该准备睡觉啦"});
+  const ban=$("banner");
+  if (msgs.length){ ban.hidden=false; ban.textContent=msgs.map(m=>m.show).join("　"); } else ban.hidden=true;
+  if (soundOn) msgs.forEach(m=>{ if (!fired.has(m.id)){ fired.add(m.id); chime(true); setTimeout(()=>speak(m.say),500); } });
+}
+$("soundBtn").onclick=()=>{
+  soundOn=!soundOn; $("soundBtn").classList.toggle("on",soundOn);
+  $("soundBtn").textContent = soundOn ? "🔔 提醒已开" : "🔔 开启提醒";
+  if (soundOn){ chime(true); speak("提醒已经打开"); const n=now(), k=dkey(n), cm=n.getHours()*60+n.getMinutes();
+    // don't replay a reminder that started more than 2 minutes ago
+    tasksOn(n.getDay()).forEach(t=>{ const d=t.days[n.getDay()]; if (d.at && cm>mins(d.at)+2) fired.add(k+t.id+"now"); if (d.by && cm>mins(d.by)-58) fired.add(k+t.id+"by"); if (d.at && cm>mins(d.at)-3) fired.add(k+t.id+"at"); });
+  }
+};
+
+// ---------- parent settings ----------
+let gateAns = 0;
+$("parentBtn").onclick = ()=>{
+  const a=6+Math.floor(Math.random()*4), b=6+Math.floor(Math.random()*4); gateAns=a*b;
+  sheet(`<h2>家长设置</h2><label class="f">请回答：${a} × ${b} = ?<input id="gate" inputmode="numeric" autocomplete="off"></label>
+    <p class="err" id="gateErr" hidden>不对哦</p><div class="row2"><button class="btn main" id="gateOk" type="button">进入</button><button class="btn" id="close" type="button">取消</button></div>`);
+  $("gate").focus();
+  const go=()=>{ if (+$("gate").value===gateAns) parentHome(); else $("gateErr").hidden=false; };
+  $("gateOk").onclick=go; $("gate").onkeydown=e=>{ if(e.key==="Enter") go(); };
+};
+function sheet(html){ $("sheet").innerHTML=html; $("shade").hidden=false; const c=$("close"); if(c) c.onclick=closeSheet; }
+function closeSheet(){ $("shade").hidden=true; render(); }
+$("shade").addEventListener("click", e=>{ if (e.target===$("shade")) closeSheet(); });
+
+function daysTxt(t){ return Object.keys(t.days).filter(d=>t.days[d].on).sort((a,b)=>((+a+6)%7)-((+b+6)%7)).map(d=>"周"+DAY[d]).join(" ") || "没有安排"; }
+function parentHome(){
+  sheet(`<h2>家长设置</h2>
+    <h3>任务卡</h3><div class="tlist">${S.tasks.map((t,i)=>`<div class="tl-item"><span class="emo">${esc(t.emo)}</span><div><div class="nm">${esc(t.name)}</div><div class="ds">${daysTxt(t)}</div></div><button type="button" data-i="${i}">修改</button></div>`).join("")}</div>
+    <div class="row2"><button class="btn" id="addT" type="button">＋ 加一张任务卡</button></div>
+    <h3>其他</h3>
+    <div class="row2"><label class="f">几点准备睡觉<input type="time" id="bed" value="${S.bed}"></label>
+      <label class="f">每周达标线（%）<input id="target" inputmode="numeric" value="${S.target}" style="width:90px"></label></div>
+    <label class="f">另外的规矩（一行一条，会显示在“今天不能变的事”里）<textarea id="extra">${esc(S.extraRules||"")}</textarea></label>
+    <h3>备份</h3>
+    <p class="small">打卡记录只存在这台 iPad 上。偶尔点一下“复制备份”，粘贴到备忘录里保存。</p>
+    <div class="row2"><button class="btn" id="bk" type="button">复制备份</button><button class="btn" id="rs" type="button">从备份恢复</button></div>
+    <div class="row2"><button class="btn main" id="saveP" type="button">保存</button><button class="btn" id="close" type="button">关闭</button></div>`);
+  document.querySelectorAll(".tl-item button").forEach(b=>b.onclick=()=>editTask(+b.dataset.i));
+  $("addT").onclick=()=>editTask(-1);
+  $("saveP").onclick=()=>{ S.bed=$("bed").value||S.bed; S.target=Math.min(100,Math.max(10,+$("target").value||80)); S.extraRules=$("extra").value; save(); closeSheet(); toast("已保存"); };
+  $("bk").onclick=async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify(S)); toast("已复制，去备忘录里粘贴保存"); }catch(e){ backupText(); } };
+  $("rs").onclick=restore;
+}
+function backupText(){
+  sheet(`<h2>备份内容</h2><p class="small">全选下面的文字，复制后存到备忘录。</p><textarea id="bkt" readonly style="min-height:200px">${esc(JSON.stringify(S))}</textarea><div class="row2"><button class="btn" id="close" type="button">关闭</button></div>`);
+  $("bkt").select();
+}
+function restore(){
+  sheet(`<h2>从备份恢复</h2><p class="small">把之前复制的备份粘贴到下面。现在的记录会被替换。</p><textarea id="rst" style="min-height:200px"></textarea><p class="err" id="rErr" hidden></p>
+    <div class="row2"><button class="btn main" id="rOk" type="button">恢复</button><button class="btn" id="close" type="button">取消</button></div>`);
+  $("rOk").onclick=()=>{ try{ const x=JSON.parse($("rst").value); if(!x.tasks||!x.log) throw 0; S=x; save(); closeSheet(); toast("恢复好了"); }catch(e){ $("rErr").hidden=false; $("rErr").textContent="这段文字不是备份，请重新复制。"; } };
+}
+function editTask(i){
+  const t = i>=0 ? S.tasks[i] : {id:"t"+Date.now().toString(36), emo:"⭐", name:"", hint:"", days:{1:D(1),2:D(1),3:D(1),4:D(1),5:D(1),6:D(0),0:D(0)}};
+  const order=[1,2,3,4,5,6,0];
+  sheet(`<h2>${i>=0?"修改任务卡":"新任务卡"}</h2>
+    <div class="row2"><label class="f">图标<input id="tEmo" value="${esc(t.emo)}" style="width:70px;font-size:26px;text-align:center"></label>
+      <label class="f" style="flex:1">名称<input id="tName" value="${esc(t.name)}" maxlength="12"></label></div>
+    <label class="f">小提示<input id="tHint" value="${esc(t.hint||"")}" maxlength="30"></label>
+    <div style="overflow-x:auto"><table class="dtab"><tr><th></th><th>要做</th><th>固定几点开始（可不填）</th><th>几点前做完（可不填）</th></tr>
+      ${order.map(d=>`<tr><td>周${DAY[d]}</td><td><input type="checkbox" id="on${d}" ${t.days[d]&&t.days[d].on?"checked":""}></td>
+        <td><input type="time" id="at${d}" value="${t.days[d]?t.days[d].at:""}"></td><td><input type="time" id="by${d}" value="${t.days[d]?t.days[d].by:""}"></td></tr>`).join("")}
+    </table></div>
+    <p class="small">只有像外教课这样约好时间的才填“几点开始”；古筝这类有最晚时间的填“几点前做完”。其他的不填，让孩子自己安排。</p>
+    <p class="err" id="tErr" hidden></p>
+    <div class="row2"><button class="btn main" id="tOk" type="button">保存</button><button class="btn" id="tBack" type="button">返回</button>
+      ${i>=0?'<button class="btn danger" id="tDel" type="button" style="margin-left:auto">删除这张卡</button>':""}</div>`);
+  $("tBack").onclick=parentHome;
+  $("tOk").onclick=()=>{
+    const name=$("tName").value.trim(); if(!name){ $("tErr").hidden=false; $("tErr").textContent="请写上名称。"; return; }
+    const days={}; order.forEach(d=>days[d]={on:$("on"+d).checked?1:0, at:$("at"+d).value, by:$("by"+d).value});
+    const nt={...t, emo:$("tEmo").value.trim()||"⭐", name, hint:$("tHint").value.trim(), days};
+    if (i>=0) S.tasks[i]=nt; else S.tasks.push(nt);
+    save(); parentHome();
+  };
+  if (i>=0) $("tDel").onclick=()=>{
+    if ($("tDel").dataset.arm){ S.tasks.splice(i,1); save(); parentHome(); }
+    else { $("tDel").dataset.arm=1; $("tDel").textContent="再点一下确认删除"; }
+  };
+}
+
+// ---------- loop ----------
+let lastDay = todayKey();
+render(); checkReminders();
+bubbleTimer=setTimeout(()=>{ $("bubble").style.opacity=0; }, 5000);
+setInterval(()=>{ if (todayKey()!==lastDay){ lastDay=todayKey(); picking=[]; render(); } checkReminders(); }, 15000);
+document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible"){ render(); checkReminders(); } });
+
+if ("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
