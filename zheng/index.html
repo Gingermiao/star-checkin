@@ -314,6 +314,7 @@ function ckTick(){
   try{localStorage.setItem(CKKEY,JSON.stringify(C));localStorage.setItem('zhengAuto',JSON.stringify({k,seen:false}))}catch(e){return false}
   return true;
 }
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 function save(){try{localStorage.setItem('zheng1',JSON.stringify(S))}catch(e){}}
 const pad=n=>String(n).padStart(2,'0');
 function dkey(d=new Date()){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
