@@ -273,6 +273,11 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .tl-item .nm{font-weight:700}
 .tl-item .ds{font-size:13px;color:var(--muted)}
 .tl-item button{margin-left:auto;color:var(--blue);font-weight:700}
+.emoNow{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;font-size:38px;flex:none;box-shadow:inset 0 -5px 0 rgba(0,0,0,.14)}
+.emopick{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;max-height:260px;overflow-y:auto;background:var(--cell);border-radius:14px;padding:10px}
+.emopick .eg{grid-column:1/-1;font-size:13px;color:var(--muted);font-weight:700;margin-top:4px}
+.emopick button{font-size:28px;height:46px;border-radius:12px;border:2.5px solid transparent;background:var(--card)}
+.emopick button[aria-pressed="true"]{border-color:var(--blue);background:var(--gold-soft)}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .swatches button{width:38px;height:38px;border-radius:10px;border:3px solid transparent}
 .swatches button[aria-pressed="true"]{border-color:var(--ink)}
@@ -981,12 +986,21 @@ function restore(){
     <div class="row2"><button class="btn main" id="rOk" type="button">恢复</button><button class="btn" id="close" type="button">取消</button></div>`);
   $("rOk").onclick=()=>{ try{ const x=JSON.parse($("rst").value); if(!x.tasks||!x.log) throw 0; localStorage.setItem(KEY, JSON.stringify(x)); load(); closeSheet(); toast("恢复好了"); }catch(e){ $("rErr").hidden=false; $("rErr").textContent="这段文字不是备份，请重新复制。"; } };
 }
+const ICONS = [
+  ["学习", "📗 📚 📖 ✏️ 📝 🔢 ➗ 🧮 🔤 🀄 ✍️ 🗣️ 🎧 💻 🌍 🔬"],
+  ["音乐美术", "🎵 🎹 🎻 🎸 🥁 🎤 🎨 🖍️ ✂️ 🧩 🎭 📷"],
+  ["运动", "🏃 🤸 🏸 ⚽ 🏀 🏓 🏊 🚴 🧘 ⛹️ 🥋 🛹"],
+  ["生活", "🦷 🛁 🛏️ 🧹 👕 🎒 🍎 🥛 💧 🌱 🐶 ♟️"],
+  ["其他", "⭐ 🌟 🏆 🎯 ❤️ 😊 🚀 🌈 🔥 💡 ⏰ ✅"],
+];
 function editTask(i, opt={}){
   const t = i>=0 ? S.tasks[i] : {id:"t"+Date.now().toString(36), emo:"⭐", name:"", hint:"", color:COLORS[S.tasks.length%COLORS.length], at:"", by:""};
   let color=t.color;
   sheet(`<h2>${i>=0?"修改项目":"新项目"}</h2>
-    <div class="row2"><label class="f">图标<input id="tEmo" value="${esc(t.emo)}" style="width:70px;font-size:26px;text-align:center"></label>
+    <div class="row2"><span class="emoNow" id="emoNow" style="background:${color}">${esc(t.emo)}</span>
       <label class="f" style="flex:1">名称<input id="tName" value="${esc(t.name)}" maxlength="14" placeholder="比如：跳绳"></label></div>
+    <div class="f">选一个图标<div class="emopick" id="emoPick">${ICONS.map(([g,list])=>`<div class="eg">${g}</div>`+list.split(" ").map(e=>`<button type="button" data-e="${e}" aria-pressed="${e===t.emo}">${e}</button>`).join("")).join("")}</div>
+      <span class="small">找不到合适的？也可以自己打一个：<input id="tEmo" value="${esc(t.emo)}" maxlength="4" style="width:64px;font-size:20px;text-align:center"></span></div>
     <label class="f">小提示（显示在卡片上，可以不填）<input id="tHint" value="${esc(t.hint||"")}" maxlength="30"></label>
     <div class="f" style="font-size:13px;color:var(--muted)">颜色<div class="swatches" id="sw">${COLORS.map(c=>`<button type="button" data-c="${c}" style="background:${c}" aria-label="颜色" aria-pressed="${c===color}"></button>`).join("")}</div></div>
     ${timeFields({at:t.at||"", by:t.by||""})}
@@ -995,7 +1009,10 @@ function editTask(i, opt={}){
     <div class="row2"><button class="btn main" id="tOk" type="button">${opt.fromHome?"加到菜单":"保存"}</button><button class="btn" id="tBack" type="button">${opt.fromHome?"取消":"返回"}</button>
       ${i>=0?'<button class="btn danger" id="tDel" type="button" style="margin-left:auto">删除这个项目</button>':""}</div>`);
   bindTimeFields();
-  $("sw").querySelectorAll("button").forEach(b=>b.onclick=()=>{ color=b.dataset.c; $("sw").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); });
+  const setEmo=e=>{ $("tEmo").value=e; $("emoNow").textContent=e; $("emoPick").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", String(x.dataset.e===e))); };
+  $("emoPick").querySelectorAll("button").forEach(b=>b.onclick=()=>setEmo(b.dataset.e));
+  $("tEmo").oninput=()=>setEmo($("tEmo").value.trim()||"⭐");
+  $("sw").querySelectorAll("button").forEach(b=>b.onclick=()=>{ color=b.dataset.c; $("emoNow").style.background=color; $("sw").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); });
   $("tBack").onclick= opt.fromHome ? closeSheet : parentHome;
   $("tOk").onclick=()=>{
     const name=$("tName").value.trim(); if(!name){ $("tErr").hidden=false; $("tErr").textContent="请写上名称。"; return; }
