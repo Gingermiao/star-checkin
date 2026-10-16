@@ -103,6 +103,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .tc.pick .box2{background:rgba(255,255,255,.3);color:#fff;font-size:22px}
 .tc.picked{outline:4px solid var(--ink);outline-offset:3px}
 .under{display:flex;justify-content:flex-end;gap:14px;margin-top:-6px;padding-right:6px}
+.zlink{font-size:16px;font-weight:800;color:var(--c);background:var(--card);border:2.5px solid var(--c);border-radius:999px;padding:7px 16px;text-decoration:none;margin-top:4px}
 .under button{font-size:13px;color:var(--muted);padding:2px 4px}
 .under .undo{color:var(--warn)}
 .menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
@@ -563,6 +564,7 @@ function renderToday(){
     const done=!!L.done[id], rest=L.rest===id;
     h+=cardHTML(t, k, {num:i+1, done:L.done[id], rest, next:id===nextId});
     if (done && undoArm===id) h+=`<div class="under"><span class="m">再点一下卡片就撤销</span></div>`;
+    else if (isZheng(t) && !done && !rest) h+=`<div class="under"><a class="zlink" href="zheng/" style="--c:${t.color}">🐰 ${zhengProgress()} →</a></div>`;
   });
   h+=`</ol>`;
   if (!nextId) h+=`<div class="allgood"><b>今天的任务全部完成！🎉</b><div>今天感觉怎么样？</div><div class="moods">${MOODS.map(x=>`<button type="button" data-mood="${x}" aria-pressed="${L.mood===x}">${x}</button>`).join("")}</div></div>`;
@@ -575,6 +577,20 @@ function renderToday(){
     const before=totalStars(); L.done[id]=hhmm(now()); undoArm=null; save(); celebrate(c.querySelector(".box2"), t); render(); petGotStar(before, id);
   });
   tb.querySelectorAll("[data-mood]").forEach(b=>b.onclick=()=>{ L.mood=b.dataset.mood; save(); renderToday(); });
+}
+// ---------- 古筝陪练 (zheng/ on the same site, shares localStorage) ----------
+function isZheng(t){ return t.id==="zheng" || /古筝/.test(t.name); }
+function zhengProgress(){
+  try{ const Z=JSON.parse(localStorage.getItem("zheng1")), d=Z&&Z.days&&Z.days[todayKey()];
+    if (d && Z.blocks){ const n=Z.blocks.filter(b=>d.b[b.id] && d.b[b.id].r>=b.reps).length; if (n) return `古筝陪练 ${n}/${Z.blocks.length}，接着练`; } }catch(e){}
+  return "和小兔子一起练古筝";
+}
+// the practice app ticks the task itself when everything is done; say so once when we come back
+function zhengNotice(){
+  let z; try{ z=JSON.parse(localStorage.getItem("zhengAuto")); }catch(e){}
+  if (!z || z.seen || z.k!==todayKey()) return;
+  z.seen=true; try{ localStorage.setItem("zhengAuto", JSON.stringify(z)); }catch(e){}
+  load(); render(); toast("🎵 古筝陪练全部完成，已经自动打卡！"); chime(); petSay(VOICE_LINES.zheng ? "zheng" : "done");
 }
 function timeFields(tm){
   const kind = tm.at ? "at" : tm.by ? "by" : "";
@@ -1120,11 +1136,12 @@ function editReward(i, direct){
 
 // ---------- loop ----------
 let lastDay = todayKey();
-render(); checkReminders();
+render(); checkReminders(); zhengNotice();
 bubbleTimer=setTimeout(()=>{ $("bubble").style.opacity=0; }, 5000);
 setInterval(()=>{ if (todayKey()!==lastDay){ lastDay=todayKey(); selDay=lastDay; picking=[]; render(); } checkReminders(); }, 15000);
-document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible"){ render(); checkReminders(); } });
+document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible"){ load(); render(); checkReminders(); zhengNotice(); } });
 
+window.addEventListener("pageshow", e=>{ if (e.persisted){ load(); render(); zhengNotice(); } });
 if ("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 </script>
