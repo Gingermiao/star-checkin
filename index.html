@@ -189,6 +189,11 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .namebox input{font:inherit;font-size:18px;border:2px solid var(--gold);border-radius:12px;padding:8px 12px;background:var(--bg);color:var(--ink);min-width:0;flex:1;max-width:280px}
 @keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.02)}}
 @keyframes hop{0%{transform:translateY(0)}30%{transform:translateY(-30px) scaleY(1.05)}60%{transform:translateY(0) scaleY(.95)}80%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+.petpop{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:25;display:flex;align-items:flex-end;gap:4px;transform:translateY(160%);transition:transform .35s cubic-bezier(.3,1.4,.5,1);cursor:pointer}
+.petpop.show{transform:translateY(0)}
+.petpop img{width:92px;height:92px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+.petpop .pb{background:var(--card);border:2px solid var(--line);border-radius:16px 16px 4px 16px;padding:8px 12px;font-weight:800;font-size:16px;max-width:260px;margin-bottom:56px;box-shadow:0 2px 0 var(--line)}
+.pet .bubble{max-width:320px;white-space:normal!important}
 .heart{position:absolute;font-size:28px;pointer-events:none;animation:up 1.2s ease-out forwards}
 @keyframes up{from{transform:translateY(0);opacity:1}to{transform:translateY(-80px);opacity:0}}
 
@@ -344,7 +349,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
   <!-- 小兔子 -->
   <section class="tabpage" id="pgPet" hidden>
     <section class="pet" id="pet">
-      <div class="stage" id="petStage" role="button" tabindex="0" aria-label="摸摸小兔子"><div class="bubble" id="bubble">今天也一起加油吧！</div><div id="petArt" aria-hidden="true"></div></div>
+      <div class="stage" id="petStage" role="button" tabindex="0" aria-label="摸摸小兔子"><div class="bubble" id="bubble">Let's do our best today!</div><div id="petArt" aria-hidden="true"></div></div>
       <div class="info" id="petInfo"></div>
     </section>
   </section>
@@ -541,7 +546,7 @@ function renderToday(){
     tb.querySelectorAll(".mi[data-id]").forEach(c=>c.onclick=()=>{ const id=c.dataset.id, j=picking.indexOf(id);
       if (j>=0){ picking.splice(j,1); } else { picking.push(id); pickTimes[id] ||= {...timesFor(id,k)}; } pickFrom=""; renderToday(); });
     $("newProj").onclick=()=>editTask(-1, {fromHome:true});
-    $("pickOk").onclick=()=>{ L.order=[...picking]; L.times={}; picking.forEach(id=>L.times[id]={...(pickTimes[id]||timesFor(id,k))}); picking=[]; pickFor=null; save(); render(); toast("计划排好啦，加油！"); };
+    $("pickOk").onclick=()=>{ L.order=[...picking]; L.times={}; picking.forEach(id=>L.times[id]={...(pickTimes[id]||timesFor(id,k))}); picking=[]; pickFor=null; save(); render(); toast("计划排好啦，加油！"); petSay("plan"); };
     $("pickReset").onclick=()=>{ picking=[]; pickFrom=""; renderToday(); };
     return;
   }
@@ -564,7 +569,7 @@ function renderToday(){
     const id=c.dataset.id, t=taskById(id);
     if (L.rest===id) return;
     if (L.done[id]){ if (undoArm===id){ delete L.done[id]; undoArm=null; save(); render(); } else { undoArm=id; renderToday(); } return; }
-    const before=totalStars(); L.done[id]=hhmm(now()); undoArm=null; save(); celebrate(c.querySelector(".box2"), t); render(); petGotStar(before);
+    const before=totalStars(); L.done[id]=hhmm(now()); undoArm=null; save(); celebrate(c.querySelector(".box2"), t); render(); petGotStar(before, id);
   });
   tb.querySelectorAll("[data-rest]").forEach(b=>b.onclick=()=>{ L.rest=b.dataset.rest; save(); render(); toast("这周的休息券用掉啦"); });
   tb.querySelectorAll("[data-unrest]").forEach(b=>b.onclick=()=>{ L.rest=null; save(); render(); });
@@ -881,7 +886,7 @@ function renderPet(){
   if (!S.pet.name){
     info.innerHTML = `<div class="pname">你的小兔子来啦！</div><div class="pnext">给它取个名字吧：</div>
       <div class="namebox"><input id="petName" maxlength="8" placeholder="比如：棉花糖"><button class="btn main" id="petNameOk" type="button">就叫这个</button></div>`;
-    $("petNameOk").onclick=()=>{ const v=$("petName").value.trim(); if(!v) return; S.pet.name=v; save(); renderPet(); sayPet("我叫"+v+"！"); hopPet(); };
+    $("petNameOk").onclick=()=>{ const v=$("petName").value.trim(); if(!v) return; S.pet.name=v; save(); renderPet(); sayPet("Hi! My name is "+v+"!"); hopPet(); };
     return;
   }
   const goal=nextGoal(n), from=prevGoalAt(n);
@@ -900,17 +905,19 @@ function renderPet(){
   });
   $("rename").onclick=()=>{ S.pet.name=""; renderPet(); };
 }
-$("petStage").onclick=()=>{ hopPet(); const m=["好舒服～","嘿嘿，痒痒！","我们一起加油！","今天做了几件事呀？","我最喜欢你啦！"]; sayPet(m[Math.floor(Math.random()*m.length)]); };
+$("petStage").onclick=()=>{ hopPet(); petSay("tap"); };
 $("petStage").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("petStage").click(); } };
-function petGotStar(before){
+function petGotStar(before, taskId){
   const after=totalStars();
   const st0=stageOf(before), st1=stageOf(after);
   const newItem=ITEMS.find(x=>before<x.at && after>=x.at);
   setTimeout(()=>{
     hopPet();
-    if (st1!==st0){ sayPet("我长大啦！"); toast("🎉 "+S.pet.name+" 长成"+st1.name+"啦！"); speak(S.pet.name+"长大啦！"); }
-    else if (newItem){ S.pet.wear.push(newItem.id); save(); renderPet(); sayPet("哇，"+newItem.name+"！"); toast("🎁 解锁了"+newItem.emo+newItem.name+"！"); }
-    else sayPet(["谢谢你的星星！","好开心！","又长大一点点！","你真棒！"][Math.floor(Math.random()*4)]);
+    const L=S.log[todayKey()], all = L && L.order && L.order.every(id=>L.done[id]||L.rest===id);
+    if (st1!==st0){ petSay("grow"); toast("🎉 "+S.pet.name+" 长成"+st1.name+"啦！"); }
+    else if (newItem){ S.pet.wear.push(newItem.id); save(); renderPet(); petSay("item"); toast("🎁 解锁了"+newItem.emo+newItem.name+"！"); }
+    else if (all) petSay("alldone");
+    else petSay(VOICE_LINES[taskId] && Math.random()<.5 ? taskId : "done");
   }, 850);
 }
 
@@ -943,6 +950,43 @@ $("soundBtn").onclick=()=>{
 };
 
 
+// generated by gen_voice.py
+const VOICE_LINES = {"done": [["audio/done0.mp3", "Wow, you did it! You're a superstar!"], ["audio/done1.mp3", "Amazing job! I'm so proud of you!"], ["audio/done2.mp3", "Yay! Another star for us!"], ["audio/done3.mp3", "High five! That was brilliant!"], ["audio/done4.mp3", "You're so clever!"], ["audio/done5.mp3", "Look at you go! Fantastic!"], ["audio/done6.mp3", "You never give up. That's awesome!"], ["audio/done7.mp3", "You make me so happy!"]], "zheng": [["audio/zheng0.mp3", "Your music sounds so beautiful!"], ["audio/zheng1.mp3", "Ding ding dong! You're a little musician!"]], "raz": [["audio/raz0.mp3", "You're a great reader!"], ["audio/raz1.mp3", "What a lovely story!"]], "tutor": [["audio/tutor0.mp3", "Your English is getting better and better!"], ["audio/tutor1.mp3", "Great class! Well done!"]], "hw": [["audio/hw0.mp3", "Homework done! You're a smart cookie!"]], "cn": [["audio/cn0.mp3", "Reading time is the best time!"]], "alldone": [["audio/alldone0.mp3", "You finished everything today! You're the best!"], ["audio/alldone1.mp3", "All done! Hooray! I love you!"]], "plan": [["audio/plan0.mp3", "Great plan! Let's go!"], ["audio/plan1.mp3", "Ready, steady, go!"]], "tap": [["audio/tap0.mp3", "Hello! I'm so happy to see you!"], ["audio/tap1.mp3", "Hee hee, that tickles!"], ["audio/tap2.mp3", "Let's do our best today!"], ["audio/tap3.mp3", "You're my best friend!"], ["audio/tap4.mp3", "Boing boing! I love hopping!"]], "grow": [["audio/grow0.mp3", "Look at me! I'm growing bigger!"]], "item": [["audio/item0.mp3", "Ooh, I love it! Thank you!"]]};
+
+// ---------- bunny voice (English, pre-recorded, works offline) ----------
+const voiceBuf = {};
+function loadClip(f){
+  if (voiceBuf[f]) return voiceBuf[f];
+  const raw = f.startsWith("data:") ? Promise.resolve(Uint8Array.from(atob(f.split(",")[1]), c=>c.charCodeAt(0)).buffer) : fetch(f).then(r=>r.arrayBuffer());
+  voiceBuf[f] = raw.then(b=>new Promise((ok,no)=>ctx.decodeAudioData(b,ok,no))).catch(()=>{ delete voiceBuf[f]; return null; });
+  return voiceBuf[f];
+}
+function preloadVoice(){ if (!ctx) return; Object.values(VOICE_LINES).flat().forEach(([f])=>loadClip(f)); }
+let lastLine = "";
+function petSay(key){
+  const list = VOICE_LINES[key]; if (!list) return;
+  let pick = list[Math.floor(Math.random()*list.length)];
+  if (list.length>1 && pick[1]===lastLine) pick = list[(list.indexOf(pick)+1)%list.length];
+  lastLine = pick[1];
+  sayPet(pick[1]); popPet(pick[1]);
+  if (S.petVoice===false) return;
+  try{
+    ctx = ctx || new (window.AudioContext||window.webkitAudioContext)();
+    if (ctx.state==="suspended") ctx.resume();
+    loadClip(pick[0]).then(buf=>{ if(!buf) return; const s=ctx.createBufferSource(); s.buffer=buf; s.connect(ctx.destination); s.start(); });
+  }catch(e){}
+}
+// a little bunny pops up on the other tabs so the child can see who is talking
+let popTimer=null;
+function popPet(text){
+  if (tab==="pet") return;
+  let p=$("petPop");
+  if (!p){ p=document.createElement("div"); p.id="petPop"; p.className="petpop"; p.innerHTML=`<span class="pb" id="petPopTxt"></span><img src="bunny.png" alt="">`; document.body.appendChild(p); p.onclick=()=>showTab("pet"); }
+  $("petPopTxt").textContent=text; p.classList.remove("show"); void p.offsetWidth; p.classList.add("show");
+  clearTimeout(popTimer); popTimer=setTimeout(()=>p.classList.remove("show"), 3800);
+}
+document.addEventListener("pointerdown", ()=>{ try{ ctx = ctx || new (window.AudioContext||window.webkitAudioContext)(); if (ctx.state==="suspended") ctx.resume(); preloadVoice(); }catch(e){} }, {once:true});
+
 // ---------- parent settings (behind a times-table question) ----------
 function gate(onPass, why){
   const a=6+Math.floor(Math.random()*4), b=6+Math.floor(Math.random()*4), ans=a*b;
@@ -965,6 +1009,7 @@ function parentHome(){
     <h3>其他</h3>
     <div class="row2"><label class="f">几点准备睡觉<input type="time" id="bed" value="${S.bed}"></label>
       <label class="f">每周达标线（%）<input id="target" inputmode="numeric" value="${S.target}" style="width:90px"></label></div>
+    <label style="display:flex;gap:10px;align-items:center;font-size:16px"><input type="checkbox" id="petVoice" ${S.petVoice===false?"":"checked"} style="width:22px;height:22px">小兔子用英语说话（有声音）</label>
     <label class="f">另外的规矩（一行一条，会显示在“今天不能变的事”里）<textarea id="extra">${esc(S.extraRules||"")}</textarea></label>
     <h3>备份</h3>
     <p class="small">打卡记录只存在这台 iPad 上。偶尔点一下“复制备份”，粘贴到备忘录里保存。</p>
@@ -973,7 +1018,7 @@ function parentHome(){
   document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>editTask(+b.dataset.t));
   $("addT").onclick=()=>editTask(-1);
   $("goRw").onclick=rewardsHome;
-  $("saveP").onclick=()=>{ S.bed=$("bed").value||S.bed; S.target=Math.min(100,Math.max(10,+$("target").value||80)); S.extraRules=$("extra").value; save(); closeSheet(); toast("已保存"); };
+  $("saveP").onclick=()=>{ S.bed=$("bed").value||S.bed; S.target=Math.min(100,Math.max(10,+$("target").value||80)); S.extraRules=$("extra").value; S.petVoice=$("petVoice").checked; save(); closeSheet(); toast("已保存"); };
   $("bk").onclick=async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify(S)); toast("已复制，去备忘录里粘贴保存"); }catch(e){ backupText(); } };
   $("rs").onclick=restore;
 }
