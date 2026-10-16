@@ -72,7 +72,10 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .rules{background:var(--night);color:#fff;border-radius:18px;padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px 20px;align-items:center}
 @media (prefers-color-scheme: dark){.rules{background:#2A3160}}
 .rules h2{font-size:13px;margin:0;opacity:.8;letter-spacing:.06em;width:100%}
-.rules div{font-size:16px;font-weight:600}
+.rules div{font-size:16px;font-weight:600;opacity:.85}
+.rules .rb{font-size:16px;font-weight:700;color:#fff;background:rgba(255,255,255,.16);border-radius:10px;padding:4px 10px}
+.rules .rb small{opacity:.7}
+.rules .rb.add{background:transparent;border:1.5px dashed rgba(255,255,255,.5);font-weight:600}
 .banner{background:var(--gold-soft);border:2px solid var(--gold);border-radius:16px;padding:10px 14px;font-weight:700;font-size:17px}
 .hintline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:16px;color:var(--muted)}
 .hintline b{color:var(--ink);font-size:19px}
@@ -530,10 +533,13 @@ function renderToday(){
   if (L.order) L.order=L.order.filter(id=>S.tasks.some(t=>t.id===id));
   const ids = L.order || (pickFor===k ? picking : (startPicking(k), picking));
   const tmOf = id => L.order ? timesFor(id,k) : (pickTimes[id] || timesFor(id,k));
-  const rules=[]; ids.forEach(id=>{ const t=taskById(id), g=tagTxt(tmOf(id)); if (g) rules.push(`${t.emo} ${t.name} ${g}`); });
-  rules.push(`🌙 ${S.bed} 准备睡觉`);
-  (S.extraRules||"").split("\n").map(s=>s.trim()).filter(Boolean).forEach(r=>rules.push("⭐ "+r));
-  $("rules").innerHTML = "<h2>今天不能变的事</h2>" + rules.map(r=>`<div>${esc(r)}</div>`).join("");
+  const own=[]; ids.forEach(id=>{ const t=taskById(id), g=tagTxt(tmOf(id)); if (g) own.push(`<button type="button" class="rb" data-rt="${esc(id)}">${esc(t.emo+" "+t.name+" "+g)} <small>✎</small></button>`); });
+  const fixed=[`🌙 ${S.bed} 准备睡觉`, ...(S.extraRules||"").split("\n").map(s=>s.trim()).filter(Boolean).map(r=>"⭐ "+r)];
+  const noTime=ids.filter(id=>!tagTxt(tmOf(id)));
+  $("rules").innerHTML = "<h2>今天不能变的事</h2>" + own.join("") + (noTime.length?`<button type="button" class="rb add" id="rtAdd">＋ 给一件事定时间</button>`:"") + fixed.map(r=>`<div>${esc(r)}</div>`).join("");
+  $("rules").querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>editTodayTime(b.dataset.rt, k));
+  if ($("rtAdd")) $("rtAdd").onclick=()=>{ sheet(`<h2>给哪件事定时间？</h2><div class="tlist">${noTime.map(id=>{ const t=taskById(id); return `<div class="tl-item"><span class="emo" style="background:${t.color}">${esc(t.emo)}</span><div class="nm">${esc(t.name)}</div><button type="button" data-pk="${esc(id)}">选这个</button></div>`; }).join("")}</div><div class="row2"><button class="btn" id="close" type="button">取消</button></div>`);
+    document.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>editTodayTime(b.dataset.pk, k)); };
 
   if (!L.order){ // the menu: tap in the order you'll do them
     tb.innerHTML = `<div class="hintline"><b>今天要做什么？</b>按做的先后点一点，再点一下就取消</div>
@@ -552,14 +558,11 @@ function renderToday(){
   }
   const nextId=L.order.find(id=>!L.done[id] && L.rest!==id);
   const doneN=L.order.filter(id=>L.done[id]||L.rest===id).length;
-  const restWeek=restUsedThisWeek();
   let h=`<div class="hintline"><b>今天 ★ ${doneN} / ${L.order.length}</b>${nextId?"做完一件，点一下卡片":""}<span class="sp"></span><button class="linkb" id="reorder" type="button">重新选</button></div><ol class="tcards" id="cards">`;
   L.order.forEach((id,i)=>{ const t=taskById(id);
     const done=!!L.done[id], rest=L.rest===id;
     h+=cardHTML(t, k, {num:i+1, done:L.done[id], rest, next:id===nextId});
     if (done && undoArm===id) h+=`<div class="under"><span class="m">再点一下卡片就撤销</span></div>`;
-    else if (rest) h+=`<div class="under"><button type="button" class="undo" data-unrest="1">不用休息券了</button></div>`;
-    else if (!done) h+=`<div class="under"><button type="button" data-time="${esc(id)}">⏰ 改今天的时间</button>${restWeek?"":`<button type="button" data-rest="${esc(id)}">🎟 用休息券（每周 1 张）</button>`}</div>`;
   });
   h+=`</ol>`;
   if (!nextId) h+=`<div class="allgood"><b>今天的任务全部完成！🎉</b><div>今天感觉怎么样？</div><div class="moods">${MOODS.map(x=>`<button type="button" data-mood="${x}" aria-pressed="${L.mood===x}">${x}</button>`).join("")}</div></div>`;
@@ -571,9 +574,6 @@ function renderToday(){
     if (L.done[id]){ if (undoArm===id){ delete L.done[id]; undoArm=null; save(); render(); } else { undoArm=id; renderToday(); } return; }
     const before=totalStars(); L.done[id]=hhmm(now()); undoArm=null; save(); celebrate(c.querySelector(".box2"), t); render(); petGotStar(before, id);
   });
-  tb.querySelectorAll("[data-rest]").forEach(b=>b.onclick=()=>{ L.rest=b.dataset.rest; save(); render(); toast("这周的休息券用掉啦"); });
-  tb.querySelectorAll("[data-unrest]").forEach(b=>b.onclick=()=>{ L.rest=null; save(); render(); });
-  tb.querySelectorAll("[data-time]").forEach(b=>b.onclick=()=>editTodayTime(b.dataset.time, k));
   tb.querySelectorAll("[data-mood]").forEach(b=>b.onclick=()=>{ L.mood=b.dataset.mood; save(); renderToday(); });
 }
 function timeFields(tm){
@@ -584,12 +584,12 @@ function timeFields(tm){
 function bindTimeFields(){ const s=()=>{ $("tmValL").hidden=!$("tmKind").value; }; $("tmKind").onchange=s; s(); }
 function readTimeFields(){ const k=$("tmKind").value, v=$("tmVal").value; return {at:k==="at"?v:"", by:k==="by"?v:""}; }
 function editTodayTime(id, k){
-  const t=taskById(id), L=dayLog(k);
-  sheet(`<h2>${esc(t.emo+" "+t.name)}：今天的时间</h2>${timeFields(timesFor(id,k))}
-    <p class="small">只改今天。下周同一天会自动用今天的时间。</p>
+  const t=taskById(id), L=dayLog(k), cur = L.order ? timesFor(id,k) : (pickTimes[id]||timesFor(id,k));
+  sheet(`<h2>${esc(t.emo+" "+t.name)}：今天的时间</h2>${timeFields(cur)}
+    <p class="small">只改今天。下周同一天会自动用今天的时间。选“不限时间”就是去掉这条规矩。</p>
     <div class="row2"><button class="btn main" id="tmOk" type="button">保存</button><button class="btn" id="close" type="button">取消</button></div>`);
   bindTimeFields();
-  $("tmOk").onclick=()=>{ L.times ||= {}; L.times[id]=readTimeFields(); save(); closeSheet(); };
+  $("tmOk").onclick=()=>{ const v=readTimeFields(); if (L.order){ L.times ||= {}; L.times[id]=v; } else pickTimes[id]=v; save(); closeSheet(); };
 }
 function cardHTML(t, k, o){
   const tag=tagOf(t.id,k), sub = o.rest ? "🎟 用了休息券" : o.done ? `✓ ${o.done} 做完` : (t.hint||"");
@@ -702,7 +702,7 @@ function weekHTML(off){
   return tiles + `<div class="card"><h3>每天完成了几件</h3><p class="sub">金色是做完的，浅色是当天一共要做的</p>${weekBars(off)}</div>`
     + `<div class="card"><h3>每件事这周做了几次</h3>${taskBars(W)}</div>`
     + `<div class="card"><h3>每件事几点做完</h3>${timeTable(off)}
-       <div class="legend"><span><i style="background:var(--ok-soft)"></i>✓ 做完</span><span><i style="background:var(--warn-soft)"></i>⚠ 超过规定时间</span><span><i style="background:var(--gold-soft)"></i>🎟 休息券</span><span>— 没做</span></div></div>`
+       <div class="legend"><span><i style="background:var(--ok-soft)"></i>✓ 做完</span><span><i style="background:var(--warn-soft)"></i>⚠ 超过规定时间</span><span>— 没做</span></div></div>`
     + `<div class="card"><h3>这周的发现</h3><ul class="facts">${weekFacts(W)}</ul></div>`;
 }
 function weekBars(off){
@@ -1049,7 +1049,7 @@ function editTask(i, opt={}){
     <label class="f">小提示（显示在卡片上，可以不填）<input id="tHint" value="${esc(t.hint||"")}" maxlength="30"></label>
     <div class="f" style="font-size:13px;color:var(--muted)">颜色<div class="swatches" id="sw">${COLORS.map(c=>`<button type="button" data-c="${c}" style="background:${c}" aria-label="颜色" aria-pressed="${c===color}"></button>`).join("")}</div></div>
     ${timeFields({at:t.at||"", by:t.by||""})}
-    <p class="small">时间可以不填。填了会显示在“今天不能变的事”里，到点提醒。某一天不一样的话，在当天的卡片下面点“改今天的时间”。</p>
+    <p class="small">时间可以不填。填了会显示在“今天不能变的事”里，到点提醒。某一天不一样的话，在“今天不能变的事”里点那一条就能改。</p>
     <p class="err" id="tErr" hidden></p>
     <div class="row2"><button class="btn main" id="tOk" type="button">${opt.fromHome?"加到菜单":"保存"}</button><button class="btn" id="tBack" type="button">${opt.fromHome?"取消":"返回"}</button>
       ${i>=0?'<button class="btn danger" id="tDel" type="button" style="margin-left:auto">删除这个项目</button>':""}</div>`);
