@@ -1,5 +1,5 @@
 // Offline cache: serve from cache first, refresh it in the background when online.
-const CACHE = "star-checkin-v4";
+const CACHE = "star-checkin-v5";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-512.png", "bunny.png"];
 
 self.addEventListener("install", e => {
