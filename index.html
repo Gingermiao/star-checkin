@@ -1031,12 +1031,16 @@ function restore(){
     <div class="row2"><button class="btn main" id="rOk" type="button">恢复</button><button class="btn" id="close" type="button">取消</button></div>`);
   $("rOk").onclick=()=>{ try{ const x=JSON.parse($("rst").value); if(!x.tasks||!x.log) throw 0; localStorage.setItem(KEY, JSON.stringify(x)); load(); closeSheet(); toast("恢复好了"); }catch(e){ $("rErr").hidden=false; $("rErr").textContent="这段文字不是备份，请重新复制。"; } };
 }
+// icon picker: [group, "emoji 关键词 关键词|emoji 关键词|..."]
 const ICONS = [
-  ["学习", "📗 📚 📖 ✏️ 📝 🔢 ➗ 🧮 🔤 🀄 ✍️ 🗣️ 🎧 💻 🌍 🔬"],
-  ["音乐美术", "🎵 🎹 🎻 🎸 🥁 🎤 🎨 🖍️ ✂️ 🧩 🎭 📷"],
-  ["运动", "🏃 🤸 🏸 ⚽ 🏀 🏓 🏊 🚴 🧘 ⛹️ 🥋 🛹"],
-  ["生活", "🦷 🛁 🛏️ 🧹 👕 🎒 🍎 🥛 💧 🌱 🐶 ♟️"],
-  ["其他", "⭐ 🌟 🏆 🎯 ❤️ 😊 🚀 🌈 🔥 💡 ⏰ ✅"],
+  ["学习", "📗 书 英语 阅读 raz|📚 书 阅读 读书|📖 书 阅读 故事|✏️ 铅笔 作业 写字|📝 作业 写 日记|🖊️ 笔 写字|📒 本子 笔记|🔢 数学 数字|➗ 数学 除法|➕ 数学 加法|🧮 算盘 数学 口算|🔤 英语 字母 单词|🀄 中文 汉字 语文|✍️ 写字 练字 书法|🗣️ 说 口语 朗读 背诵|🎧 听 听力 耳机 磨耳朵|💻 电脑 网课 外教|🌍 地理 世界 地球|🔬 科学 实验|🧪 实验 科学|🧠 思维 动脑|📐 几何 尺子|🗺️ 地图|📅 计划|🏫 学校 上学|👩‍🏫 老师 上课|🎓 毕业 学习"],
+  ["音乐美术", "🎵 音乐 古筝 练琴|🎶 唱歌 音乐|🎹 钢琴 练琴|🎻 小提琴 提琴|🎸 吉他|🥁 鼓 架子鼓|🎺 小号 喇叭|🎷 萨克斯|🪕 琵琶 古筝 弹拨|🪈 笛子 长笛|🎤 唱歌 话筒|💃 跳舞 舞蹈|🩰 芭蕾 舞蹈|🎨 画画 美术|🖍️ 画画 蜡笔|🖌️ 毛笔 书法 画画|✂️ 手工 剪纸|🧶 编织 手工|🧩 拼图|🎭 表演 戏剧|📷 拍照 摄影|🎬 拍视频"],
+  ["娱乐休息", "📺 电视 看电视 动画片|🎬 电影 看电影|🍿 电影 零食|🎮 游戏 玩游戏|🕹️ 游戏|📱 手机 平板 ipad|🧸 玩具 玩|🪀 玩具 溜溜球|🪁 风筝 放风筝|🎲 桌游 游戏|🃏 卡牌 扑克|♟️ 下棋 象棋 国际象棋|⚫ 围棋 下棋|🧱 积木 乐高|🚂 火车 玩具|🎠 游乐园 玩|🎡 游乐园 摩天轮|🛝 滑梯 公园|🏰 城堡 乐高|🎉 派对 玩|😴 休息 睡觉|🛋️ 休息 沙发|🎈 气球 玩"],
+  ["运动", "🏃 跑步 运动|🤸 体操 运动|🏸 羽毛球|⚽ 足球|🏀 篮球|🏐 排球|🏓 乒乓球|🎾 网球|🏊 游泳|🚴 骑车 自行车|🛴 滑板车|🛹 滑板|⛸️ 滑冰 溜冰|🛼 轮滑|⛷️ 滑雪|🧘 瑜伽 拉伸|🥋 跆拳道 武术 空手道|🤾 运动|⛹️ 篮球 运动|🧗 攀岩|🏋️ 力量 锻炼|🤺 击剑|🥊 拳击|⛳ 高尔夫|🪢 跳绳 绳子|👟 运动 跑步 鞋|🚶 散步 走路"],
+  ["生活", "🦷 刷牙 牙齿|🪥 刷牙 牙刷|🛁 洗澡|🚿 洗澡 淋浴|🧼 洗手 肥皂|🛏️ 睡觉 整理床|🧹 扫地 打扫 家务|🧺 洗衣服 家务|🧽 洗碗 家务|🍽️ 吃饭 摆碗筷|👕 穿衣服 衣服|🧦 袜子 整理|🎒 书包 整理书包|🗂️ 整理 收拾|🪴 浇花 植物|🌱 种植 植物|🐶 狗 遛狗 宠物|🐱 猫 宠物|🐟 鱼 喂鱼|🐰 兔子|💊 吃药|👓 眼睛 眼保健操|⏰ 闹钟 起床 时间|🌙 睡觉 晚上|☀️ 早上 起床|🛒 买东西 超市|🚗 坐车 出门|🏠 回家 家"],
+  ["吃喝", "🍎 水果 苹果|🍌 香蕉 水果|🍇 葡萄 水果|🥕 胡萝卜 蔬菜|🥦 蔬菜 西兰花|🥛 牛奶 喝奶|💧 喝水 水|🥚 鸡蛋|🍚 米饭 吃饭|🍜 面条|🥣 早饭 早餐|🍪 饼干 零食|🍬 糖果|🍦 冰淇淋|🍰 蛋糕"],
+  ["户外", "🌳 公园 树|🏞️ 户外 公园|⛺ 露营|🌊 海边 大海|🏖️ 海滩|🐞 昆虫 观察|🦋 蝴蝶 观察|🌸 花 春天|🍂 秋天 树叶|⛄ 雪 冬天|🌈 彩虹|☔ 下雨"],
+  ["其他", "⭐ 星星|🌟 星星 棒|🏆 奖杯 比赛|🥇 第一 冠军|🎯 目标|❤️ 爱心|😊 开心|🚀 火箭|🔥 加油|💡 想法 点子|✅ 完成 打勾|📌 重要|🎁 礼物 奖励|💰 零花钱 存钱|🤝 帮助 朋友|👨‍👩‍👧 家人 陪伴|📞 打电话|✉️ 写信"],
 ];
 function editTask(i, opt={}){
   const t = i>=0 ? S.tasks[i] : {id:"t"+Date.now().toString(36), emo:"⭐", name:"", hint:"", color:COLORS[S.tasks.length%COLORS.length], at:"", by:""};
@@ -1044,7 +1048,8 @@ function editTask(i, opt={}){
   sheet(`<h2>${i>=0?"修改项目":"新项目"}</h2>
     <div class="row2"><span class="emoNow" id="emoNow" style="background:${color}">${esc(t.emo)}</span>
       <label class="f" style="flex:1">名称<input id="tName" value="${esc(t.name)}" maxlength="14" placeholder="比如：跳绳"></label></div>
-    <div class="f">选一个图标<div class="emopick" id="emoPick">${ICONS.map(([g,list])=>`<div class="eg">${g}</div>`+list.split(" ").map(e=>`<button type="button" data-e="${e}" aria-pressed="${e===t.emo}">${e}</button>`).join("")).join("")}</div>
+    <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)">选一个图标<input id="emoQ" placeholder="🔍 搜一搜，比如：电视、跳绳、刷牙" autocomplete="off" style="width:100%">
+      <div class="emopick" id="emoPick">${ICONS.map(([g,list])=>`<div class="eg">${g}</div>`+list.split("|").map(it=>{ const [e,...kw]=it.split(" "); return `<button type="button" data-e="${e}" data-k="${esc(kw.join(" "))}" title="${esc(kw[0]||"")}" aria-pressed="${e===t.emo}">${e}</button>`; }).join("")).join("")}<div class="eg" id="emoNone" hidden>没找到，可以在下面自己打一个</div></div>
       <span class="small">找不到合适的？也可以自己打一个：<input id="tEmo" value="${esc(t.emo)}" maxlength="4" style="width:64px;font-size:20px;text-align:center"></span></div>
     <label class="f">小提示（显示在卡片上，可以不填）<input id="tHint" value="${esc(t.hint||"")}" maxlength="30"></label>
     <div class="f" style="font-size:13px;color:var(--muted)">颜色<div class="swatches" id="sw">${COLORS.map(c=>`<button type="button" data-c="${c}" style="background:${c}" aria-label="颜色" aria-pressed="${c===color}"></button>`).join("")}</div></div>
@@ -1056,6 +1061,10 @@ function editTask(i, opt={}){
   bindTimeFields();
   const setEmo=e=>{ $("tEmo").value=e; $("emoNow").textContent=e; $("emoPick").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", String(x.dataset.e===e))); };
   $("emoPick").querySelectorAll("button").forEach(b=>b.onclick=()=>setEmo(b.dataset.e));
+  $("emoQ").oninput=()=>{ const q=$("emoQ").value.trim(); let any=false;
+    $("emoPick").querySelectorAll("button").forEach(b=>{ const hit=!q || b.dataset.k.includes(q) || b.dataset.e===q; b.hidden=!hit; any ||= hit; });
+    $("emoPick").querySelectorAll(".eg").forEach(g=>{ if (g.id==="emoNone") return; let n=g.nextElementSibling, has=false; while(n && !n.classList.contains("eg")){ if(!n.hidden) has=true; n=n.nextElementSibling; } g.hidden=!has; });
+    $("emoNone").hidden=any; };
   $("tEmo").oninput=()=>setEmo($("tEmo").value.trim()||"⭐");
   $("sw").querySelectorAll("button").forEach(b=>b.onclick=()=>{ color=b.dataset.c; $("emoNow").style.background=color; $("sw").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); });
   $("tBack").onclick= opt.fromHome ? closeSheet : parentHome;
