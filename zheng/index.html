@@ -179,8 +179,89 @@ a.ghost{text-decoration:none;white-space:nowrap}
 .rowbtns .bigbtn{flex:1;margin:0;min-width:200px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:16px;z-index:30}
 @media (prefers-reduced-motion:reduce){.idle,.dance,.jump,.hop,.board i.on,.notes span,.conf{animation:none}}
+
+/* ============ picture-book look (2026-10): matches the pal drawings — cream paper, soft watercolour, pencil-like lines ============ */
+:root{
+  --bg:#F8F1E1; --dot1:#F1E2C6; --dot2:#E6EDDF; --card:#FFFBF1; --ink:#5A4434; --mute:#9A846D; --line:#E3D3B8;
+  --pink:#E28C9B; --orange:#E3A462; --mint:#79B38D; --sky:#7FA6CF; --lav:#A792C9; --lemon:#E9C46A; --coral:#D97C6C; --teal:#6CADAB;
+  --wood1:#F4E0BC; --wood2:#E3C293; --string:#B88D5F; --gold:#E0AB45;
+  --pen:#7A5E48;
+  --r1:20px 24px 18px 26px/24px 18px 26px 20px; --r2:14px 18px 13px 17px/17px 13px 18px 14px;
+  --paper:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body{background-color:var(--bg);background-image:var(--paper),
+  radial-gradient(ellipse 55% 35% at 0% 0%,rgba(226,140,155,.16),transparent 70%),
+  radial-gradient(ellipse 45% 35% at 100% 18%,rgba(127,166,207,.15),transparent 70%),
+  radial-gradient(ellipse 60% 40% at 30% 100%,rgba(121,179,141,.15),transparent 70%);
+  background-size:220px 220px,100% 100%,100% 100%,100% 100%;background-position:0 0;min-height:100%}
+/* titles: brown ink with a hand-drawn wavy underline */
+.logo{color:var(--ink);text-shadow:none;text-decoration:underline wavy color-mix(in srgb,var(--lemon) 85%,transparent);text-decoration-thickness:3px;text-underline-offset:10px;text-decoration-skip-ink:none}
+.logo .n{color:var(--mint)}
+.ghost{background:var(--card);border:2px solid var(--line);border-radius:var(--r2);color:var(--mute)}
+.chunky{box-shadow:0 4px 0 var(--sh,rgba(122,94,72,.18))}
+.chunky:active{transform:translateY(3px);box-shadow:0 1px 0 var(--sh,rgba(122,94,72,.18))}
+.bun{filter:drop-shadow(0 5px 4px rgba(122,94,72,.18))}
+.palBtn span{background:var(--card);border-color:var(--line);border-radius:var(--r2)}
+/* speech bubble: paper note with a pencil outline */
+.bubble{background:var(--card);border:2px solid var(--pen);border-radius:var(--r1)}
+.bubble::before{border-right-color:var(--pen)}
+.bubble b{color:var(--ink)}
+.bubble em{color:var(--mint)}
+.pcoach .bubble{border-color:var(--pen)}
+.pcoach .bubble::before{border-right-color:var(--pen)}
+.stars i{color:var(--line)}
+.stars i.on{color:var(--gold);text-shadow:none}
+/* project cards: watercolour wash + wobbly pencil border */
+.card{border:0;border-radius:var(--r1);--sh:color-mix(in srgb,var(--c) 45%,rgba(122,94,72,.25));
+  background:radial-gradient(ellipse 80% 70% at 15% 10%,color-mix(in srgb,var(--c) 14%,transparent),transparent 70%),var(--card)}
+.card::after{content:"";position:absolute;inset:0;border:2.2px solid color-mix(in srgb,var(--c) 75%,var(--pen));border-radius:inherit;filter:url(#rough);pointer-events:none}
+.card.done{background:radial-gradient(ellipse 90% 80% at 20% 15%,color-mix(in srgb,var(--c) 30%,transparent),color-mix(in srgb,var(--c) 12%,var(--card)) 75%)}
+.badge{border-radius:48% 52% 45% 55%/55% 45% 55% 45%;box-shadow:none;
+  background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 55%,#fff),var(--c) 72%,color-mix(in srgb,var(--c) 85%,var(--pen)))}
+.card .nm{color:var(--ink)}
+.stamp{background:var(--card);border-width:2px;border-radius:var(--r2);font-size:16px}
+.mini i{background:var(--line)}
+.bigbtn{background:var(--card);border:2px solid var(--sky);border-radius:var(--r1);color:color-mix(in srgb,var(--sky) 70%,var(--pen));--sh:color-mix(in srgb,var(--sky) 50%,transparent)}
+/* practice */
+.ptitle h2{background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--c) 70%,#fff),var(--c) 80%);border-radius:var(--r1);box-shadow:0 4px 0 color-mix(in srgb,var(--c) 60%,var(--pen))}
+.board{border:3px solid var(--card);border-radius:var(--r1);box-shadow:0 5px 0 #D9B78A,0 0 0 2px var(--wood2);
+  background:var(--paper),repeating-linear-gradient(180deg,transparent 0 15px,var(--string) 15px 16.5px),linear-gradient(180deg,var(--wood1),var(--wood2))}
+.board i{background:rgba(255,251,241,.8)}
+.count b{color:var(--coral)}
+.now{color:var(--mint)}
+.hit{background:var(--paper),radial-gradient(ellipse at 30% 20%,#E9988A,var(--coral) 70%);--sh:#B9604F;border-radius:30px 36px 28px 34px/34px 28px 36px 30px}
+.hit.counting{background:var(--paper),radial-gradient(ellipse at 30% 20%,#9CCAA9,var(--mint) 70%);--sh:#5C9370}
+.dice{background:var(--paper),var(--lemon);color:#6E4F14;--sh:#C9A24C;border-radius:var(--r2)}
+.tool{background:var(--card);border-color:var(--line);border-radius:var(--r2)}
+.tool .pm{background:var(--dot1);color:var(--coral)}
+/* pop-ups */
+.over{background:rgba(248,241,225,.86)}
+.panel{background:var(--paper),var(--card);border:2.5px solid var(--pen);border-radius:30px 36px 28px 38px/36px 28px 38px 30px;box-shadow:0 6px 0 rgba(122,94,72,.18)}
+.panel h2{color:var(--ink)}
+.pbtn{background:var(--paper),radial-gradient(ellipse at 30% 20%,#9CCAA9,var(--mint) 70%);--sh:#5C9370;border-radius:var(--r1)}
+.pbtn.alt{background:var(--card);color:color-mix(in srgb,var(--sky) 70%,var(--pen));border:2px solid var(--sky);--sh:color-mix(in srgb,var(--sky) 50%,transparent)}
+.palGrid button{background:var(--card);border:2px solid var(--line);border-radius:var(--r1)}
+.palGrid button.on{border-color:var(--pink);background:color-mix(in srgb,var(--pink) 12%,var(--card))}
+/* free play, rest, summary, parent */
+.center h2{color:var(--mint)}
+.step,.tile,.order div,.moods button,.week i,.erow,.lib .li{border-radius:var(--r1)}
+.step{background:var(--card);border:2px solid var(--line)}
+.step.now{border-color:var(--mint)}
+.tile{background:radial-gradient(ellipse at 25% 20%,color-mix(in srgb,var(--c) 22%,var(--card)),var(--card) 80%);border:2px solid color-mix(in srgb,var(--c) 70%,var(--pen))}
+.order div{background:var(--card);border-width:2px}
+.moods button{background:var(--card);border:2px solid var(--line)}
+.moods button.on{border-color:var(--pink);background:color-mix(in srgb,var(--pink) 12%,var(--card))}
+.week i{background:var(--card);border-radius:var(--r2)}
+.week i s{background:linear-gradient(color-mix(in srgb,var(--lemon) 80%,#fff),var(--orange))}
+.sec-t{color:var(--ink)}
+.erow{background:var(--card)}
+.erow input[type=text]{background:var(--bg);border-color:var(--line)}
+.ctl button{background:var(--dot1);color:var(--coral)}
+.gate input{background:var(--card);border-color:var(--line);border-radius:var(--r2)}
+.toast{background:var(--ink)}
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.6"/></filter></svg>
 <div class="wrap">
 
 <section id="home">
@@ -232,7 +313,7 @@ a.ghost{text-decoration:none;white-space:nowrap}
     <div class="notes" id="notes"></div>
     <h2 id="fTitle">自由弹时间！</h2>
     <p class="sub" id="fSub">想弹什么就弹什么，乱弹也可以，编一首自己的曲子也可以。</p>
-    <div class="stage"><div class="ring"><svg viewBox="0 0 100 100"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7aa2"/><stop offset=".5" stop-color="#ffc93c"/><stop offset="1" stop-color="#34c29c"/></linearGradient></defs><circle cx="50" cy="50" r="44" fill="#fff" stroke="#f2dfd0" stroke-width="9"/><circle id="fArc" cx="50" cy="50" r="44" fill="none" stroke="url(#rg)" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg>
+    <div class="stage"><div class="ring"><svg viewBox="0 0 100 100"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E28C9B"/><stop offset=".5" stop-color="#E9C46A"/><stop offset="1" stop-color="#79B38D"/></linearGradient></defs><circle cx="50" cy="50" r="44" fill="#FFFBF1" stroke="#E3D3B8" stroke-width="9"/><circle id="fArc" cx="50" cy="50" r="44" fill="none" stroke="url(#rg)" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg>
       <div class="num"><img class="bun dance" id="fBun" src="bunny.png" alt=""><span id="fNum">2:00</span></div></div></div>
     <button class="pbtn alt chunky" id="fEnd" style="max-width:320px">不弹了，选下一个</button>
   </div>
@@ -311,7 +392,7 @@ const DEF=[
   {id:'hard',name:'曲子：最难的那一句',hint:'只练这一句，弹对了再加快',reps:5},
   {id:'song',name:'曲子：从头弹到尾',hint:'弹错了也不停，接着往下弹',reps:2},
 ];
-const COLS=['#ff7aa2','#4fa3ff','#34c29c','#ffa443','#9f84ff','#26b5c2','#ff6b5e','#e0a800'];
+const COLS=['#E28C9B','#7FA6CF','#79B38D','#E3A462','#A792C9','#6CADAB','#D97C6C','#CDA74A'];   // watercolour picture-book tones
 const MOODS=[
   ['🌧️','像小雨滴','轻轻地弹，一滴一滴'],['⛈️','像打雷','大声、有力气'],['🐢','像小乌龟','慢慢地，每个音都清清楚楚'],
   ['🐇','像小兔子','快一点点，但是要稳'],['🤖','像机器人','每个音一样大、一样整齐'],['🤫','说悄悄话','最小声，但每个音都要响'],
