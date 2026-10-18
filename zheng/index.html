@@ -9,14 +9,14 @@
 <title>古筝陪练</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-@font-face{font-family:"Xiaolai";src:url(font.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Xiaolai";src:url(font.woff2) format("woff2");font-display:swap;unicode-range:U+0000-002F,U+003A-10FFFF}   /* no digits: 小赖's 0 has a slash */
 /* Layout: one-screen kids app, single bright look. Bunny coach + speech bubble on every screen; practice = guzheng board whose 雁柱 light up */
 :root{
   color-scheme:light;
   --bg:#fff5ec; --dot1:#ffe4d4; --dot2:#e3f4ff; --card:#ffffff; --ink:#4a3226; --mute:#9b7c6a; --line:#f2dfd0;
   --pink:#ff7aa2; --orange:#ffa443; --mint:#34c29c; --sky:#4fa3ff; --lav:#9f84ff; --lemon:#ffc93c; --coral:#ff6b5e; --teal:#26b5c2;
   --wood1:#fae0b4; --wood2:#f0c88f; --string:#c89557; --gold:#ffb703;
-  --f:"Xiaolai","PingFang SC","Hiragino Sans GB","Heiti SC",system-ui,sans-serif;
+  --f:"Xiaolai",ui-rounded,"SF Pro Rounded","PingFang SC","Hiragino Sans GB","Heiti SC",system-ui,sans-serif;
   --f2:"PingFang SC","Hiragino Sans GB","Heiti SC",system-ui,sans-serif;
 }
 html,body{height:100%}
