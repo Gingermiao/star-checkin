@@ -99,6 +99,17 @@ a.ghost{text-decoration:none;white-space:nowrap}
 .over{position:fixed;inset:0;background:rgba(255,245,236,.82);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20;overflow:hidden}
 .panel{position:relative;background:var(--card);border:4px solid var(--lemon);border-radius:32px;padding:20px 22px 24px;max-width:460px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 8px 0 #f3c63a}
 .panel .bun{width:110px;margin-top:-70px}
+.palBtn{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:0;font:inherit;color:var(--mute);cursor:pointer}
+.palBtn span{font-size:14px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:1px 10px;margin-top:-4px;white-space:nowrap}
+.palBtn i{font-style:normal;color:var(--coral)}
+.palPanel{max-width:640px;gap:8px;box-sizing:border-box;max-height:100%;overflow-y:auto}
+.palGrid>button{min-width:0}
+.palGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;margin-top:6px}
+.palGrid button{background:var(--bg);border:3px solid var(--line);border-radius:22px;padding:8px 4px 6px;font:inherit;font-size:18px;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.palGrid button.on{border-color:var(--pink);background:#FFF0F4}
+.palGrid img{width:100%;max-width:110px;height:96px;object-fit:contain;transition:transform .2s}
+.palGrid button:active img{transform:scale(1.12) rotate(-4deg)}
+@media (max-width:520px){.palGrid{grid-template-columns:repeat(3,1fr)}.palGrid img{height:76px}}
 .panel h2{font-size:32px;color:var(--coral)}
 .panel p{margin:0;color:var(--mute);line-height:1.55;font-size:18px}
 .pbtn{width:100%;min-height:64px;font-size:23px;color:#fff;background:var(--mint);--sh:#1f9a79}
@@ -175,7 +186,7 @@ a.ghost{text-decoration:none;white-space:nowrap}
 <section id="home">
   <div class="top"><a class="ghost ck" href="../" hidden>← Yuni打卡</a><h1 class="logo">古筝<span class="n">陪练</span> ♪</h1><span class="sp"></span><button class="ghost" id="toParent">🔒 家长</button></div>
   <div class="coach">
-    <img class="bun idle" src="bunny.png" alt="小兔子">
+    <button class="palBtn" id="palBtn" aria-label="换一个陪练"><img class="bun idle" src="bunny.png" alt=""><span><i class="palN">小兔子</i> ⇄</span></button>
     <div class="bubble"><b id="hiT">今天先练哪个呀？</b><span>每认真练完一个，就能<em>自由弹 <span id="freeMinTip">2</span> 分钟</em>哦！</span></div>
   </div>
   <div class="stars" id="stars"></div>
@@ -191,7 +202,7 @@ a.ghost{text-decoration:none;white-space:nowrap}
   <div class="ptitle"><h2 id="pName"></h2></div>
   <div class="phint" id="pHint"></div>
   <div class="coach pcoach">
-    <img class="bun idle" id="pBun" src="bunny.png" alt="小兔子">
+    <img class="bun idle" id="pBun" src="bunny.png" alt="">
     <div class="bubble"><span class="mood-e" id="mE"></span><div class="mood-t"><b id="mT"></b><span id="mS"></span></div><button class="dice chunky" id="dice">🎲 换</button></div>
   </div>
   <div class="board" id="bridges"></div>
@@ -231,7 +242,7 @@ a.ghost{text-decoration:none;white-space:nowrap}
   <div class="center">
     <img class="bun dance" src="bunny.png" alt="" style="width:100px">
     <h2>小手歇一歇</h2>
-    <p class="sub">跟着小兔子做，做完手就不累啦</p>
+    <p class="sub">跟着<span class="palN">小兔子</span>做，做完手就不累啦</p>
     <div class="steps" id="steps"></div>
     <button class="pbtn chunky" id="rBack" style="max-width:320px;margin-top:12px" hidden>好了，接着练</button>
   </div>
@@ -240,7 +251,7 @@ a.ghost{text-decoration:none;white-space:nowrap}
 <section id="sum" hidden>
   <div class="top"><h1 class="logo" id="sTitle">今天练好啦</h1><span class="sp"></span><a class="ghost ck" href="../" hidden>回 Yuni打卡</a><button class="ghost" id="sHome">回首页</button></div>
   <div class="coach">
-    <img class="bun jump" src="bunny.png" alt="小兔子">
+    <img class="bun jump" src="bunny.png" alt="">
     <div class="bubble"><b id="sSay">你真棒！</b><span id="sSay2"></span></div>
   </div>
   <div class="tiles" id="tiles"></div>
@@ -261,7 +272,7 @@ a.ghost{text-decoration:none;white-space:nowrap}
   </div>
   <div id="setBox" hidden>
     <div class="form">
-      <div class="erow"><div>小兔子说话（夸奖、提示）</div><div class="ctl"><button id="vOn" style="min-width:70px">开</button></div></div>
+      <div class="erow"><div>陪练小动物说话（夸奖、提示）</div><div class="ctl"><button id="vOn" style="min-width:70px">开</button></div></div>
       <div class="erow"><div>每练完一个，自由弹几分钟</div><div class="ctl"><button id="fm-">−</button><span class="n" id="fmN">2 分</span><button id="fm+">+</button></div></div>
     </div>
     <div class="sec-t">练习项目</div>
@@ -277,6 +288,13 @@ a.ghost{text-decoration:none;white-space:nowrap}
   </div>
 </section>
 
+</div>
+<div class="over" id="palBox" hidden>
+  <div class="panel palPanel">
+    <h2>今天谁陪你练？</h2>
+    <p>点一个小伙伴，它今天陪你一起练古筝</p>
+    <div class="palGrid" id="palGrid"></div>
+  </div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -301,13 +319,17 @@ const MOODS=[
   ['🦁','像大狮子','手指站稳，声音饱满'],['🎈','像吹气球','从小声慢慢变大声'],['👑','像在开音乐会','坐直，像台下有观众'],
 ];
 const REST=[['甩甩手','🖐',10],['握拳头，再张开','✊',10],['手腕转圈圈','🔄',10],['搓搓手，暖一暖','🤲',8]];
-const VO={"rep": [{"t": "太好听啦！", "f": "voice/3bce0d041634.mp3"}, {"t": "哇，这一遍弹得真棒！", "f": "voice/5a0023d6b014.mp3"}, {"t": "你的手指好有力气呀！", "f": "voice/98186b1ff63d.mp3"}, {"t": "好听得我耳朵都要开花啦！", "f": "voice/b6933402837d.mp3"}, {"t": "大珠小珠落玉盘，说的就是你！", "f": "voice/13a8126c2c57.mp3"}, {"t": "小兔子听得都想跳舞啦！", "f": "voice/f3b1285bbf03.mp3"}, {"t": "你越弹越好了！", "f": "voice/bc7f40f1afd9.mp3"}, {"t": "就是这样，继续保持！", "f": "voice/fe3f3706e06a.mp3"}, {"t": "你的手型好漂亮呀！", "f": "voice/9c3b1deeb26a.mp3"}, {"t": "这一遍比上一遍还要好！", "f": "voice/3983ab96daf3.mp3"}, {"t": "真是个认真的小琴童！", "f": "voice/bc241a7c2dca.mp3"}, {"t": "太稳了，像小老师一样！", "f": "voice/b244ce391bff.mp3"}, {"t": "给你点一个大大的赞！", "f": "voice/ad5ab8dbf53d.mp3"}, {"t": "好棒！再来一遍，我还想听！", "f": "voice/a2e1ea86a095.mp3"}, {"t": "哇，你是怎么弹得这么好听的？", "f": "voice/d70276531842.mp3"}], "block": [{"t": "太厉害啦！这个练完啦！", "f": "voice/52a5b8ead3b2.mp3"}, {"t": "哇！全部弹完了！小兔子给你鼓掌！", "f": "voice/a099d8808dcf.mp3"}, {"t": "你真是古筝小明星！", "f": "voice/95703777a895.mp3"}, {"t": "好棒好棒！我们去自由弹吧！", "f": "voice/ec9bd2274ea1.mp3"}, {"t": "这么难的都练完了，你真了不起！", "f": "voice/37a2e7aeffd9.mp3"}], "start": [{"t": "准备好了吗？我们开始吧！", "f": "voice/19b8fd7ad484.mp3"}, {"t": "我陪你一起练，加油！", "f": "voice/7f420d4dffb3.mp3"}, {"t": "来，让小兔子听听你的好声音！", "f": "voice/129355c1c859.mp3"}], "undo": [{"t": "没关系，再来一遍！", "f": "voice/f41cb98d00fd.mp3"}], "free": [{"t": "自由弹时间到！想弹什么就弹什么！", "f": "voice/3769dd88139f.mp3"}], "freeEnd": [{"t": "时间到啦！我们再去练一个吧！", "f": "voice/fd63f8aa1b59.mp3"}], "freeEndAll": [{"t": "时间到啦！今天全部练完了，去看看总结吧！", "f": "voice/74db3a2d63f1.mp3"}], "rest": [{"t": "小手辛苦啦！跟我一起甩甩手！", "f": "voice/62e26a193fb4.mp3"}], "restEnd": [{"t": "小手休息好啦，我们继续加油！", "f": "voice/41a65a54bff0.mp3"}], "all": [{"t": "今天全部练完啦！你是全世界最棒的小琴童！", "f": "voice/7d92cc08008b.mp3"}], "some": [{"t": "今天也很努力哦！明天我们接着加油！", "f": "voice/5e3b138d0262.mp3"}], "m:像小雨滴": [{"t": "这一次，像小雨滴一样！轻轻地弹！", "f": "voice/4c4c90d3e7f0.mp3"}], "m:像打雷": [{"t": "这一次，像打雷一样！大声、有力气！", "f": "voice/c991c9c5f001.mp3"}], "m:像小乌龟": [{"t": "这一次，像小乌龟一样！慢慢地弹！", "f": "voice/872d24e04c2e.mp3"}], "m:像小兔子": [{"t": "这一次，像小兔子一样！快一点点，但是要稳！", "f": "voice/8db7791b83b5.mp3"}], "m:像机器人": [{"t": "这一次，像机器人一样！每个音一样整齐！", "f": "voice/e32bb357104a.mp3"}], "m:说悄悄话": [{"t": "这一次，说悄悄话！最小声地弹！", "f": "voice/c01fc70b4ae9.mp3"}], "m:像敲大钟": [{"t": "这一次，像敲大钟一样！每个音都响亮！", "f": "voice/7ac2d4dcfeb1.mp3"}], "m:像跳舞": [{"t": "这一次，像跳舞一样！开开心心地弹！", "f": "voice/a2ad66771145.mp3"}], "m:像小猫走路": [{"t": "这一次，像小猫走路一样！轻轻的、稳稳的！", "f": "voice/8501447352d1.mp3"}], "m:像大狮子": [{"t": "这一次，像大狮子一样！声音饱满！", "f": "voice/8b88900b1879.mp3"}], "m:像吹气球": [{"t": "这一次，像吹气球一样！从小声慢慢变大声！", "f": "voice/238cb6d8dbc0.mp3"}], "m:像在开音乐会": [{"t": "这一次，像在开音乐会！坐直，像台下有观众！", "f": "voice/80bce25bdb81.mp3"}]};
+const VO={"rep": [{"t": "太好听啦！", "f": "voice/3bce0d041634.mp3"}, {"t": "哇，这一遍弹得真棒！", "f": "voice/5a0023d6b014.mp3"}, {"t": "你的手指好有力气呀！", "f": "voice/98186b1ff63d.mp3"}, {"t": "好听得我耳朵都要开花啦！", "f": "voice/b6933402837d.mp3"}, {"t": "大珠小珠落玉盘，说的就是你！", "f": "voice/13a8126c2c57.mp3"}, {"t": "我听得都想跳舞啦！", "f": "voice/b6a8cfb63d1a.mp3"}, {"t": "你越弹越好了！", "f": "voice/bc7f40f1afd9.mp3"}, {"t": "就是这样，继续保持！", "f": "voice/fe3f3706e06a.mp3"}, {"t": "你的手型好漂亮呀！", "f": "voice/9c3b1deeb26a.mp3"}, {"t": "这一遍比上一遍还要好！", "f": "voice/3983ab96daf3.mp3"}, {"t": "真是个认真的小琴童！", "f": "voice/bc241a7c2dca.mp3"}, {"t": "太稳了，像小老师一样！", "f": "voice/b244ce391bff.mp3"}, {"t": "给你点一个大大的赞！", "f": "voice/ad5ab8dbf53d.mp3"}, {"t": "好棒！再来一遍，我还想听！", "f": "voice/a2e1ea86a095.mp3"}, {"t": "哇，你是怎么弹得这么好听的？", "f": "voice/d70276531842.mp3"}], "block": [{"t": "太厉害啦！这个练完啦！", "f": "voice/52a5b8ead3b2.mp3"}, {"t": "哇！全部弹完了！我给你鼓掌！", "f": "voice/d2e3ed1caf6f.mp3"}, {"t": "你真是古筝小明星！", "f": "voice/95703777a895.mp3"}, {"t": "好棒好棒！我们去自由弹吧！", "f": "voice/ec9bd2274ea1.mp3"}, {"t": "这么难的都练完了，你真了不起！", "f": "voice/37a2e7aeffd9.mp3"}], "start": [{"t": "准备好了吗？我们开始吧！", "f": "voice/19b8fd7ad484.mp3"}, {"t": "我陪你一起练，加油！", "f": "voice/7f420d4dffb3.mp3"}, {"t": "来，让我听听你的好声音！", "f": "voice/483776fb16f3.mp3"}], "undo": [{"t": "没关系，再来一遍！", "f": "voice/f41cb98d00fd.mp3"}], "free": [{"t": "自由弹时间到！想弹什么就弹什么！", "f": "voice/3769dd88139f.mp3"}], "freeEnd": [{"t": "时间到啦！我们再去练一个吧！", "f": "voice/fd63f8aa1b59.mp3"}], "freeEndAll": [{"t": "时间到啦！今天全部练完了，去看看总结吧！", "f": "voice/74db3a2d63f1.mp3"}], "rest": [{"t": "小手辛苦啦！跟我一起甩甩手！", "f": "voice/62e26a193fb4.mp3"}], "restEnd": [{"t": "小手休息好啦，我们继续加油！", "f": "voice/41a65a54bff0.mp3"}], "all": [{"t": "今天全部练完啦！你是全世界最棒的小琴童！", "f": "voice/7d92cc08008b.mp3"}], "some": [{"t": "今天也很努力哦！明天我们接着加油！", "f": "voice/5e3b138d0262.mp3"}], "hi:bunny": [{"t": "耶！我是小兔子！今天我陪你练古筝！", "f": "voice/7e56a3098a16.mp3"}], "hi:cat": [{"t": "耶！我是小猫咪！今天我陪你练古筝！", "f": "voice/2b2a510a4f72.mp3"}], "hi:dog": [{"t": "耶！我是小狗狗！今天我陪你练古筝！", "f": "voice/5a716e38ec41.mp3"}], "hi:frog": [{"t": "耶！我是小青蛙！今天我陪你练古筝！", "f": "voice/386fe4be7eac.mp3"}], "hi:lion": [{"t": "耶！我是小狮子！今天我陪你练古筝！", "f": "voice/1c57b33a977f.mp3"}], "hi:mouse": [{"t": "耶！我是小老鼠！今天我陪你练古筝！", "f": "voice/c00c86796179.mp3"}], "hi:rabbit": [{"t": "耶！我是小白兔！今天我陪你练古筝！", "f": "voice/478c79f320f2.mp3"}], "hi:tiger": [{"t": "耶！我是小老虎！今天我陪你练古筝！", "f": "voice/f7f10f0555a0.mp3"}], "m:像小雨滴": [{"t": "这一次，像小雨滴一样！轻轻地弹！", "f": "voice/4c4c90d3e7f0.mp3"}], "m:像打雷": [{"t": "这一次，像打雷一样！大声、有力气！", "f": "voice/c991c9c5f001.mp3"}], "m:像小乌龟": [{"t": "这一次，像小乌龟一样！慢慢地弹！", "f": "voice/872d24e04c2e.mp3"}], "m:像小兔子": [{"t": "这一次，像小兔子一样！快一点点，但是要稳！", "f": "voice/8db7791b83b5.mp3"}], "m:像机器人": [{"t": "这一次，像机器人一样！每个音一样整齐！", "f": "voice/e32bb357104a.mp3"}], "m:说悄悄话": [{"t": "这一次，说悄悄话！最小声地弹！", "f": "voice/c01fc70b4ae9.mp3"}], "m:像敲大钟": [{"t": "这一次，像敲大钟一样！每个音都响亮！", "f": "voice/7ac2d4dcfeb1.mp3"}], "m:像跳舞": [{"t": "这一次，像跳舞一样！开开心心地弹！", "f": "voice/a2ad66771145.mp3"}], "m:像小猫走路": [{"t": "这一次，像小猫走路一样！轻轻的、稳稳的！", "f": "voice/8501447352d1.mp3"}], "m:像大狮子": [{"t": "这一次，像大狮子一样！声音饱满！", "f": "voice/8b88900b1879.mp3"}], "m:像吹气球": [{"t": "这一次，像吹气球一样！从小声慢慢变大声！", "f": "voice/238cb6d8dbc0.mp3"}], "m:像在开音乐会": [{"t": "这一次，像在开音乐会！坐直，像台下有观众！", "f": "voice/80bce25bdb81.mp3"}]};
 const NOTES=[293.66,329.63,369.99,440,493.88,587.33,659.25,739.99,880,987.77,1174.66];
 
 let S;
 try{S=JSON.parse(localStorage.getItem('zheng1'))}catch(e){}
 if(!S||!S.blocks)S={blocks:DEF.map(b=>({...b})),free:2,days:{}};
 S.blocks.forEach(b=>{b.unit=b.unit||'遍';b.count=b.count||0;b.labels=b.labels||''});
+// 陪练小动物: the child picks one each day
+const PALS=[['bunny','小兔子','bunny.png'],['cat','小猫咪','pals/cat.webp'],['dog','小狗狗','pals/dog.webp'],['frog','小青蛙','pals/frog.webp'],
+  ['lion','小狮子','pals/lion.webp'],['mouse','小老鼠','pals/mouse.webp'],['rabbit','小白兔','pals/rabbit.webp'],['tiger','小老虎','pals/tiger.webp']];
+const pal=()=>PALS.find(p=>p[0]===S.pal)||PALS[0];
 // 项目库: every project the parent has set up, so a removed one can be picked again later
 const LIBK=['name','hint','reps','unit','count','labels','bpm'];
 function libPut(b){const n=(b.name||'').trim();if(!n||n==='新项目')return;const o={};LIBK.forEach(k=>{if(b[k]!==undefined)o[k]=b[k]});o.name=n;
@@ -609,9 +631,21 @@ $('addB').onclick=()=>{S.blocks.push({id:'b'+Date.now().toString(36),name:'新�
 $('resetDay').onclick=e=>{const b=e.currentTarget;if(!b.dataset.sure){b.dataset.sure=1;b.textContent='再点一次，确定清空';return}delete S.days[dkey()];save();delete b.dataset.sure;b.textContent='清空今天的记录';toast('今天的记录已清空')};
 $('pClose').onclick=()=>{S.blocks.forEach(b=>{if(!b.name.trim())b.name='项目'});[...S.blocks].reverse().forEach(libPut);save();renderHome();show('home')};
 
+/* ---------- 陪练小动物 ---------- */
+function setPal(){const p=pal();document.querySelectorAll('img.bun').forEach(i=>{if(i.getAttribute('src')!==p[2])i.src=p[2]});document.querySelectorAll('.palN').forEach(e=>e.textContent=p[1])}
+function openPal(){
+  $('palGrid').innerHTML=PALS.map(p=>`<button class="${p[0]===S.pal?'on':''}" data-p="${p[0]}"><img src="${p[2]}" alt=""><span>${p[1]}</span></button>`).join('');
+  $('palBox').hidden=false;
+}
+$('palGrid').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;audio();
+  S.pal=b.dataset.p;S.palDay=dkey();save();setPal();$('palBox').hidden=true;
+  const im=document.querySelector('#palBtn img');anim(im,'hop');setTimeout(()=>im.className='bun idle',900);gliss();setTimeout(()=>say('hi:'+S.pal),500)};
+$('palBtn').onclick=openPal;
+
 /* ---------- start ---------- */
 if(ckData())document.querySelectorAll('.ck').forEach(e=>e.hidden=false);
-renderHome();
+setPal();renderHome();
+if(S.palDay!==dkey()&&!location.hash)openPal();
 const h=location.hash;
 if(h==='#tprac'){startBlock('gtmt');rec().r=2;drawProg(false)}
 else if(h==='#tcount'){startBlock('gtz');rec().r=1;drawProg(false);cntStart()}
