@@ -155,6 +155,16 @@ a.ghost{text-decoration:none;white-space:nowrap}
 .gate p{margin:0;color:var(--mute)}
 .gate input{font:inherit;font-size:30px;width:150px;text-align:center;padding:8px;border-radius:16px;border:3px solid var(--line);background:var(--card);color:var(--ink)}
 .rowbtns{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.lib{display:flex;flex-wrap:wrap;gap:10px;font-family:var(--f2)}
+.lib .li{display:flex;align-items:stretch;background:var(--card);border:2px solid var(--line);border-radius:16px;overflow:hidden}
+.lib .li button{background:none;border:0;color:var(--ink);font:inherit}
+.lib .add{display:flex;flex-direction:column;align-items:flex-start;padding:8px 6px 8px 14px;text-align:left;cursor:pointer}
+.lib .add b{font-size:17px}.lib .add b::before{content:"＋ ";color:var(--mint)}
+.lib .add span{font-size:13px;color:var(--mute)}
+.lib .x{padding:0 12px;color:var(--mute);font-size:18px;cursor:pointer}
+.lib .x.sure{background:var(--coral);color:#fff;font-size:14px}
+.erow.hl{animation:hl 1.8s}@keyframes hl{0%,40%{background:#FFF1B8;border-color:var(--gold,#FFB703)}}
+.lib .none{color:var(--mute);font-size:15px}
 .rowbtns .bigbtn{flex:1;margin:0;min-width:200px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:16px;z-index:30}
 @media (prefers-reduced-motion:reduce){.idle,.dance,.jump,.hop,.board i.on,.notes span,.conf{animation:none}}
@@ -257,8 +267,11 @@ a.ghost{text-decoration:none;white-space:nowrap}
     <div class="sec-t">练习项目</div>
     <p class="note">每个项目可以改：名字、弹几次、单位（点绿色的字切换：遍 / 组 / 个手指 / 次来回 / 句）。<br>要弹很多下的，比如高抬指每个手指 50 下：设成「3 个手指」，「跟节拍器数」设成 50 下，名字填「大指,食指,中指」。孩子跟着节拍弹，页面自动数，数到了会响。</p>
     <div class="form" id="edit"></div>
+    <div class="sec-t">项目库</div>
+    <p class="note">设置过的项目都存在这里。点一下就加回上面的练习里，加进去以后还能接着改。不要的点 ×。</p>
+    <div class="lib" id="lib"></div>
     <div class="rowbtns">
-      <button class="bigbtn chunky" id="addB">＋ 加一个项目</button>
+      <button class="bigbtn chunky" id="addB">＋ 新建一个空白项目</button>
       <button class="bigbtn chunky" id="resetDay">清空今天的记录</button>
     </div>
   </div>
@@ -295,6 +308,11 @@ let S;
 try{S=JSON.parse(localStorage.getItem('zheng1'))}catch(e){}
 if(!S||!S.blocks)S={blocks:DEF.map(b=>({...b})),free:2,days:{}};
 S.blocks.forEach(b=>{b.unit=b.unit||'遍';b.count=b.count||0;b.labels=b.labels||''});
+// 项目库: every project the parent has set up, so a removed one can be picked again later
+const LIBK=['name','hint','reps','unit','count','labels','bpm'];
+function libPut(b){const n=(b.name||'').trim();if(!n||n==='新项目')return;const o={};LIBK.forEach(k=>{if(b[k]!==undefined)o[k]=b[k]});o.name=n;
+  S.lib=S.lib.filter(x=>x.name!==n);S.lib.unshift(o)}
+if(!S.lib){S.lib=[];[...DEF].reverse().forEach(libPut);[...S.blocks].reverse().forEach(libPut)}
 const UNITS=['遍','组','个手指','次来回','句'],COUNTS=[0,10,20,30,40,50,60,80,100,150,200];
 const U=b=>b.unit||'遍';
 const MW=b=>{const u=U(b);return u==='遍'||u==='组'||u==='句'?u:u[0]};
@@ -562,7 +580,19 @@ function renderEdit(){
     <div class="ctl row2">跟节拍器数：<button data-a="c-">−</button><span class="n">${b.count?b.count+' 下':'不数'}</span><button data-a="c+">+</button>${b.count?`<span>（每${U(b)}数 ${b.count} 下）</span>`:''}</div>
     <input type="text" class="hin" id="h_${b.id}" value="${esc(b.hint||'')}" data-k="hint" placeholder="提示（可以不写）" aria-label="提示">
     <input type="text" class="hin" id="l_${b.id}" value="${esc(b.labels||'')}" data-k="labels" placeholder="每${esc(U(b))}的名字，逗号隔开，如：大指,食指,中指" aria-label="每一组的名字"></div>`).join('');
+  renderLib();
 }
+function renderLib(){
+  const now=new Set(S.blocks.map(b=>b.name.trim()));
+  const L=S.lib.map((x,j)=>[x,j]).filter(([x])=>!now.has(x.name));
+  $('lib').innerHTML=L.length?L.map(([x,j])=>`<div class="li"><button class="add" data-l="add" data-j="${j}"><b>${esc(x.name)}</b><span>${x.reps} ${esc(x.unit||'遍')}${x.count?' · 每'+esc(x.unit||'遍')+'数 '+x.count+' 下':''}</span></button><button class="x" data-l="x" data-j="${j}" aria-label="从项目库删掉">×</button></div>`).join('')
+    :'<span class="none">项目库里的项目都已经在上面的练习里了。</span>';
+}
+$('lib').onclick=e=>{const t=e.target.closest('[data-l]');if(!t)return;const j=+t.dataset.j,x=S.lib[j];if(!x)return;
+  if(t.dataset.l==='x'){if(!t.classList.contains('sure')){t.classList.add('sure');t.textContent='删掉？';return}S.lib.splice(j,1);save();renderLib();return}
+  const b={id:'b'+Date.now().toString(36),hint:'',reps:5,unit:'遍',count:0,labels:'',...x};S.blocks.push(b);save();renderEdit();
+  const r=$('edit').lastElementChild;if(r){r.scrollIntoView({behavior:'smooth',block:'center'});anim(r,'hl')}
+  toast('加好了，可以在上面改');};
 $('edit').oninput=e=>{const r=e.target.closest('.erow');if(!r||!e.target.dataset.k)return;S.blocks[+r.dataset.i][e.target.dataset.k]=e.target.value;save()};
 $('edit').onclick=e=>{const a=e.target.dataset.a;if(!a)return;const i=+e.target.closest('.erow').dataset.i,b=S.blocks[i];
   if(a==='r-')b.reps=Math.max(1,b.reps-1);if(a==='r+')b.reps=Math.min(30,b.reps+1);
@@ -570,14 +600,14 @@ $('edit').onclick=e=>{const a=e.target.dataset.a;if(!a)return;const i=+e.target.
   const ci=Math.max(0,COUNTS.indexOf(b.count));
   if(a==='c-')b.count=COUNTS[Math.max(0,ci-1)];if(a==='c+')b.count=COUNTS[Math.min(COUNTS.length-1,ci+1)];
   if(a==='up'&&i>0)[S.blocks[i-1],S.blocks[i]]=[b,S.blocks[i-1]];
-  if(a==='del'){if(e.target.dataset.sure){S.blocks.splice(i,1)}else{e.target.dataset.sure=1;e.target.textContent='确定删？';return}}
+  if(a==='del'){if(e.target.dataset.sure){libPut(b);S.blocks.splice(i,1)}else{e.target.dataset.sure=1;e.target.textContent='确定删？';return}}
   save();renderEdit()};
 $('vOn').onclick=()=>{S.voice=S.voice===false;save();renderEdit();if(S.voice!==false)say('rep')};
 $('fm-').onclick=()=>{S.free=Math.max(0,S.free-1);save();renderEdit()};
 $('fm+').onclick=()=>{S.free=Math.min(10,S.free+1);save();renderEdit()};
 $('addB').onclick=()=>{S.blocks.push({id:'b'+Date.now().toString(36),name:'新项目',hint:'',reps:5,unit:'遍',count:0,labels:''});save();renderEdit()};
 $('resetDay').onclick=e=>{const b=e.currentTarget;if(!b.dataset.sure){b.dataset.sure=1;b.textContent='再点一次，确定清空';return}delete S.days[dkey()];save();delete b.dataset.sure;b.textContent='清空今天的记录';toast('今天的记录已清空')};
-$('pClose').onclick=()=>{S.blocks.forEach(b=>{if(!b.name.trim())b.name='项目'});save();renderHome();show('home')};
+$('pClose').onclick=()=>{S.blocks.forEach(b=>{if(!b.name.trim())b.name='项目'});[...S.blocks].reverse().forEach(libPut);save();renderHome();show('home')};
 
 /* ---------- start ---------- */
 if(ckData())document.querySelectorAll('.ck').forEach(e=>e.hidden=false);
