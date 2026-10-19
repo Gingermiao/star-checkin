@@ -793,16 +793,14 @@ function say(k,i){
     vLoad(k,i).then(b=>b?go(b):res());
   });
 }
-/* the pal reads the project's name and tip: recorded for the default projects, iPad's own voice for the parent's own ones */
+/* the pal reads the project's name and tip: recorded for every card we know about (gen_voice.py, incl. src/my_cards.txt);
+   a card written on the iPad later gets a general line in the same child voice, never the iPad's own adult voice */
 function sayTip(b){
   if(S.voice===false)return Promise.resolve();
   const k='tip:'+b.name+'|'+(b.hint||'');
-  if(VO[k])return say(k);
-  const t='我们来练'+b.name.replace(/[：:]/g,'，')+'！'+(b.hint?'记住哦，'+b.hint+'。':'');   // same wording as the recorded cards
-  return new Promise(res=>{try{const ss=speechSynthesis;ss.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.pitch=1;u.rate=0.95;   // no pitch-shifting: a raised built-in voice sounded like a squeak
-    const v=ss.getVoices().filter(x=>/zh[-_]CN/i.test(x.lang));if(v.length)u.voice=v.find(x=>/Tingting|婷婷|Xiaoxiao|Meijia/i.test(x.name))||v[0];
-    u.onend=u.onerror=()=>res();ss.speak(u);setTimeout(res,8000)}catch(e){res()}});
+  return say(VO[k]?k:'tipAny');
 }
+
 /* a line is either inline base64 (claude.ai copy) or a file next to the page (iPad copy, loaded when needed) */
 const vPend={};
 function vLoad(k,i){
