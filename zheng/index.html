@@ -839,7 +839,7 @@ function click(acc){const a=audio();if(!a)return;const o=a.createOscillator(),g=
 const SCR=['home','prac','free','rest','sum','parent'];
 let wake=null;
 function show(id){
-  SCR.forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0);if(typeof homeMusic==='function')homeMusic();
+  SCR.forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0);if(id!=='home'&&typeof musicKill==='function'&&hm)musicKill();if(typeof homeMusic==='function')homeMusic();
   if(id!=='prac'){metroStop();cntStop()}
   if(id!=='rest'){musicStop();clearInterval(rt);rt=null}
   if(id==='prac'||id==='free'||id==='rest'){try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{})}catch(e){}}
@@ -892,8 +892,8 @@ function loadHomeMusic(){
     .then(b=>new Promise((ok,no)=>a.decodeAudioData(b,ok,no))).then(b=>{hmBuf=b}).catch(()=>{hmLoading=null});
 }
 function homeMusic(){
-  const want=false;   // the parent asked for no background music (2026-10-20)
-  $('hmBtn').hidden=true;
+  const want=!$('home').hidden&&S.homeMusic!==false;
+  $('hmBtn').textContent=S.homeMusic===false?'🔇':'🎵';
   if(!want){if(hm){const a=audio(),g=hm.g;g.gain.setTargetAtTime(0,a.currentTime,.15);const src=hm.s;setTimeout(()=>{try{src.stop()}catch(e){}},700);hm=null}return}
   if(hm)return;const a=audio();if(!a)return;
   if(a.state!=='running'){a.resume().then(()=>{if(a.state==='running')homeMusic()}).catch(()=>{});return}
@@ -902,6 +902,13 @@ function homeMusic(){
   g.gain.setTargetAtTime(.4,a.currentTime,.4);hm={s,g};
 }
 $('hmBtn').onclick=e=>{e.stopPropagation();audio();S.homeMusic=S.homeMusic===false;save();homeMusic()};
+// stop every looping music right now (no fade): leaving the home screen, going back to 打卡, or the iPad hiding the page.
+// iPad Safari can keep a page's sound playing after you leave it, so the music must be stopped before that happens.
+function musicKill(){if(hm){try{hm.s.stop()}catch(e){}hm.g.disconnect();hm=null}if(typeof musicStop==='function')musicStop()}
+window.addEventListener('pagehide',musicKill);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)musicKill();else homeMusic()});
+window.addEventListener('pageshow',e=>{if(e.persisted)homeMusic()});
+document.querySelectorAll('a.ck').forEach(l=>l.addEventListener('click',musicKill));
 document.addEventListener('pointerdown',()=>{audio();setTimeout(homeMusic,60)});
 addEventListener('resize',()=>{if(!$('home').hidden)renderHome()});
 const BAND_ORDER=['dog','frog','rabbit','tiger','lion','sheep'];
