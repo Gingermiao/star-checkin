@@ -833,7 +833,8 @@ document.addEventListener('pointerdown',()=>{audio();setTimeout(preloadVoices,15
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function gliss(){NOTES.forEach((f,i)=>pluck(f,i*.07,.35))}
 function chime(){[587.33,739.99,880].forEach((f,i)=>pluck(f,i*.18,.5))}
-function click(acc){const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.frequency.value=cur&&listensTo(blk())?(acc?5200:4600):(acc?1500:1000);if(ear&&ear.on){earBeats.push(a.currentTime);earBeats=earBeats.filter(b=>b>a.currentTime-8)}g.gain.setValueAtTime(.35,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.06)}
+function click(acc){const a=audio();if(!a)return;if(cur&&listensTo(blk()))return;   // listening: she plays with her own metronome, so the app stays quiet
+  const o=a.createOscillator(),g=a.createGain();o.frequency.value=acc?1500:1000;g.gain.setValueAtTime(.35,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.06)}
 
 /* ---------- screens ---------- */
 const SCR=['home','prac','free','rest','sum','parent'];
@@ -1024,10 +1025,10 @@ async function earStart(testSrc){
       ear={st,an,buf:new Float32Array(2048),spec:new Float32Array(1024),timer:null};
     }catch(e){toast('听不到声音：请允许使用麦克风');return}
   }
-  Object.assign(ear,{on:true,specs:[],db:[],flux:[],floor:-70,last:-1,cal:a.currentTime+1});
+  Object.assign(ear,{on:true,specs:[],db:[],flux:[],floor:-70,last:-1,cand:-1,pend:null,cal:a.currentTime+1});
   earFast=0;earGood=0;earWarned=false;
   clearInterval(ear.timer);ear.timer=setInterval(earListen,15);
-  earBeats=[];earNotes=[];$('pace').hidden=false;$('pace').className='pace';$('paceT').textContent='👂 在听呢，跟着嘀嘀弹';
+  earBeats=[];earNotes=[];$('pace').hidden=false;$('pace').className='pace';$('paceT').textContent='👂 在听呢，跟着节拍器弹';
   requestAnimationFrame(earDraw);
 }
 function earDraw(){
@@ -1036,7 +1037,10 @@ function earDraw(){
   if(cv.width!==Math.round(r.width*dpr)){cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr)}
   const c=cv.getContext('2d'),W=cv.width,H=cv.height,now=ac.currentTime,x=t=>W*.8+(t-now)/6*W;
   c.clearRect(0,0,W,H);
-  c.fillStyle='#E2CDB2';earBeats.forEach(b=>{const X=x(b);if(X>-4&&X<W)c.fillRect(X-2*dpr,8*dpr,4*dpr,H-16*dpr)});
+  // beat lines: her own metronome's tocks, with the beats hidden under a note filled in (and the next ones shown) from the tempo
+  const per=60/(+$('mBpm').textContent||60),lastTock=earBeats.length?earBeats[earBeats.length-1]:null;
+  c.fillStyle='#E2CDB2';
+  if(lastTock!=null&&now-lastTock<6)for(let k=-8;k<=3;k++){const X=x(lastTock+k*per);if(X>-4&&X<W)c.fillRect(X-2*dpr,8*dpr,4*dpr,H-16*dpr)}
   c.fillStyle='#8A5A3C';c.fillRect(W*.8-1.5*dpr,0,3*dpr,H);
   earNotes.forEach(n=>{const X=x(n.t);if(X<-20)return;c.beginPath();c.arc(X,H/2,10*dpr,0,7);c.fillStyle=n.f?'#F08A3C':'#4CAF6A';c.fill()});
   requestAnimationFrame(earDraw);
@@ -1058,7 +1062,13 @@ function earListen(){
   else{
     e.floor=e.floor*.995+Math.min(db,e.floor+3)*.005;
     const calm=e.flux.length?e.flux.slice().sort((x,y)=>x-y)[e.flux.length>>1]:0,ref=e.db.length>=4?Math.min(...e.db.slice(-4)):db;
-    if(t>earQuiet&&!earTalk&&db>e.floor+14&&t-e.last>.2&&((flux>calm+4.5&&db-ref>1.5)||db-ref>10))earNote(t);
+    if(!e.pend&&t>earQuiet&&!earTalk&&db>e.floor+14&&t-e.cand>.09&&((flux>calm+4.5&&db-ref>1.5)||db-ref>10)){e.cand=t;e.pend={t,pre:old?Float32Array.from(old):null}}
+    if(e.pend&&t-e.pend.t>=.11){
+      const P=e.pend;e.pend=null;let keep=0;
+      if(P.pre){for(let i=lo;i<=hi;i++){const x=Math.max(e.spec[i],-100),y=Math.max(P.pre[i],-100);if(x>y)keep+=x-y}keep/=(hi-lo+1)}
+      if(keep>3&&db>e.floor+8){if(P.t-e.last>.2)earNote(P.t)}   // one note is never counted twice
+      else{earBeats.push(P.t);earBeats=earBeats.filter(b=>b>t-8)}
+    }
     e.flux.push(flux);if(e.flux.length>120)e.flux.shift();
   }
   e.db.push(db);if(e.db.length>8)e.db.shift();
