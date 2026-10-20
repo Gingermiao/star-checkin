@@ -906,9 +906,10 @@ $('hmBtn').onclick=e=>{e.stopPropagation();audio();S.homeMusic=S.homeMusic===fal
 // stop every looping music right now (no fade): leaving the home screen, going back to 打卡, or the iPad hiding the page.
 // iPad Safari can keep a page's sound playing after you leave it, so the music must be stopped before that happens.
 function musicKill(){if(hm){try{hm.s.stop()}catch(e){}hm.g.disconnect();hm=null}if(typeof musicStop==='function')musicStop()}
-window.addEventListener('pagehide',musicKill);
+// leaving the page: stop the music and switch the whole sound output off, so a page the iPad keeps frozen in the background stays silent
+window.addEventListener('pagehide',()=>{musicKill();try{ac&&ac.suspend()}catch(e){}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)musicKill();else homeMusic()});
-window.addEventListener('pageshow',e=>{if(e.persisted)homeMusic()});
+window.addEventListener('pageshow',e=>{if(e.persisted){try{ac&&ac.resume()}catch(x){}homeMusic()}});
 document.querySelectorAll('a.ck').forEach(l=>l.addEventListener('click',musicKill));
 document.addEventListener('pointerdown',()=>{audio();setTimeout(homeMusic,60)});
 addEventListener('resize',()=>{if(!$('home').hidden)renderHome()});
