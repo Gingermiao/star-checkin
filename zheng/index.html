@@ -89,6 +89,11 @@ a.ghost{text-decoration:none;white-space:nowrap}
 @keyframes pop{0%{transform:none}40%{transform:translateY(-18px) scale(1.2)}100%{transform:none}}
 .count{text-align:center;font-size:20px;color:var(--mute);margin-top:14px}
 .count b{font-weight:normal;font-size:34px;color:var(--coral)}
+/* the beat strip: beat lines scroll from right to left past the "now" line; every note she plays lands on it as a dot */
+.pace{position:relative;width:min(560px,92%);height:66px;margin:10px auto 0;border-radius:14px;background:rgba(255,255,255,.75);overflow:hidden;box-shadow:inset 0 0 0 2px var(--line)}
+.pace canvas{position:absolute;inset:0;width:100%;height:100%}
+.pace span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--mute)}
+.pace.warn{box-shadow:inset 0 0 0 3px #F08A3C}
 .now{text-align:center;font-size:26px;color:var(--mint);margin-top:2px}
 .hit{display:block;width:100%;max-width:560px;margin:16px auto 0;min-height:100px;background:var(--coral);color:#fff;font-size:30px;--sh:#d94436;border-radius:30px}
 .hit.counting{background:var(--mint);--sh:#1f9a79}
@@ -586,6 +591,7 @@ body:has(#home[hidden])::after{content:"";position:fixed;inset:0;z-index:-1;back
   </div>
   <div class="board" id="bridges"></div>
   <div class="count"><b id="cNow">0</b> / <span id="cAll">5</span> <span id="cU">遍</span></div>
+  <div class="pace" id="pace" hidden><canvas id="paceCv"></canvas><span id="paceT"></span></div>
   <div class="now" id="pNow" hidden></div>
   <button class="hit chunky" id="hit">弹好了一遍 ✓</button>
   <div class="tools">
@@ -720,7 +726,7 @@ function pickRest(){
   const sh=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
   REST=sh(pool).concat(sh(rest)).slice(0,4);S.lastFx=REST.map(f=>f[0]);save();
 }
-const VO={"rep": [{"t": "太好听啦！", "f": "voice/3bce0d041634.mp3"}, {"t": "哇，这一遍弹得真棒！", "f": "voice/5a0023d6b014.mp3"}, {"t": "你的手指好有力气呀！", "f": "voice/98186b1ff63d.mp3"}, {"t": "好听得我耳朵都要开花啦！", "f": "voice/b6933402837d.mp3"}, {"t": "大珠小珠落玉盘，说的就是你！", "f": "voice/13a8126c2c57.mp3"}, {"t": "我听得都想跳舞啦！", "f": "voice/b6a8cfb63d1a.mp3"}, {"t": "你越弹越好了！", "f": "voice/bc7f40f1afd9.mp3"}, {"t": "就是这样，继续保持！", "f": "voice/fe3f3706e06a.mp3"}, {"t": "你的手型好漂亮呀！", "f": "voice/9c3b1deeb26a.mp3"}, {"t": "这一遍比上一遍还要好！", "f": "voice/3983ab96daf3.mp3"}, {"t": "真是个认真的小琴童！", "f": "voice/bc241a7c2dca.mp3"}, {"t": "太稳了，像小老师一样！", "f": "voice/b244ce391bff.mp3"}, {"t": "给你点一个大大的赞！", "f": "voice/ad5ab8dbf53d.mp3"}, {"t": "好棒！再来一遍，我还想听！", "f": "voice/a2e1ea86a095.mp3"}, {"t": "哇，你是怎么弹得这么好听的？", "f": "voice/d70276531842.mp3"}], "block": [{"t": "太厉害啦！这个练完啦！", "f": "voice/52a5b8ead3b2.mp3"}, {"t": "哇！全部弹完了！我给你鼓掌！", "f": "voice/d2e3ed1caf6f.mp3"}, {"t": "你真是古筝小明星！", "f": "voice/95703777a895.mp3"}, {"t": "好棒好棒！我们去自由弹吧！", "f": "voice/ec9bd2274ea1.mp3"}, {"t": "这么难的都练完了，你真了不起！", "f": "voice/37a2e7aeffd9.mp3"}], "start": [{"t": "准备好了吗？我们开始吧！", "f": "voice/19b8fd7ad484.mp3"}, {"t": "我陪你一起练，加油！", "f": "voice/7f420d4dffb3.mp3"}, {"t": "来，让我听听你的好声音！", "f": "voice/483776fb16f3.mp3"}], "undo": [{"t": "没关系，再来一遍！", "f": "voice/f41cb98d00fd.mp3"}], "free": [{"t": "自由弹时间到！想弹什么就弹什么！", "f": "voice/3769dd88139f.mp3"}], "freeEnd": [{"t": "时间到啦！我们再去练一个吧！", "f": "voice/fd63f8aa1b59.mp3"}], "freeEndAll": [{"t": "时间到啦！今天全部练完了，去看看总结吧！", "f": "voice/74db3a2d63f1.mp3"}], "rest": [{"t": "小手辛苦啦！我们一起做手指操吧！", "f": "voice/544f1d66e464.mp3"}], "fo0": [{"t": "第一节，花开花合！握紧小拳头，再用力张开！", "f": "voice/3e6c6ae0f0b2.mp3"}], "fo1": [{"t": "第二节，手指碰碰！指尖对好，一对一对碰一碰！", "f": "voice/df8c5561ef63.mp3"}], "fo2": [{"t": "第三节，手指跳舞！五个手指轮流点桌子！", "f": "voice/2f497a67efcf.mp3"}], "fo3": [{"t": "最后一节，甩甩小手！轻轻地甩一甩！", "f": "voice/30aa29a62ddf.mp3"}], "foCheer": [{"t": "做得真好！", "f": "voice/fcdac721754f.mp3"}, {"t": "小手越来越灵活啦！", "f": "voice/11b7846c8184.mp3"}, {"t": "加油加油！", "f": "voice/32106e274dd2.mp3"}, {"t": "真棒，再来几下！", "f": "voice/84df6e87f252.mp3"}, {"t": "跟着音乐一起动！", "f": "voice/0ee2d81a8365.mp3"}], "restEnd": [{"t": "小手休息好啦，我们继续加油！", "f": "voice/41a65a54bff0.mp3"}], "all": [{"t": "今天全部练完啦！你是全世界最棒的小琴童！", "f": "voice/7d92cc08008b.mp3"}], "some": [{"t": "今天也很努力哦！明天我们接着加油！", "f": "voice/5e3b138d0262.mp3"}], "tipAny": [{"t": "我们来练这一项！先看看上面的要点哦。", "f": "voice/980772999fce.mp3"}, {"t": "准备好了吗？看看要点，我们开始吧！", "f": "voice/2333663b9969.mp3"}, {"t": "这一项我陪你练！记住上面的要点哦。", "f": "voice/977458baac35.mp3"}], "hi:bunny": [{"t": "耶！我是小兔子！今天我陪你练古筝！", "f": "voice/7e56a3098a16.mp3"}], "hi:cat": [{"t": "耶！我是小猫咪！今天我陪你练古筝！", "f": "voice/2b2a510a4f72.mp3"}], "hi:dog": [{"t": "耶！我是小狗狗！今天我陪你练古筝！", "f": "voice/5a716e38ec41.mp3"}], "hi:frog": [{"t": "耶！我是小青蛙！今天我陪你练古筝！", "f": "voice/386fe4be7eac.mp3"}], "hi:lion": [{"t": "耶！我是小狮子！今天我陪你练古筝！", "f": "voice/1c57b33a977f.mp3"}], "hi:mouse": [{"t": "耶！我是小老鼠！今天我陪你练古筝！", "f": "voice/c00c86796179.mp3"}], "hi:rabbit": [{"t": "耶！我是小白兔！今天我陪你练古筝！", "f": "voice/478c79f320f2.mp3"}], "hi:tiger": [{"t": "耶！我是小老虎！今天我陪你练古筝！", "f": "voice/f7f10f0555a0.mp3"}], "hi:sheep": [{"t": "耶！我是小绵羊！今天我陪你练古筝！", "f": "voice/24ee0207278c.mp3"}], "m:像小雨滴": [{"t": "这一次，像小雨滴一样！轻轻地弹！", "f": "voice/4c4c90d3e7f0.mp3"}], "m:像打雷": [{"t": "这一次，像打雷一样！大声、有力气！", "f": "voice/c991c9c5f001.mp3"}], "m:像小乌龟": [{"t": "这一次，像小乌龟一样！慢慢地弹！", "f": "voice/872d24e04c2e.mp3"}], "m:像小兔子": [{"t": "这一次，像小兔子一样！快一点点，但是要稳！", "f": "voice/8db7791b83b5.mp3"}], "m:像机器人": [{"t": "这一次，像机器人一样！每个音一样整齐！", "f": "voice/e32bb357104a.mp3"}], "m:说悄悄话": [{"t": "这一次，说悄悄话！最小声地弹！", "f": "voice/c01fc70b4ae9.mp3"}], "m:像敲大钟": [{"t": "这一次，像敲大钟一样！每个音都响亮！", "f": "voice/7ac2d4dcfeb1.mp3"}], "m:像跳舞": [{"t": "这一次，像跳舞一样！开开心心地弹！", "f": "voice/a2ad66771145.mp3"}], "m:像小猫走路": [{"t": "这一次，像小猫走路一样！轻轻的、稳稳的！", "f": "voice/8501447352d1.mp3"}], "m:像大狮子": [{"t": "这一次，像大狮子一样！声音饱满！", "f": "voice/8b88900b1879.mp3"}], "m:像吹气球": [{"t": "这一次，像吹气球一样！从小声慢慢变大声！", "f": "voice/238cb6d8dbc0.mp3"}], "m:像在开音乐会": [{"t": "这一次，像在开音乐会！坐直，像台下有观众！", "f": "voice/80bce25bdb81.mp3"}], "tip:托|大指向外弹，手腕放松": [{"t": "我们来练大指托！记住哦，大指向外弹，手腕放松。", "f": "voice/d6dc29cf8b21.mp3"}], "tip:抹|食指向里弹": [{"t": "我们来练食指抹！记住哦，食指向里弹。", "f": "voice/c102558eef2a.mp3"}], "tip:勾|中指向里弹": [{"t": "我们来练中指勾！记住哦，中指向里弹。", "f": "voice/5f2a53b78abb.mp3"}], "tip:高抬指|手指抬高，落下有力，跟着节拍弹": [{"t": "我们来练高抬指！记住哦，手指抬高，落下有力，跟着节拍弹。", "f": "voice/2d238ebd74b6.mp3"}], "tip:勾托抹托|来回弹，声音均匀": [{"t": "我们来练勾托抹托！记住哦，来回弹，声音均匀。", "f": "voice/4cb9a5b216e2.mp3"}], "tip:大撮 小撮|两个音同时响，像一个声音": [{"t": "我们来练大撮和小撮！记住哦，两个音同时响，像一个声音。", "f": "voice/012f1d746586.mp3"}], "tip:摇指|先慢后快，手腕不要僵": [{"t": "我们来练摇指！记住哦，先慢后快，手腕不要僵。", "f": "voice/d48d3b932999.mp3"}], "tip:曲子：最难的那一句|只练这一句，弹对了再加快": [{"t": "我们来练曲子里最难的那一句！记住哦，只练这一句，弹对了再加快。", "f": "voice/5a6ab9b713b9.mp3"}], "tip:曲子：从头弹到尾|弹错了也不停，接着往下弹": [{"t": "我们来练曲子，从头弹到尾！记住哦，弹错了也不停，接着往下弹。", "f": "voice/c57f18a07571.mp3"}], "tip:勾抹勾抹|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练勾抹勾抹！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/50a2aed2bfe6.mp3"}], "tip:打勾打勾|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打勾打勾！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/6493943c88be.mp3"}], "tip:打托抹托|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打托抹托！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/bcc5606428f7.mp3"}], "tip:指序|弹贴，不要别指，手放平": [{"t": "我们来练指序！记住哦，弹贴，不要别指，手放平。", "f": "voice/ca8b4026b2a9.mp3"}], "tip:点音|来回弹": [{"t": "我们来练点音！记住哦，来回弹。", "f": "voice/44559cdd3519.mp3"}], "tip:跟弦|手要拱，手要打弯": [{"t": "我们来练跟弦！记住哦，手要拱，手要打弯。", "f": "voice/d0c48b8bf140.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/7fe82af64376.mp3"}], "tip:曲子：小白菜|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/9a5d3b26974a.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/5de9cb0e72d5.mp3"}], "tip:曲子：小白菜|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/e973b1fed146.mp3"}], "fx:花开花合": [{"t": "花开花合！握紧小拳头，再用力张开，像花开一样！", "f": "voice/c07ed4ea6b7b.mp3"}], "fx:手指碰碰": [{"t": "手指碰碰！两只手的指尖对好，一对一对碰一碰！", "f": "voice/55a9323eb1d9.mp3"}], "fx:手指跳舞": [{"t": "手指跳舞！五个手指轮流点桌子，像弹钢琴！", "f": "voice/def0f897250b.mp3"}], "fx:甩甩小手": [{"t": "甩甩小手！手腕放松，轻轻甩一甩！", "f": "voice/647eb757b21f.mp3"}], "fx:小鸟啄米": [{"t": "小鸟啄米！大拇指和每个手指轮流捏一捏！", "f": "voice/8b94af0a449e.mp3"}], "fx:小螃蟹爬": [{"t": "小螃蟹爬！手指在桌上一步一步往前爬，再爬回来！", "f": "voice/d517968f6bc8.mp3"}], "fx:转转手腕": [{"t": "转转手腕！两只手握拳，手腕慢慢转圈圈！", "f": "voice/67cee9c7d5b6.mp3"}], "fx:弹弹手指": [{"t": "弹弹手指！用大拇指扣住手指，再一下一下弹出去！", "f": "voice/b28e3b3d68f3.mp3"}], "fx:拉拉手指": [{"t": "拉拉手指！一只手轻轻拉另一只手的每个手指！", "f": "voice/bd38dd8e01e2.mp3"}], "fx:搓搓小手": [{"t": "搓搓小手！两只手掌搓一搓，搓热了捂捂脸！", "f": "voice/21c925aac48a.mp3"}], "fx:小兔耳朵": [{"t": "小兔耳朵！伸出食指和中指，一会儿竖起，一会儿弯下！", "f": "voice/e5eebe994434.mp3"}], "fx:手指数数": [{"t": "手指数数！从大拇指开始，一个一个伸出来数到五，再收回去！", "f": "voice/19fd67f87e49.mp3"}]};
+const VO={"rep": [{"t": "太好听啦！", "f": "voice/3bce0d041634.mp3"}, {"t": "哇，这一遍弹得真棒！", "f": "voice/5a0023d6b014.mp3"}, {"t": "你的手指好有力气呀！", "f": "voice/98186b1ff63d.mp3"}, {"t": "好听得我耳朵都要开花啦！", "f": "voice/b6933402837d.mp3"}, {"t": "大珠小珠落玉盘，说的就是你！", "f": "voice/13a8126c2c57.mp3"}, {"t": "我听得都想跳舞啦！", "f": "voice/b6a8cfb63d1a.mp3"}, {"t": "你越弹越好了！", "f": "voice/bc7f40f1afd9.mp3"}, {"t": "就是这样，继续保持！", "f": "voice/fe3f3706e06a.mp3"}, {"t": "你的手型好漂亮呀！", "f": "voice/9c3b1deeb26a.mp3"}, {"t": "这一遍比上一遍还要好！", "f": "voice/3983ab96daf3.mp3"}, {"t": "真是个认真的小琴童！", "f": "voice/bc241a7c2dca.mp3"}, {"t": "太稳了，像小老师一样！", "f": "voice/b244ce391bff.mp3"}, {"t": "给你点一个大大的赞！", "f": "voice/ad5ab8dbf53d.mp3"}, {"t": "好棒！再来一遍，我还想听！", "f": "voice/a2e1ea86a095.mp3"}, {"t": "哇，你是怎么弹得这么好听的？", "f": "voice/d70276531842.mp3"}], "block": [{"t": "太厉害啦！这个练完啦！", "f": "voice/52a5b8ead3b2.mp3"}, {"t": "哇！全部弹完了！我给你鼓掌！", "f": "voice/d2e3ed1caf6f.mp3"}, {"t": "你真是古筝小明星！", "f": "voice/95703777a895.mp3"}, {"t": "好棒好棒！我们去自由弹吧！", "f": "voice/ec9bd2274ea1.mp3"}, {"t": "这么难的都练完了，你真了不起！", "f": "voice/37a2e7aeffd9.mp3"}], "start": [{"t": "准备好了吗？我们开始吧！", "f": "voice/19b8fd7ad484.mp3"}, {"t": "我陪你一起练，加油！", "f": "voice/7f420d4dffb3.mp3"}, {"t": "来，让我听听你的好声音！", "f": "voice/483776fb16f3.mp3"}], "undo": [{"t": "没关系，再来一遍！", "f": "voice/f41cb98d00fd.mp3"}], "free": [{"t": "自由弹时间到！想弹什么就弹什么！", "f": "voice/3769dd88139f.mp3"}], "freeEnd": [{"t": "时间到啦！我们再去练一个吧！", "f": "voice/fd63f8aa1b59.mp3"}], "freeEndAll": [{"t": "时间到啦！今天全部练完了，去看看总结吧！", "f": "voice/74db3a2d63f1.mp3"}], "rest": [{"t": "小手辛苦啦！我们一起做手指操吧！", "f": "voice/544f1d66e464.mp3"}], "fo0": [{"t": "第一节，花开花合！握紧小拳头，再用力张开！", "f": "voice/3e6c6ae0f0b2.mp3"}], "fo1": [{"t": "第二节，手指碰碰！指尖对好，一对一对碰一碰！", "f": "voice/df8c5561ef63.mp3"}], "fo2": [{"t": "第三节，手指跳舞！五个手指轮流点桌子！", "f": "voice/2f497a67efcf.mp3"}], "fo3": [{"t": "最后一节，甩甩小手！轻轻地甩一甩！", "f": "voice/30aa29a62ddf.mp3"}], "foCheer": [{"t": "做得真好！", "f": "voice/fcdac721754f.mp3"}, {"t": "小手越来越灵活啦！", "f": "voice/11b7846c8184.mp3"}, {"t": "加油加油！", "f": "voice/32106e274dd2.mp3"}, {"t": "真棒，再来几下！", "f": "voice/84df6e87f252.mp3"}, {"t": "跟着音乐一起动！", "f": "voice/0ee2d81a8365.mp3"}], "restEnd": [{"t": "小手休息好啦，我们继续加油！", "f": "voice/41a65a54bff0.mp3"}], "all": [{"t": "今天全部练完啦！你是全世界最棒的小琴童！", "f": "voice/7d92cc08008b.mp3"}], "some": [{"t": "今天也很努力哦！明天我们接着加油！", "f": "voice/5e3b138d0262.mp3"}], "tipAny": [{"t": "我们来练这一项！先看看上面的要点哦。", "f": "voice/980772999fce.mp3"}, {"t": "准备好了吗？看看要点，我们开始吧！", "f": "voice/2333663b9969.mp3"}, {"t": "这一项我陪你练！记住上面的要点哦。", "f": "voice/977458baac35.mp3"}], "slowStart": [{"t": "我们跟着嘀嘀，慢慢弹吧！", "f": "voice/5aa2a8057c3d.mp3"}], "slowFast": [{"t": "哎呀，太快啦！我们像小乌龟一样，慢慢来～", "f": "voice/2d3ac51560b5.mp3"}, {"t": "别着急，等嘀嘀响了，再弹下一个音！", "f": "voice/c9b8ccdb74e2.mp3"}, {"t": "慢一点点，每个音都要弹得清清楚楚哦！", "f": "voice/563adbdcd80e.mp3"}, {"t": "老师说啦，慢慢弹好一遍，比快快弹十遍还厉害！", "f": "voice/f6c0b5ab4275.mp3"}, {"t": "嘘，我们一起听嘀嘀，跟着它，一下一下地弹。", "f": "voice/b4c893c4773f.mp3"}, {"t": "手指不着急，慢慢弹，声音才好听呀！", "f": "voice/5818a55723d3.mp3"}], "slowWhy": [{"t": "这一项要慢慢弹哦！慢慢弹，手指才能记住正确的动作。我们跟着嘀嘀，一下一下来！", "f": "voice/7a1e5a4dbbad.mp3"}, {"t": "老师说，慢慢弹好一遍，比快快弹十遍还厉害！准备好了吗？跟着嘀嘀慢慢弹。", "f": "voice/6ec59fd5a62a.mp3"}], "slowRedo": [{"t": "这一遍有几下太快啦，不算哦。我们再慢慢弹一遍！", "f": "voice/5315d4ed5a2d.mp3"}, {"t": "刚才有点着急啦，这一遍不算。我们跟着嘀嘀，再来一遍！", "f": "voice/0670730166ce.mp3"}], "slowBack": [{"t": "对啦！就是这个速度！", "f": "voice/adad958a1614.mp3"}, {"t": "这样慢慢弹，真好听！", "f": "voice/fba0218b5f1a.mp3"}], "slowGood": [{"t": "稳稳的，像小老师一样！", "f": "voice/05bd1abc550e.mp3"}, {"t": "连着好多下都这么稳，太棒啦！", "f": "voice/dcae2124b43b.mp3"}, {"t": "就是这样，慢慢的才最厉害！", "f": "voice/ffad3d10420e.mp3"}], "hi:bunny": [{"t": "耶！我是小兔子！今天我陪你练古筝！", "f": "voice/7e56a3098a16.mp3"}], "hi:cat": [{"t": "耶！我是小猫咪！今天我陪你练古筝！", "f": "voice/2b2a510a4f72.mp3"}], "hi:dog": [{"t": "耶！我是小狗狗！今天我陪你练古筝！", "f": "voice/5a716e38ec41.mp3"}], "hi:frog": [{"t": "耶！我是小青蛙！今天我陪你练古筝！", "f": "voice/386fe4be7eac.mp3"}], "hi:lion": [{"t": "耶！我是小狮子！今天我陪你练古筝！", "f": "voice/1c57b33a977f.mp3"}], "hi:mouse": [{"t": "耶！我是小老鼠！今天我陪你练古筝！", "f": "voice/c00c86796179.mp3"}], "hi:rabbit": [{"t": "耶！我是小白兔！今天我陪你练古筝！", "f": "voice/478c79f320f2.mp3"}], "hi:tiger": [{"t": "耶！我是小老虎！今天我陪你练古筝！", "f": "voice/f7f10f0555a0.mp3"}], "hi:sheep": [{"t": "耶！我是小绵羊！今天我陪你练古筝！", "f": "voice/24ee0207278c.mp3"}], "m:像小雨滴": [{"t": "这一次，像小雨滴一样！轻轻地弹！", "f": "voice/4c4c90d3e7f0.mp3"}], "m:像打雷": [{"t": "这一次，像打雷一样！大声、有力气！", "f": "voice/c991c9c5f001.mp3"}], "m:像小乌龟": [{"t": "这一次，像小乌龟一样！慢慢地弹！", "f": "voice/872d24e04c2e.mp3"}], "m:像小兔子": [{"t": "这一次，像小兔子一样！快一点点，但是要稳！", "f": "voice/8db7791b83b5.mp3"}], "m:像机器人": [{"t": "这一次，像机器人一样！每个音一样整齐！", "f": "voice/e32bb357104a.mp3"}], "m:说悄悄话": [{"t": "这一次，说悄悄话！最小声地弹！", "f": "voice/c01fc70b4ae9.mp3"}], "m:像敲大钟": [{"t": "这一次，像敲大钟一样！每个音都响亮！", "f": "voice/7ac2d4dcfeb1.mp3"}], "m:像跳舞": [{"t": "这一次，像跳舞一样！开开心心地弹！", "f": "voice/a2ad66771145.mp3"}], "m:像小猫走路": [{"t": "这一次，像小猫走路一样！轻轻的、稳稳的！", "f": "voice/8501447352d1.mp3"}], "m:像大狮子": [{"t": "这一次，像大狮子一样！声音饱满！", "f": "voice/8b88900b1879.mp3"}], "m:像吹气球": [{"t": "这一次，像吹气球一样！从小声慢慢变大声！", "f": "voice/238cb6d8dbc0.mp3"}], "m:像在开音乐会": [{"t": "这一次，像在开音乐会！坐直，像台下有观众！", "f": "voice/80bce25bdb81.mp3"}], "tip:托|大指向外弹，手腕放松": [{"t": "我们来练大指托！记住哦，大指向外弹，手腕放松。", "f": "voice/d6dc29cf8b21.mp3"}], "tip:抹|食指向里弹": [{"t": "我们来练食指抹！记住哦，食指向里弹。", "f": "voice/c102558eef2a.mp3"}], "tip:勾|中指向里弹": [{"t": "我们来练中指勾！记住哦，中指向里弹。", "f": "voice/5f2a53b78abb.mp3"}], "tip:高抬指|手指抬高，落下有力，跟着节拍弹": [{"t": "我们来练高抬指！记住哦，手指抬高，落下有力，跟着节拍弹。", "f": "voice/2d238ebd74b6.mp3"}], "tip:勾托抹托|来回弹，声音均匀": [{"t": "我们来练勾托抹托！记住哦，来回弹，声音均匀。", "f": "voice/4cb9a5b216e2.mp3"}], "tip:大撮 小撮|两个音同时响，像一个声音": [{"t": "我们来练大撮和小撮！记住哦，两个音同时响，像一个声音。", "f": "voice/012f1d746586.mp3"}], "tip:摇指|先慢后快，手腕不要僵": [{"t": "我们来练摇指！记住哦，先慢后快，手腕不要僵。", "f": "voice/d48d3b932999.mp3"}], "tip:曲子：最难的那一句|只练这一句，弹对了再加快": [{"t": "我们来练曲子里最难的那一句！记住哦，只练这一句，弹对了再加快。", "f": "voice/5a6ab9b713b9.mp3"}], "tip:曲子：从头弹到尾|弹错了也不停，接着往下弹": [{"t": "我们来练曲子，从头弹到尾！记住哦，弹错了也不停，接着往下弹。", "f": "voice/c57f18a07571.mp3"}], "tip:勾抹勾抹|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练勾抹勾抹！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/50a2aed2bfe6.mp3"}], "tip:打勾打勾|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打勾打勾！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/6493943c88be.mp3"}], "tip:打托抹托|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打托抹托！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/bcc5606428f7.mp3"}], "tip:指序|弹贴，不要别指，手放平": [{"t": "我们来练指序！记住哦，弹贴，不要别指，手放平。", "f": "voice/ca8b4026b2a9.mp3"}], "tip:点音|来回弹": [{"t": "我们来练点音！记住哦，来回弹。", "f": "voice/44559cdd3519.mp3"}], "tip:跟弦|手要拱，手要打弯": [{"t": "我们来练跟弦！记住哦，手要拱，手要打弯。", "f": "voice/d0c48b8bf140.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/7fe82af64376.mp3"}], "tip:曲子：小白菜|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/9a5d3b26974a.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/5de9cb0e72d5.mp3"}], "tip:曲子：小白菜|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/e973b1fed146.mp3"}], "fx:花开花合": [{"t": "花开花合！握紧小拳头，再用力张开，像花开一样！", "f": "voice/c07ed4ea6b7b.mp3"}], "fx:手指碰碰": [{"t": "手指碰碰！两只手的指尖对好，一对一对碰一碰！", "f": "voice/55a9323eb1d9.mp3"}], "fx:手指跳舞": [{"t": "手指跳舞！五个手指轮流点桌子，像弹钢琴！", "f": "voice/def0f897250b.mp3"}], "fx:甩甩小手": [{"t": "甩甩小手！手腕放松，轻轻甩一甩！", "f": "voice/647eb757b21f.mp3"}], "fx:小鸟啄米": [{"t": "小鸟啄米！大拇指和每个手指轮流捏一捏！", "f": "voice/8b94af0a449e.mp3"}], "fx:小螃蟹爬": [{"t": "小螃蟹爬！手指在桌上一步一步往前爬，再爬回来！", "f": "voice/d517968f6bc8.mp3"}], "fx:转转手腕": [{"t": "转转手腕！两只手握拳，手腕慢慢转圈圈！", "f": "voice/67cee9c7d5b6.mp3"}], "fx:弹弹手指": [{"t": "弹弹手指！用大拇指扣住手指，再一下一下弹出去！", "f": "voice/b28e3b3d68f3.mp3"}], "fx:拉拉手指": [{"t": "拉拉手指！一只手轻轻拉另一只手的每个手指！", "f": "voice/bd38dd8e01e2.mp3"}], "fx:搓搓小手": [{"t": "搓搓小手！两只手掌搓一搓，搓热了捂捂脸！", "f": "voice/21c925aac48a.mp3"}], "fx:小兔耳朵": [{"t": "小兔耳朵！伸出食指和中指，一会儿竖起，一会儿弯下！", "f": "voice/e5eebe994434.mp3"}], "fx:手指数数": [{"t": "手指数数！从大拇指开始，一个一个伸出来数到五，再收回去！", "f": "voice/19fd67f87e49.mp3"}]};
 const NOTES=[293.66,329.63,369.99,440,493.88,587.33,659.25,739.99,880,987.77,1174.66];
 
 let S;
@@ -780,7 +786,7 @@ function anim(el,cls){el.classList.remove(cls);void el.offsetWidth;el.classList.
 let ac,bufs={};
 function audio(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==='suspended')ac.resume();return ac}
 function pluck(f,when=0,vol=.5,dest){
-  const a=audio();if(!a)return;
+  const a=audio();if(!a)return;if(!dest)earHush(when+1.2);
   if(!bufs[f]){const sr=a.sampleRate,n=Math.floor(sr*1.8),b=a.createBuffer(1,n,sr),d=b.getChannelData(0),p=Math.max(2,Math.round(sr/f)),r=new Float32Array(p);
     for(let i=0;i<p;i++)r[i]=Math.random()*2-1;let j=0;
     for(let i=0;i<n;i++){const k=(j+1)%p,v=r[j];d[i]=v;r[j]=.4985*(v+r[k]);j=k}bufs[f]=b}
@@ -795,12 +801,15 @@ function say(k,i){
   if(i==null)i=pick(k).i;
   const a=audio();if(!a)return Promise.resolve();
   stopVoice();const tok=vTok,key=k+'#'+i;
-  return new Promise(res=>{
+  earTalk++;
+  const pr=new Promise(res=>{
     setTimeout(res,6000);
     const go=buf=>{if(tok!==vTok)return res();const s=a.createBufferSource();s.buffer=buf;s.connect(a.destination);s.onended=()=>res();vSrc=s;s.start()};
     if(vCache[key])return go(vCache[key]);
     vLoad(k,i).then(b=>b?go(b):res());
   });
+  pr.then(()=>setTimeout(()=>{earTalk=Math.max(0,earTalk-1)},300));
+  return pr;
 }
 /* the pal reads the project's name and tip: recorded for every card we know about (gen_voice.py, incl. src/my_cards.txt);
    a card written on the iPad later gets a general line in the same child voice, never the iPad's own adult voice */
@@ -823,7 +832,7 @@ document.addEventListener('pointerdown',()=>{audio();setTimeout(preloadVoices,15
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function gliss(){NOTES.forEach((f,i)=>pluck(f,i*.07,.35))}
 function chime(){[587.33,739.99,880].forEach((f,i)=>pluck(f,i*.18,.5))}
-function click(acc){const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.frequency.value=acc?1500:1000;g.gain.setValueAtTime(.35,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.06)}
+function click(acc){const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.frequency.value=cur&&listensTo(blk())?(acc?5200:4600):(acc?1500:1000);if(ear&&ear.on){earBeats.push(a.currentTime);earBeats=earBeats.filter(b=>b>a.currentTime-8)}g.gain.setValueAtTime(.35,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.06)}
 
 /* ---------- screens ---------- */
 const SCR=['home','prac','free','rest','sum','parent'];
@@ -910,7 +919,7 @@ function startBlock(id){
   t0=Date.now();save();
   $('prac').style.setProperty('--c',colOf(b));
   $('pName').textContent=b.name;$('pHint').innerHTML=b.hint?'<em>要点：</em>'+esc(b.hint):'';$('cAll').textContent=b.reps;$('cU').textContent=U(b);
-  $('undo').textContent='刚才那'+MW(b)+'不算';cntStop();cn=0;
+  $('undo').textContent='刚才那'+MW(b)+'不算';cntStop();cn=0;slowTold=false;
   $('mBpm').textContent=b.bpm||60;
   $('bridges').innerHTML=Array.from({length:b.reps},()=>'<i></i>').join('');
   $('doneBox').hidden=true;$('play').hidden=true;recUrl=null;
@@ -937,7 +946,7 @@ function hitText(){
   $('hit').textContent=t;$('hit').classList.toggle('counting',!!cnt);
 }
 function repDone(){
-  const b=blk(),R=rec();if(R.r>=b.reps)return;
+  const b=blk(),R=rec();if(R.r>=b.reps)return;earFast=0;
   R.r++;pluck(NOTES[Math.min(NOTES.length-1,R.r-1+Math.max(0,5-b.reps))]);drawProg(true);save();
   const bun=$('pBun');bun.classList.remove('idle');anim(bun,'hop');setTimeout(()=>{bun.classList.remove('hop');bun.classList.add('idle')},400);palFlash('great',1300);
   if(R.r>=b.reps){addTime();const D=day();D.n++;R.o=D.n;R.t=Date.now();save();metroStop();if(allDone())ckTick();setTimeout(()=>{gliss();blockDone()},350)}
@@ -945,8 +954,8 @@ function repDone(){
 }
 /* auto count with the metronome: 2 count-in beats, then one beat = one note */
 let cnt=null,cn=0,pre=0;
-function cntStop(){clearInterval(cnt);cnt=null}
-function cntStart(){metroStop();stopVoice();audio();const b=blk();pre=cn?0:2;cnt=setInterval(stepCount,60000/(b.bpm||60));stepCount()}
+function cntStop(){clearInterval(cnt);cnt=null;earStop()}
+function cntStart(){metroStop();stopVoice();audio();const b=blk();pre=cn?0:2;cnt=setInterval(stepCount,60000/(b.bpm||60));stepCount();if(listensTo(b))earStart()}
 function stepCount(){
   const b=blk();
   if(pre>0){click(true);pre--;hitText();return}
@@ -955,7 +964,9 @@ function stepCount(){
 }
 $('hit').onclick=()=>{
   const b=blk(),R=rec();if(R.r>=b.reps)return;
-  if(b.count>0){if(cnt){cntStop();hitText()}else cntStart();return}
+  if(b.count>0){if(cnt){cntStop();hitText()}else slowIntro(cntStart);return}
+  // a rep with notes faster than the beat doesn't count
+  if(ear&&ear.on&&earFast>0){earFast=0;const q=pick('slowRedo');$('mT').textContent=q.t;$('mS').textContent='';$('mE').textContent='🐢';palFlash('calm',3000);say('slowRedo',q.i);return}
   repDone();
 };
 $('undo').onclick=()=>{cntStop();cn=0;const R=rec();if(R.r>0){R.r--;save()}drawProg(false);say('undo');palFlash('calm',2200)};
@@ -970,7 +981,7 @@ function blockDone(){
   $('goHome').hidden=f;
   $('doneBox').hidden=false;confetti($('doneBox'));setTimeout(()=>say('block'),900);
 }
-$('back').onclick=()=>{addTime();cur=null;renderHome();show('home')};
+$('back').onclick=()=>{addTime();metroStop();cntStop();cur=null;renderHome();show('home')};
 $('goFree').onclick=()=>startFree();
 $('goHome').onclick=()=>{cur=null;if(allDone()){showSum()}else{renderHome();show('home')}};
 $('goRest').onclick=()=>startRest(true);
@@ -978,11 +989,87 @@ $('tired').onclick=()=>{addTime();startRest(false)};
 
 /* metronome */
 let mt=null,beat=0;
-function metroStop(){clearInterval(mt);mt=null;$('metro').classList.remove('on')}
-function metroStart(){metroStop();beat=0;const bpm=+$('mBpm').textContent;audio();click(true);mt=setInterval(()=>click(++beat%4===0),60000/bpm);$('metro').classList.add('on')}
-$('mOn').onclick=()=>{if(cnt)return;mt?metroStop():metroStart()};
+function metroStop(){clearInterval(mt);mt=null;$('metro').classList.remove('on');earStop()}
+function metroStart(){metroStop();beat=0;const bpm=+$('mBpm').textContent;audio();click(true);mt=setInterval(()=>click(++beat%4===0),60000/bpm);$('metro').classList.add('on');if(listensTo(blk()))earStart()}
+$('mOn').onclick=()=>{if(cnt)return;mt?metroStop():slowIntro(metroStart)};
 function bpmBy(d){const b=blk();b.bpm=Math.max(30,Math.min(160,(b.bpm||60)+d));$('mBpm').textContent=b.bpm;save();if(mt)metroStart();if(cnt){clearInterval(cnt);cnt=setInterval(stepCount,60000/b.bpm)}}
 $('mMinus').onclick=()=>bpmBy(-5);$('mPlus').onclick=()=>bpmBy(5);
+
+/* ---------- 听快慢: while the metronome runs, the mic listens and the pal speaks up when notes come faster than the beat ---------- */
+// a note = new pitches in the guzheng's range (110-2000 Hz) plus a rise in loudness; the metronome tick moves up to ~5 kHz
+// while listening so it is filtered out, and the app's own sounds (the pal, the plucks) pause the listening while they play
+let ear=null,earOff=null,earQuiet=0,earTalk=0,earFast=0,earGood=0,earWarned=false,earNag=-99,slowTold=false,earBeats=[],earNotes=[];
+const listensTo=b=>!!b&&(b.listen!=null?b.listen:!/摇/.test(b.name));   // 摇指 is fast on purpose, so off unless the parent turns it on
+function earHush(sec){const a=ac;if(a)earQuiet=Math.max(earQuiet,a.currentTime+sec)}
+async function earStart(testSrc){
+  clearTimeout(earOff);const a=audio();if(!a)return;
+  if(!ear){
+    try{
+      const st=testSrc?null:await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+      const src=testSrc?testSrc(a):a.createMediaStreamSource(st),hp=a.createBiquadFilter(),l1=a.createBiquadFilter(),l2=a.createBiquadFilter(),an=a.createAnalyser();
+      hp.type='highpass';hp.frequency.value=110;l1.type=l2.type='lowpass';l1.frequency.value=l2.frequency.value=2000;an.fftSize=2048;an.smoothingTimeConstant=0;
+      src.connect(hp).connect(l1).connect(l2).connect(an);
+      ear={st,an,buf:new Float32Array(2048),spec:new Float32Array(1024),timer:null};
+    }catch(e){toast('听不到声音：请允许使用麦克风');return}
+  }
+  Object.assign(ear,{on:true,specs:[],db:[],flux:[],floor:-70,last:-1,cal:a.currentTime+1});
+  earFast=0;earGood=0;earWarned=false;
+  clearInterval(ear.timer);ear.timer=setInterval(earListen,15);
+  earBeats=[];earNotes=[];$('pace').hidden=false;$('pace').className='pace';$('paceT').textContent='👂 在听呢，跟着嘀嘀弹';
+  requestAnimationFrame(earDraw);
+}
+function earDraw(){
+  if(!ear||!ear.on||!ac)return;
+  const cv=$('paceCv'),r=cv.getBoundingClientRect(),dpr=devicePixelRatio||1;
+  if(cv.width!==Math.round(r.width*dpr)){cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr)}
+  const c=cv.getContext('2d'),W=cv.width,H=cv.height,now=ac.currentTime,x=t=>W*.8+(t-now)/6*W;
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#E2CDB2';earBeats.forEach(b=>{const X=x(b);if(X>-4&&X<W)c.fillRect(X-2*dpr,8*dpr,4*dpr,H-16*dpr)});
+  c.fillStyle='#8A5A3C';c.fillRect(W*.8-1.5*dpr,0,3*dpr,H);
+  earNotes.forEach(n=>{const X=x(n.t);if(X<-20)return;c.beginPath();c.arc(X,H/2,10*dpr,0,7);c.fillStyle=n.f?'#F08A3C':'#4CAF6A';c.fill()});
+  requestAnimationFrame(earDraw);
+}
+function earStop(){
+  if(!ear)return;ear.on=false;clearInterval(ear.timer);$('pace').hidden=true;
+  clearTimeout(earOff);earOff=setTimeout(()=>{if(ear&&!ear.on){if(ear.st)ear.st.getTracks().forEach(t=>t.stop());ear=null}},1500);
+}
+function earListen(){
+  const e=ear,a=ac;if(!e||!e.on||!a)return;
+  e.an.getFloatTimeDomainData(e.buf);let s=0;for(let i=0;i<e.buf.length;i++)s+=e.buf[i]*e.buf[i];
+  const db=10*Math.log10(s/e.buf.length+1e-12),t=a.currentTime;
+  e.an.getFloatFrequencyData(e.spec);
+  const hz=a.sampleRate/e.an.fftSize,lo=Math.ceil(110/hz),hi=Math.floor(2000/hz),old=e.specs.length>=3?e.specs[e.specs.length-3]:null;
+  let flux=0;if(old)for(let i=lo;i<=hi;i++){const x=Math.max(e.spec[i],-100),y=Math.max(old[i],-100);if(x>y)flux+=x-y}
+  flux/=(hi-lo+1);
+  e.specs.push(Float32Array.from(e.spec));if(e.specs.length>4)e.specs.shift();
+  if(t<e.cal){e.floor=Math.max(e.floor,db);e.flux.push(flux)}
+  else{
+    e.floor=e.floor*.995+Math.min(db,e.floor+3)*.005;
+    const calm=e.flux.length?e.flux.slice().sort((x,y)=>x-y)[e.flux.length>>1]:0,ref=e.db.length>=4?Math.min(...e.db.slice(-4)):db;
+    if(t>earQuiet&&!earTalk&&db>e.floor+14&&t-e.last>.2&&((flux>calm+4.5&&db-ref>1.5)||db-ref>10))earNote(t);
+    e.flux.push(flux);if(e.flux.length>120)e.flux.shift();
+  }
+  e.db.push(db);if(e.db.length>8)e.db.shift();
+}
+// two notes closer than three quarters of a beat = too fast
+function earNote(t){
+  const e=ear,gap=60/(+$('mBpm').textContent||60),d=e.last>0?t-e.last:Infinity,fast=d<gap*.75;e.last=t;
+  const p=$('pace');$('paceT').textContent='';
+  earNotes.push({t,f:fast});earNotes=earNotes.filter(n=>n.t>t-8);
+  if(fast){
+    earFast++;earGood=0;earWarned=true;p.classList.add('warn');palFlash('calm',3500);
+    if(t-earNag>6){earNag=t;const q=pick('slowFast');$('mT').textContent=q.t;$('mS').textContent='';$('mE').textContent='🐢';say('slowFast',q.i)}
+  }else if(earWarned&&++earGood>=3){
+    earWarned=false;p.classList.remove('warn');const q=pick('slowBack');$('mT').textContent=q.t;$('mS').textContent='';$('mE').textContent='👍';say('slowBack',q.i);
+  }
+}
+// a slow setting (under 60): the first time on this project, the pal says why we play slowly, then the beat starts
+function slowIntro(go){
+  const b=blk();
+  if(!listensTo(b)||+$('mBpm').textContent>=60||slowTold)return go();
+  slowTold=true;palFlash('calm',6000);const q=pick('slowWhy');$('mT').textContent=q.t;$('mS').textContent='';$('mE').textContent='🐢';
+  say('slowWhy',q.i).then(()=>{if(blk()===b&&!$('prac').hidden)go()});
+}
 
 /* recording */
 let mr=null,chunks=[],recUrl=null,player=null;
@@ -1086,7 +1173,7 @@ function renderEdit(){
   $('edit').innerHTML=S.blocks.map((b,i)=>`<div class="erow" data-i="${i}">
     <input type="text" id="n_${b.id}" value="${esc(b.name)}" data-k="name" aria-label="名字">
     <div class="ctl"><button data-a="r-">−</button><span class="n">${b.reps}</span><button data-a="r+">+</button><button data-a="u" class="unit">${U(b)}</button><button data-a="up" aria-label="上移">↑</button><button data-a="del" aria-label="删除">删</button></div>
-    <div class="ctl row2">跟节拍器数：<button data-a="c-">−</button><span class="n">${b.count?b.count+' 下':'不数'}</span><button data-a="c+">+</button>${b.count?`<span>（每${U(b)}数 ${b.count} 下）</span>`:''}</div>
+    <div class="ctl row2">跟节拍器数：<button data-a="c-">−</button><span class="n">${b.count?b.count+' 下':'不数'}</span><button data-a="c+">+</button>${b.count?`<span>（每${U(b)}数 ${b.count} 下）</span>`:''}<button data-a="ear" class="unit">听快慢：${listensTo(b)?'开':'关'}</button></div>
     <input type="text" class="hin" id="h_${b.id}" value="${esc(b.hint||'')}" data-k="hint" placeholder="提示（可以不写）" aria-label="提示">
     <input type="text" class="hin" id="l_${b.id}" value="${esc(b.labels||'')}" data-k="labels" placeholder="每${esc(U(b))}的名字，逗号隔开，如：大指,食指,中指" aria-label="每一组的名字"></div>`).join('');
   renderLib();
@@ -1106,6 +1193,7 @@ $('edit').oninput=e=>{const r=e.target.closest('.erow');if(!r||!e.target.dataset
 $('edit').onclick=e=>{const a=e.target.dataset.a;if(!a)return;const i=+e.target.closest('.erow').dataset.i,b=S.blocks[i];
   if(a==='r-')b.reps=Math.max(1,b.reps-1);if(a==='r+')b.reps=Math.min(30,b.reps+1);
   if(a==='u')b.unit=UNITS[(UNITS.indexOf(U(b))+1)%UNITS.length];
+  if(a==='ear')b.listen=!listensTo(b);
   const ci=Math.max(0,COUNTS.indexOf(b.count));
   if(a==='c-')b.count=COUNTS[Math.max(0,ci-1)];if(a==='c+')b.count=COUNTS[Math.min(COUNTS.length-1,ci+1)];
   if(a==='up'&&i>0)[S.blocks[i-1],S.blocks[i]]=[b,S.blocks[i-1]];
