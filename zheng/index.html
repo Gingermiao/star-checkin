@@ -997,6 +997,8 @@ function metroStart(){metroStop();beat=0;const bpm=+$('mBpm').textContent;audio(
 $('mOn').onclick=()=>{if(cnt)return;mt?metroStop():slowIntro(metroStart)};
 function bpmBy(d){const b=blk();b.bpm=Math.max(30,Math.min(160,(b.bpm||60)+d));$('mBpm').textContent=b.bpm;save();if(mt)metroStart();if(cnt){clearInterval(cnt);cnt=setInterval(stepCount,60000/b.bpm)}}
 $('mMinus').onclick=()=>bpmBy(-5);$('mPlus').onclick=()=>bpmBy(5);
+// the iPad copy runs under 打卡's offline cache: if a new version takes over right after opening, reload once to show it now
+if('serviceWorker' in navigator&&navigator.serviceWorker.controller){const t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',()=>{if(Date.now()-t0<30000)location.reload()})}
 
 /* ---------- 听快慢: while the metronome runs, the mic listens and the pal speaks up when notes come faster than the beat ---------- */
 // a note = new pitches in the guzheng's range (110-2000 Hz) plus a rise in loudness; the metronome tick moves up to ~5 kHz
