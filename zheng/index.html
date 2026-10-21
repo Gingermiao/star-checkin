@@ -105,6 +105,25 @@ a.ghost{text-decoration:none;white-space:nowrap}
 .over{position:fixed;inset:0;background:rgba(255,245,236,.82);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20;overflow:hidden}
 .panel{position:relative;background:var(--card);border:4px solid var(--lemon);border-radius:32px;padding:20px 22px 24px;max-width:460px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 8px 0 #f3c63a}
 .panel .bun{width:110px;margin-top:-70px}
+.panel.wide{max-width:640px}
+.mcgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%}
+.mcc{border-radius:16px;padding:5px;aspect-ratio:3/4;display:flex;flex-direction:column;background:linear-gradient(160deg,#E9E3F8,#CFC3EE)}
+.mcc img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px}
+.mcc b{flex:1;display:grid;place-items:center;font-size:15px;color:#2B2560}
+.mcc.r1{background:linear-gradient(160deg,#FFE9A8,#F2C14E 60%,#E3A12A)}
+.mcc.r2{background:linear-gradient(120deg,#FFB5D8,#C9B6FF,#9FE3FF,#B8F2C8,#FFE79A)}
+.mcc.back{align-items:center;justify-content:center;background:linear-gradient(160deg,#6B4FB8,#2B2560);color:#F2C14E;font-size:44px}
+.mana{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:8px;font-size:15px;color:var(--mute)}
+.mana b{position:relative;width:min(240px,50vw);height:14px;border-radius:999px;background:#EFE6FA;box-shadow:inset 0 0 0 2px #D8C8F2;overflow:hidden}
+.mana b i{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;background:linear-gradient(90deg,#B79CF2,#E07BC0,#F2C14E);transition:width .5s}
+.mana.pop b{animation:manapop .6s}@keyframes manapop{50%{transform:scale(1.15)}}
+.mana em{font-style:normal;font-variant-numeric:tabular-nums}
+#pBun{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.hchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.hchips span{background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-size:20px;color:var(--ink)}
+.tiplist{display:flex;flex-direction:column;gap:8px;width:100%}
+.tiplist button{box-sizing:border-box;width:100%;font:inherit;font-size:20px;padding:10px 14px;border-radius:16px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tiplist .cheer{border-color:var(--lemon);background:#FFF6D6}
 .palBtn{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:0;font:inherit;color:var(--mute);cursor:pointer}
 .palBtn span{font-size:14px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:1px 10px;margin-top:-4px;white-space:nowrap}
 .palBtn i{font-style:normal;color:var(--coral)}
@@ -560,7 +579,7 @@ body:has(#home[hidden])::after{content:"";position:fixed;inset:0;z-index:-1;back
     <div class="side">
       <button class="palChip" id="palBtn" aria-label="换一个陪练"><span class="av"><img class="bun" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEAAAAALAAAAAABAAEAAAIBAAA=" alt=""></span><i class="palN">小兔子</i><svg class="chv" viewBox="0 0 12 8"><path d="M1.5 1.5 6 6l4.5-4.5" stroke="#8C6A52" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="mystar2" id="toSum2" type="button"><span class="lb">我的星星</span><span class="row"><svg class="bstar" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3.5c1.3 0 2.2 1 2.8 2.3l3.2 6.6 7.2 1c1.5.2 2.6 1 3 2.2.4 1.2-.1 2.4-1.2 3.4l-5.2 5.1 1.2 7.2c.3 1.5-.2 2.7-1.2 3.4-1 .7-2.3.7-3.6 0L20 31.3l-6.4 3.4c-1.3.7-2.6.7-3.6 0s-1.5-1.9-1.2-3.4l1.2-7.2-5.2-5.1c-1.1-1-1.6-2.2-1.2-3.4.4-1.2 1.5-2 3-2.2l7.2-1 3.2-6.6c.6-1.3 1.5-2.3 2.8-2.3z" fill="url(#cs)" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><ellipse cx="15" cy="15" rx="3.2" ry="2" fill="#fff" opacity=".8" transform="rotate(-30 15 15)"/></svg><b id="myStars">0</b><span class="go">›</span></span></button>
-      <div class="siderow"><a class="ghost ck" href="../" hidden>← 打卡</a><button class="ghost" id="hmBtn" type="button" aria-label="首页音乐">🎵</button><button class="ghost" id="toParent">🔒 家长</button></div>
+      <div class="siderow"><a class="ghost ck" href="../" hidden>← 打卡</a><button class="ghost ck" id="mcBtn" type="button" hidden>🎵 音乐卡</button><button class="ghost" id="hmBtn" type="button" aria-label="首页音乐">🎵</button><button class="ghost" id="toParent">🔒 家长</button></div>
     </div>
   </div>
   <div class="grid pgrid" id="cards"></div>
@@ -591,6 +610,7 @@ body:has(#home[hidden])::after{content:"";position:fixed;inset:0;z-index:-1;back
   </div>
   <div class="board" id="bridges"></div>
   <div class="count"><b id="cNow">0</b> / <span id="cAll">5</span> <span id="cU">遍</span></div>
+  <div class="mana" id="mana"><span>🪄 魔力瓶</span><b><i id="manaFill"></i></b><em id="manaN"></em></div>
   <div class="pace" id="pace" hidden><canvas id="paceCv"></canvas><span id="paceT"></span></div>
   <div class="now" id="pNow" hidden></div>
   <button class="hit chunky" id="hit">弹好了一遍 ✓</button>
@@ -599,6 +619,32 @@ body:has(#home[hidden])::after{content:"";position:fixed;inset:0;z-index:-1;back
     <div class="tool" id="metro"><button id="mOn">节拍器</button><button class="pm" id="mMinus" aria-label="慢一点">−</button><span class="bpm" id="mBpm">60</span><button class="pm" id="mPlus" aria-label="快一点">+</button></div>
     <button class="tool" id="rec">🎙 录一遍听听</button>
     <button class="tool" id="play" hidden>▶ 听刚才的</button>
+  </div>
+  <div class="over" id="selfBox" hidden>
+    <div class="panel">
+      <img class="bun jump" data-scene="calm" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEAAAAALAAAAAABAAEAAAIBAAA=" alt="">
+      <h2>你来当小老师</h2>
+      <p>这一遍，要点做到了吗？</p>
+      <div class="hchips" id="selfHints"></div>
+      <button class="pbtn chunky" id="selfYes">⭐ 做到了</button>
+      <button class="pbtn alt chunky" id="selfNo">🐢 再来一次</button>
+    </div>
+  </div>
+  <div class="over" id="mcBox" hidden>
+    <div class="panel wide">
+      <h2>我的音乐魔法卡</h2>
+      <p id="mcSub"></p>
+      <div class="mcgrid" id="mcGrid"></div>
+      <button class="pbtn chunky" id="mcClose">好的</button>
+    </div>
+  </div>
+  <div class="over" id="tipBox" hidden>
+    <div class="panel">
+      <h2>让小伙伴说一句</h2>
+      <p>点一句，小伙伴就用它的声音说</p>
+      <div class="tiplist" id="tipList"></div>
+      <button class="pbtn alt chunky" id="tipClose">关掉</button>
+    </div>
   </div>
   <div class="over" id="doneBox" hidden>
     <div class="panel">
@@ -659,6 +705,7 @@ body:has(#home[hidden])::after{content:"";position:fixed;inset:0;z-index:-1;back
   <div id="setBox" hidden>
     <div class="form">
       <div class="erow"><div>陪练小动物说话（夸奖、提示）</div><div class="ctl"><button id="vOn" style="min-width:70px">开</button></div></div>
+      <div class="erow"><div>弹完一遍，孩子自己当裁判（做到了才算一遍）</div><div class="ctl"><button id="scOn" style="min-width:70px">开</button></div></div>
       <div class="erow"><div>每练完一个，自由弹几分钟</div><div class="ctl"><button id="fm-">−</button><span class="n" id="fmN">2 分</span><button id="fm+">+</button></div></div>
     </div>
     <div class="sec-t">练习项目</div>
@@ -726,7 +773,7 @@ function pickRest(){
   const sh=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
   REST=sh(pool).concat(sh(rest)).slice(0,4);S.lastFx=REST.map(f=>f[0]);save();
 }
-const VO={"rep": [{"t": "太好听啦！", "f": "voice/3bce0d041634.mp3"}, {"t": "哇，这一遍弹得真棒！", "f": "voice/5a0023d6b014.mp3"}, {"t": "你的手指好有力气呀！", "f": "voice/98186b1ff63d.mp3"}, {"t": "好听得我耳朵都要开花啦！", "f": "voice/b6933402837d.mp3"}, {"t": "大珠小珠落玉盘，说的就是你！", "f": "voice/13a8126c2c57.mp3"}, {"t": "我听得都想跳舞啦！", "f": "voice/b6a8cfb63d1a.mp3"}, {"t": "你越弹越好了！", "f": "voice/bc7f40f1afd9.mp3"}, {"t": "就是这样，继续保持！", "f": "voice/fe3f3706e06a.mp3"}, {"t": "你的手型好漂亮呀！", "f": "voice/9c3b1deeb26a.mp3"}, {"t": "这一遍比上一遍还要好！", "f": "voice/3983ab96daf3.mp3"}, {"t": "真是个认真的小琴童！", "f": "voice/bc241a7c2dca.mp3"}, {"t": "太稳了，像小老师一样！", "f": "voice/b244ce391bff.mp3"}, {"t": "给你点一个大大的赞！", "f": "voice/ad5ab8dbf53d.mp3"}, {"t": "好棒！再来一遍，我还想听！", "f": "voice/a2e1ea86a095.mp3"}, {"t": "哇，你是怎么弹得这么好听的？", "f": "voice/d70276531842.mp3"}], "block": [{"t": "太厉害啦！这个练完啦！", "f": "voice/52a5b8ead3b2.mp3"}, {"t": "哇！全部弹完了！我给你鼓掌！", "f": "voice/d2e3ed1caf6f.mp3"}, {"t": "你真是古筝小明星！", "f": "voice/95703777a895.mp3"}, {"t": "好棒好棒！我们去自由弹吧！", "f": "voice/ec9bd2274ea1.mp3"}, {"t": "这么难的都练完了，你真了不起！", "f": "voice/37a2e7aeffd9.mp3"}], "start": [{"t": "准备好了吗？我们开始吧！", "f": "voice/19b8fd7ad484.mp3"}, {"t": "我陪你一起练，加油！", "f": "voice/7f420d4dffb3.mp3"}, {"t": "来，让我听听你的好声音！", "f": "voice/483776fb16f3.mp3"}], "undo": [{"t": "没关系，再来一遍！", "f": "voice/f41cb98d00fd.mp3"}], "free": [{"t": "自由弹时间到！想弹什么就弹什么！", "f": "voice/3769dd88139f.mp3"}], "freeEnd": [{"t": "时间到啦！我们再去练一个吧！", "f": "voice/fd63f8aa1b59.mp3"}], "freeEndAll": [{"t": "时间到啦！今天全部练完了，去看看总结吧！", "f": "voice/74db3a2d63f1.mp3"}], "rest": [{"t": "小手辛苦啦！我们一起做手指操吧！", "f": "voice/544f1d66e464.mp3"}], "fo0": [{"t": "第一节，花开花合！握紧小拳头，再用力张开！", "f": "voice/3e6c6ae0f0b2.mp3"}], "fo1": [{"t": "第二节，手指碰碰！指尖对好，一对一对碰一碰！", "f": "voice/df8c5561ef63.mp3"}], "fo2": [{"t": "第三节，手指跳舞！五个手指轮流点桌子！", "f": "voice/2f497a67efcf.mp3"}], "fo3": [{"t": "最后一节，甩甩小手！轻轻地甩一甩！", "f": "voice/30aa29a62ddf.mp3"}], "foCheer": [{"t": "做得真好！", "f": "voice/fcdac721754f.mp3"}, {"t": "小手越来越灵活啦！", "f": "voice/11b7846c8184.mp3"}, {"t": "加油加油！", "f": "voice/32106e274dd2.mp3"}, {"t": "真棒，再来几下！", "f": "voice/84df6e87f252.mp3"}, {"t": "跟着音乐一起动！", "f": "voice/0ee2d81a8365.mp3"}], "restEnd": [{"t": "小手休息好啦，我们继续加油！", "f": "voice/41a65a54bff0.mp3"}], "all": [{"t": "今天全部练完啦！你是全世界最棒的小琴童！", "f": "voice/7d92cc08008b.mp3"}], "some": [{"t": "今天也很努力哦！明天我们接着加油！", "f": "voice/5e3b138d0262.mp3"}], "tipAny": [{"t": "我们来练这一项！先看看上面的要点哦。", "f": "voice/980772999fce.mp3"}, {"t": "准备好了吗？看看要点，我们开始吧！", "f": "voice/2333663b9969.mp3"}, {"t": "这一项我陪你练！记住上面的要点哦。", "f": "voice/977458baac35.mp3"}], "slowStart": [{"t": "我们跟着嘀嘀，慢慢弹吧！", "f": "voice/5aa2a8057c3d.mp3"}], "slowFast": [{"t": "哎呀，太快啦！我们像小乌龟一样，慢慢来～", "f": "voice/2d3ac51560b5.mp3"}, {"t": "别着急，等嘀嘀响了，再弹下一个音！", "f": "voice/c9b8ccdb74e2.mp3"}, {"t": "慢一点点，每个音都要弹得清清楚楚哦！", "f": "voice/563adbdcd80e.mp3"}, {"t": "老师说啦，慢慢弹好一遍，比快快弹十遍还厉害！", "f": "voice/f6c0b5ab4275.mp3"}, {"t": "嘘，我们一起听嘀嘀，跟着它，一下一下地弹。", "f": "voice/b4c893c4773f.mp3"}, {"t": "手指不着急，慢慢弹，声音才好听呀！", "f": "voice/5818a55723d3.mp3"}], "slowWhy": [{"t": "这一项要慢慢弹哦！慢慢弹，手指才能记住正确的动作。我们跟着嘀嘀，一下一下来！", "f": "voice/7a1e5a4dbbad.mp3"}, {"t": "老师说，慢慢弹好一遍，比快快弹十遍还厉害！准备好了吗？跟着嘀嘀慢慢弹。", "f": "voice/6ec59fd5a62a.mp3"}], "slowRedo": [{"t": "这一遍有几下太快啦，不算哦。我们再慢慢弹一遍！", "f": "voice/5315d4ed5a2d.mp3"}, {"t": "刚才有点着急啦，这一遍不算。我们跟着嘀嘀，再来一遍！", "f": "voice/0670730166ce.mp3"}], "slowBack": [{"t": "对啦！就是这个速度！", "f": "voice/adad958a1614.mp3"}, {"t": "这样慢慢弹，真好听！", "f": "voice/fba0218b5f1a.mp3"}], "slowGood": [{"t": "稳稳的，像小老师一样！", "f": "voice/05bd1abc550e.mp3"}, {"t": "连着好多下都这么稳，太棒啦！", "f": "voice/dcae2124b43b.mp3"}, {"t": "就是这样，慢慢的才最厉害！", "f": "voice/ffad3d10420e.mp3"}], "hi:bunny": [{"t": "耶！我是小兔子！今天我陪你练古筝！", "f": "voice/7e56a3098a16.mp3"}], "hi:cat": [{"t": "耶！我是小猫咪！今天我陪你练古筝！", "f": "voice/2b2a510a4f72.mp3"}], "hi:dog": [{"t": "耶！我是小狗狗！今天我陪你练古筝！", "f": "voice/5a716e38ec41.mp3"}], "hi:frog": [{"t": "耶！我是小青蛙！今天我陪你练古筝！", "f": "voice/386fe4be7eac.mp3"}], "hi:lion": [{"t": "耶！我是小狮子！今天我陪你练古筝！", "f": "voice/1c57b33a977f.mp3"}], "hi:mouse": [{"t": "耶！我是小老鼠！今天我陪你练古筝！", "f": "voice/c00c86796179.mp3"}], "hi:rabbit": [{"t": "耶！我是小白兔！今天我陪你练古筝！", "f": "voice/478c79f320f2.mp3"}], "hi:tiger": [{"t": "耶！我是小老虎！今天我陪你练古筝！", "f": "voice/f7f10f0555a0.mp3"}], "hi:sheep": [{"t": "耶！我是小绵羊！今天我陪你练古筝！", "f": "voice/24ee0207278c.mp3"}], "m:像小雨滴": [{"t": "这一次，像小雨滴一样！轻轻地弹！", "f": "voice/4c4c90d3e7f0.mp3"}], "m:像打雷": [{"t": "这一次，像打雷一样！大声、有力气！", "f": "voice/c991c9c5f001.mp3"}], "m:像小乌龟": [{"t": "这一次，像小乌龟一样！慢慢地弹！", "f": "voice/872d24e04c2e.mp3"}], "m:像小兔子": [{"t": "这一次，像小兔子一样！快一点点，但是要稳！", "f": "voice/8db7791b83b5.mp3"}], "m:像机器人": [{"t": "这一次，像机器人一样！每个音一样整齐！", "f": "voice/e32bb357104a.mp3"}], "m:说悄悄话": [{"t": "这一次，说悄悄话！最小声地弹！", "f": "voice/c01fc70b4ae9.mp3"}], "m:像敲大钟": [{"t": "这一次，像敲大钟一样！每个音都响亮！", "f": "voice/7ac2d4dcfeb1.mp3"}], "m:像跳舞": [{"t": "这一次，像跳舞一样！开开心心地弹！", "f": "voice/a2ad66771145.mp3"}], "m:像小猫走路": [{"t": "这一次，像小猫走路一样！轻轻的、稳稳的！", "f": "voice/8501447352d1.mp3"}], "m:像大狮子": [{"t": "这一次，像大狮子一样！声音饱满！", "f": "voice/8b88900b1879.mp3"}], "m:像吹气球": [{"t": "这一次，像吹气球一样！从小声慢慢变大声！", "f": "voice/238cb6d8dbc0.mp3"}], "m:像在开音乐会": [{"t": "这一次，像在开音乐会！坐直，像台下有观众！", "f": "voice/80bce25bdb81.mp3"}], "tip:托|大指向外弹，手腕放松": [{"t": "我们来练大指托！记住哦，大指向外弹，手腕放松。", "f": "voice/d6dc29cf8b21.mp3"}], "tip:抹|食指向里弹": [{"t": "我们来练食指抹！记住哦，食指向里弹。", "f": "voice/c102558eef2a.mp3"}], "tip:勾|中指向里弹": [{"t": "我们来练中指勾！记住哦，中指向里弹。", "f": "voice/5f2a53b78abb.mp3"}], "tip:高抬指|手指抬高，落下有力，跟着节拍弹": [{"t": "我们来练高抬指！记住哦，手指抬高，落下有力，跟着节拍弹。", "f": "voice/2d238ebd74b6.mp3"}], "tip:勾托抹托|来回弹，声音均匀": [{"t": "我们来练勾托抹托！记住哦，来回弹，声音均匀。", "f": "voice/4cb9a5b216e2.mp3"}], "tip:大撮 小撮|两个音同时响，像一个声音": [{"t": "我们来练大撮和小撮！记住哦，两个音同时响，像一个声音。", "f": "voice/012f1d746586.mp3"}], "tip:摇指|先慢后快，手腕不要僵": [{"t": "我们来练摇指！记住哦，先慢后快，手腕不要僵。", "f": "voice/d48d3b932999.mp3"}], "tip:曲子：最难的那一句|只练这一句，弹对了再加快": [{"t": "我们来练曲子里最难的那一句！记住哦，只练这一句，弹对了再加快。", "f": "voice/5a6ab9b713b9.mp3"}], "tip:曲子：从头弹到尾|弹错了也不停，接着往下弹": [{"t": "我们来练曲子，从头弹到尾！记住哦，弹错了也不停，接着往下弹。", "f": "voice/c57f18a07571.mp3"}], "tip:勾抹勾抹|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练勾抹勾抹！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/50a2aed2bfe6.mp3"}], "tip:打勾打勾|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打勾打勾！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/6493943c88be.mp3"}], "tip:打托抹托|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打托抹托！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/bcc5606428f7.mp3"}], "tip:指序|弹贴，不要别指，手放平": [{"t": "我们来练指序！记住哦，弹贴，不要别指，手放平。", "f": "voice/ca8b4026b2a9.mp3"}], "tip:点音|来回弹": [{"t": "我们来练点音！记住哦，来回弹。", "f": "voice/44559cdd3519.mp3"}], "tip:跟弦|手要拱，手要打弯": [{"t": "我们来练跟弦！记住哦，手要拱，手要打弯。", "f": "voice/d0c48b8bf140.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/7fe82af64376.mp3"}], "tip:曲子：小白菜|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/9a5d3b26974a.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/5de9cb0e72d5.mp3"}], "tip:曲子：小白菜|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/e973b1fed146.mp3"}], "fx:花开花合": [{"t": "花开花合！握紧小拳头，再用力张开，像花开一样！", "f": "voice/c07ed4ea6b7b.mp3"}], "fx:手指碰碰": [{"t": "手指碰碰！两只手的指尖对好，一对一对碰一碰！", "f": "voice/55a9323eb1d9.mp3"}], "fx:手指跳舞": [{"t": "手指跳舞！五个手指轮流点桌子，像弹钢琴！", "f": "voice/def0f897250b.mp3"}], "fx:甩甩小手": [{"t": "甩甩小手！手腕放松，轻轻甩一甩！", "f": "voice/647eb757b21f.mp3"}], "fx:小鸟啄米": [{"t": "小鸟啄米！大拇指和每个手指轮流捏一捏！", "f": "voice/8b94af0a449e.mp3"}], "fx:小螃蟹爬": [{"t": "小螃蟹爬！手指在桌上一步一步往前爬，再爬回来！", "f": "voice/d517968f6bc8.mp3"}], "fx:转转手腕": [{"t": "转转手腕！两只手握拳，手腕慢慢转圈圈！", "f": "voice/67cee9c7d5b6.mp3"}], "fx:弹弹手指": [{"t": "弹弹手指！用大拇指扣住手指，再一下一下弹出去！", "f": "voice/b28e3b3d68f3.mp3"}], "fx:拉拉手指": [{"t": "拉拉手指！一只手轻轻拉另一只手的每个手指！", "f": "voice/bd38dd8e01e2.mp3"}], "fx:搓搓小手": [{"t": "搓搓小手！两只手掌搓一搓，搓热了捂捂脸！", "f": "voice/21c925aac48a.mp3"}], "fx:小兔耳朵": [{"t": "小兔耳朵！伸出食指和中指，一会儿竖起，一会儿弯下！", "f": "voice/e5eebe994434.mp3"}], "fx:手指数数": [{"t": "手指数数！从大拇指开始，一个一个伸出来数到五，再收回去！", "f": "voice/19fd67f87e49.mp3"}]};
+const VO={"rep": [{"t": "太好听啦！", "f": "voice/3bce0d041634.mp3"}, {"t": "哇，这一遍弹得真棒！", "f": "voice/5a0023d6b014.mp3"}, {"t": "你的手指好有力气呀！", "f": "voice/98186b1ff63d.mp3"}, {"t": "好听得我耳朵都要开花啦！", "f": "voice/b6933402837d.mp3"}, {"t": "大珠小珠落玉盘，说的就是你！", "f": "voice/13a8126c2c57.mp3"}, {"t": "我听得都想跳舞啦！", "f": "voice/b6a8cfb63d1a.mp3"}, {"t": "你越弹越好了！", "f": "voice/bc7f40f1afd9.mp3"}, {"t": "就是这样，继续保持！", "f": "voice/fe3f3706e06a.mp3"}, {"t": "你的手型好漂亮呀！", "f": "voice/9c3b1deeb26a.mp3"}, {"t": "这一遍比上一遍还要好！", "f": "voice/3983ab96daf3.mp3"}, {"t": "真是个认真的小琴童！", "f": "voice/bc241a7c2dca.mp3"}, {"t": "太稳了，像小老师一样！", "f": "voice/b244ce391bff.mp3"}, {"t": "给你点一个大大的赞！", "f": "voice/ad5ab8dbf53d.mp3"}, {"t": "好棒！再来一遍，我还想听！", "f": "voice/a2e1ea86a095.mp3"}, {"t": "哇，你是怎么弹得这么好听的？", "f": "voice/d70276531842.mp3"}], "block": [{"t": "太厉害啦！这个练完啦！", "f": "voice/52a5b8ead3b2.mp3"}, {"t": "哇！全部弹完了！我给你鼓掌！", "f": "voice/d2e3ed1caf6f.mp3"}, {"t": "你真是古筝小明星！", "f": "voice/95703777a895.mp3"}, {"t": "好棒好棒！我们去自由弹吧！", "f": "voice/ec9bd2274ea1.mp3"}, {"t": "这么难的都练完了，你真了不起！", "f": "voice/37a2e7aeffd9.mp3"}], "start": [{"t": "准备好了吗？我们开始吧！", "f": "voice/19b8fd7ad484.mp3"}, {"t": "我陪你一起练，加油！", "f": "voice/7f420d4dffb3.mp3"}, {"t": "来，让我听听你的好声音！", "f": "voice/483776fb16f3.mp3"}], "undo": [{"t": "没关系，再来一遍！", "f": "voice/f41cb98d00fd.mp3"}], "free": [{"t": "自由弹时间到！想弹什么就弹什么！", "f": "voice/3769dd88139f.mp3"}], "freeEnd": [{"t": "时间到啦！我们再去练一个吧！", "f": "voice/fd63f8aa1b59.mp3"}], "freeEndAll": [{"t": "时间到啦！今天全部练完了，去看看总结吧！", "f": "voice/74db3a2d63f1.mp3"}], "rest": [{"t": "小手辛苦啦！我们一起做手指操吧！", "f": "voice/544f1d66e464.mp3"}], "fo0": [{"t": "第一节，花开花合！握紧小拳头，再用力张开！", "f": "voice/3e6c6ae0f0b2.mp3"}], "fo1": [{"t": "第二节，手指碰碰！指尖对好，一对一对碰一碰！", "f": "voice/df8c5561ef63.mp3"}], "fo2": [{"t": "第三节，手指跳舞！五个手指轮流点桌子！", "f": "voice/2f497a67efcf.mp3"}], "fo3": [{"t": "最后一节，甩甩小手！轻轻地甩一甩！", "f": "voice/30aa29a62ddf.mp3"}], "foCheer": [{"t": "做得真好！", "f": "voice/fcdac721754f.mp3"}, {"t": "小手越来越灵活啦！", "f": "voice/11b7846c8184.mp3"}, {"t": "加油加油！", "f": "voice/32106e274dd2.mp3"}, {"t": "真棒，再来几下！", "f": "voice/84df6e87f252.mp3"}, {"t": "跟着音乐一起动！", "f": "voice/0ee2d81a8365.mp3"}], "restEnd": [{"t": "小手休息好啦，我们继续加油！", "f": "voice/41a65a54bff0.mp3"}], "all": [{"t": "今天全部练完啦！你是全世界最棒的小琴童！", "f": "voice/7d92cc08008b.mp3"}], "some": [{"t": "今天也很努力哦！明天我们接着加油！", "f": "voice/5e3b138d0262.mp3"}], "tipAny": [{"t": "我们来练这一项！先看看上面的要点哦。", "f": "voice/980772999fce.mp3"}, {"t": "准备好了吗？看看要点，我们开始吧！", "f": "voice/2333663b9969.mp3"}, {"t": "这一项我陪你练！记住上面的要点哦。", "f": "voice/977458baac35.mp3"}], "slowStart": [{"t": "我们跟着嘀嘀，慢慢弹吧！", "f": "voice/5aa2a8057c3d.mp3"}], "slowFast": [{"t": "哎呀，太快啦！我们像小乌龟一样，慢慢来～", "f": "voice/2d3ac51560b5.mp3"}, {"t": "别着急，等嘀嘀响了，再弹下一个音！", "f": "voice/c9b8ccdb74e2.mp3"}, {"t": "慢一点点，每个音都要弹得清清楚楚哦！", "f": "voice/563adbdcd80e.mp3"}, {"t": "老师说啦，慢慢弹好一遍，比快快弹十遍还厉害！", "f": "voice/f6c0b5ab4275.mp3"}, {"t": "嘘，我们一起听嘀嘀，跟着它，一下一下地弹。", "f": "voice/b4c893c4773f.mp3"}, {"t": "手指不着急，慢慢弹，声音才好听呀！", "f": "voice/5818a55723d3.mp3"}], "slowWhy": [{"t": "这一项要慢慢弹哦！慢慢弹，手指才能记住正确的动作。我们跟着嘀嘀，一下一下来！", "f": "voice/7a1e5a4dbbad.mp3"}, {"t": "老师说，慢慢弹好一遍，比快快弹十遍还厉害！准备好了吗？跟着嘀嘀慢慢弹。", "f": "voice/6ec59fd5a62a.mp3"}], "slowRedo": [{"t": "这一遍有几下太快啦，不算哦。我们再慢慢弹一遍！", "f": "voice/5315d4ed5a2d.mp3"}, {"t": "刚才有点着急啦，这一遍不算。我们跟着嘀嘀，再来一遍！", "f": "voice/0670730166ce.mp3"}], "slowBack": [{"t": "对啦！就是这个速度！", "f": "voice/adad958a1614.mp3"}, {"t": "这样慢慢弹，真好听！", "f": "voice/fba0218b5f1a.mp3"}], "slowGood": [{"t": "稳稳的，像小老师一样！", "f": "voice/05bd1abc550e.mp3"}, {"t": "连着好多下都这么稳，太棒啦！", "f": "voice/dcae2124b43b.mp3"}, {"t": "就是这样，慢慢的才最厉害！", "f": "voice/ffad3d10420e.mp3"}], "hi:bunny": [{"t": "耶！我是小兔子！今天我陪你练古筝！", "f": "voice/7e56a3098a16.mp3"}], "hi:cat": [{"t": "耶！我是小猫咪！今天我陪你练古筝！", "f": "voice/2b2a510a4f72.mp3"}], "hi:dog": [{"t": "耶！我是小狗狗！今天我陪你练古筝！", "f": "voice/5a716e38ec41.mp3"}], "hi:frog": [{"t": "耶！我是小青蛙！今天我陪你练古筝！", "f": "voice/386fe4be7eac.mp3"}], "hi:lion": [{"t": "耶！我是小狮子！今天我陪你练古筝！", "f": "voice/1c57b33a977f.mp3"}], "hi:mouse": [{"t": "耶！我是小老鼠！今天我陪你练古筝！", "f": "voice/c00c86796179.mp3"}], "hi:rabbit": [{"t": "耶！我是小白兔！今天我陪你练古筝！", "f": "voice/478c79f320f2.mp3"}], "hi:tiger": [{"t": "耶！我是小老虎！今天我陪你练古筝！", "f": "voice/f7f10f0555a0.mp3"}], "hi:sheep": [{"t": "耶！我是小绵羊！今天我陪你练古筝！", "f": "voice/24ee0207278c.mp3"}], "m:像小雨滴": [{"t": "这一次，像小雨滴一样！轻轻地弹！", "f": "voice/4c4c90d3e7f0.mp3"}], "m:像打雷": [{"t": "这一次，像打雷一样！大声、有力气！", "f": "voice/c991c9c5f001.mp3"}], "m:像小乌龟": [{"t": "这一次，像小乌龟一样！慢慢地弹！", "f": "voice/872d24e04c2e.mp3"}], "m:像小兔子": [{"t": "这一次，像小兔子一样！快一点点，但是要稳！", "f": "voice/8db7791b83b5.mp3"}], "m:像机器人": [{"t": "这一次，像机器人一样！每个音一样整齐！", "f": "voice/e32bb357104a.mp3"}], "m:说悄悄话": [{"t": "这一次，说悄悄话！最小声地弹！", "f": "voice/c01fc70b4ae9.mp3"}], "m:像敲大钟": [{"t": "这一次，像敲大钟一样！每个音都响亮！", "f": "voice/7ac2d4dcfeb1.mp3"}], "m:像跳舞": [{"t": "这一次，像跳舞一样！开开心心地弹！", "f": "voice/a2ad66771145.mp3"}], "m:像小猫走路": [{"t": "这一次，像小猫走路一样！轻轻的、稳稳的！", "f": "voice/8501447352d1.mp3"}], "m:像大狮子": [{"t": "这一次，像大狮子一样！声音饱满！", "f": "voice/8b88900b1879.mp3"}], "m:像吹气球": [{"t": "这一次，像吹气球一样！从小声慢慢变大声！", "f": "voice/238cb6d8dbc0.mp3"}], "m:像在开音乐会": [{"t": "这一次，像在开音乐会！坐直，像台下有观众！", "f": "voice/80bce25bdb81.mp3"}], "tip:托|大指向外弹，手腕放松": [{"t": "我们来练大指托！记住哦，大指向外弹，手腕放松。", "f": "voice/d6dc29cf8b21.mp3"}], "tip:抹|食指向里弹": [{"t": "我们来练食指抹！记住哦，食指向里弹。", "f": "voice/c102558eef2a.mp3"}], "tip:勾|中指向里弹": [{"t": "我们来练中指勾！记住哦，中指向里弹。", "f": "voice/5f2a53b78abb.mp3"}], "tip:高抬指|手指抬高，落下有力，跟着节拍弹": [{"t": "我们来练高抬指！记住哦，手指抬高，落下有力，跟着节拍弹。", "f": "voice/2d238ebd74b6.mp3"}], "tip:勾托抹托|来回弹，声音均匀": [{"t": "我们来练勾托抹托！记住哦，来回弹，声音均匀。", "f": "voice/4cb9a5b216e2.mp3"}], "tip:大撮 小撮|两个音同时响，像一个声音": [{"t": "我们来练大撮和小撮！记住哦，两个音同时响，像一个声音。", "f": "voice/012f1d746586.mp3"}], "tip:摇指|先慢后快，手腕不要僵": [{"t": "我们来练摇指！记住哦，先慢后快，手腕不要僵。", "f": "voice/d48d3b932999.mp3"}], "tip:曲子：最难的那一句|只练这一句，弹对了再加快": [{"t": "我们来练曲子里最难的那一句！记住哦，只练这一句，弹对了再加快。", "f": "voice/5a6ab9b713b9.mp3"}], "tip:曲子：从头弹到尾|弹错了也不停，接着往下弹": [{"t": "我们来练曲子，从头弹到尾！记住哦，弹错了也不停，接着往下弹。", "f": "voice/c57f18a07571.mp3"}], "tip:勾抹勾抹|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练勾抹勾抹！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/50a2aed2bfe6.mp3"}], "tip:打勾打勾|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打勾打勾！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/6493943c88be.mp3"}], "tip:打托抹托|手放平，手指向内，不要抬胳膊和手臂": [{"t": "我们来练打托抹托！记住哦，手放平，手指向内，不要抬胳膊和手臂。", "f": "voice/bcc5606428f7.mp3"}], "tip:指序|弹贴，不要别指，手放平": [{"t": "我们来练指序！记住哦，弹贴，不要别指，手放平。", "f": "voice/ca8b4026b2a9.mp3"}], "tip:点音|来回弹": [{"t": "我们来练点音！记住哦，来回弹。", "f": "voice/44559cdd3519.mp3"}], "tip:跟弦|手要拱，手要打弯": [{"t": "我们来练跟弦！记住哦，手要拱，手要打弯。", "f": "voice/d0c48b8bf140.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/7fe82af64376.mp3"}], "tip:曲子：小白菜|注意贴弦，跟纸，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟纸，抬手，弹错了也不要停，继续弹。", "f": "voice/9a5d3b26974a.mp3"}], "tip:曲子：小宝宝要睡觉|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小宝宝要睡觉》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/5de9cb0e72d5.mp3"}], "tip:曲子：小白菜|注意贴弦，跟弦，抬手，弹错了也不要停，继续弹": [{"t": "我们来练曲子《小白菜》！记住哦，注意贴弦，跟弦，抬手，弹错了也不要停，继续弹。", "f": "voice/e973b1fed146.mp3"}], "nudge:大指向外弹": [{"t": "嘿！下一遍我们来挑战：大指向外弹！你能做到吗？", "f": "voice/6fd5b86a833b.mp3"}], "nudge:手腕放松": [{"t": "嘿！下一遍我们来挑战：手腕放松！你能做到吗？", "f": "voice/44fe8f765043.mp3"}], "nudge:食指向里弹": [{"t": "嘿！下一遍我们来挑战：食指向里弹！你能做到吗？", "f": "voice/66961f71db24.mp3"}], "nudge:中指向里弹": [{"t": "嘿！下一遍我们来挑战：中指向里弹！你能做到吗？", "f": "voice/68a51158128b.mp3"}], "nudge:手指抬高": [{"t": "嘿！下一遍我们来挑战：手指抬高！你能做到吗？", "f": "voice/f057f0970a94.mp3"}], "nudge:落下有力": [{"t": "嘿！下一遍我们来挑战：落下有力！你能做到吗？", "f": "voice/ac88ea86dc29.mp3"}], "nudge:跟着节拍弹": [{"t": "嘿！下一遍我们来挑战：跟着节拍弹！你能做到吗？", "f": "voice/e24b9f461030.mp3"}], "nudge:来回弹": [{"t": "嘿！下一遍我们来挑战：来回弹！你能做到吗？", "f": "voice/c016acbfe342.mp3"}], "nudge:声音均匀": [{"t": "嘿！下一遍我们来挑战：声音均匀！你能做到吗？", "f": "voice/26ced212f199.mp3"}], "nudge:两个音同时响": [{"t": "嘿！下一遍我们来挑战：两个音同时响！你能做到吗？", "f": "voice/e9eba394b338.mp3"}], "nudge:像一个声音": [{"t": "嘿！下一遍我们来挑战：像一个声音！你能做到吗？", "f": "voice/9dea23bebe89.mp3"}], "nudge:先慢后快": [{"t": "嘿！下一遍我们来挑战：先慢后快！你能做到吗？", "f": "voice/840f882d53db.mp3"}], "nudge:手腕不要僵": [{"t": "嘿！下一遍我们来挑战：手腕不要僵！你能做到吗？", "f": "voice/d14d95ff8698.mp3"}], "nudge:只练这一句": [{"t": "嘿！下一遍我们来挑战：只练这一句！你能做到吗？", "f": "voice/80e87ad83b3b.mp3"}], "nudge:弹对了再加快": [{"t": "嘿！下一遍我们来挑战：弹对了再加快！你能做到吗？", "f": "voice/779aece6ff7a.mp3"}], "nudge:弹错了也不停": [{"t": "嘿！下一遍我们来挑战：弹错了也不停！你能做到吗？", "f": "voice/bafa019f8443.mp3"}], "nudge:接着往下弹": [{"t": "嘿！下一遍我们来挑战：接着往下弹！你能做到吗？", "f": "voice/cf471e494bde.mp3"}], "nudge:手放平": [{"t": "嘿！下一遍我们来挑战：手放平！你能做到吗？", "f": "voice/6d0def32f735.mp3"}], "nudge:手指向内": [{"t": "嘿！下一遍我们来挑战：手指向内！你能做到吗？", "f": "voice/f79a1a52973a.mp3"}], "nudge:不要抬胳膊和手臂": [{"t": "嘿！下一遍我们来挑战：不要抬胳膊和手臂！你能做到吗？", "f": "voice/5c3d0fc51ca3.mp3"}], "nudge:弹贴": [{"t": "嘿！下一遍我们来挑战：弹贴！你能做到吗？", "f": "voice/e0b3d1d24c97.mp3"}], "nudge:不要别指": [{"t": "嘿！下一遍我们来挑战：不要别指！你能做到吗？", "f": "voice/83955bf11892.mp3"}], "nudge:手要拱": [{"t": "嘿！下一遍我们来挑战：手要拱！你能做到吗？", "f": "voice/54a4ea9e73e4.mp3"}], "nudge:手要打弯": [{"t": "嘿！下一遍我们来挑战：手要打弯！你能做到吗？", "f": "voice/085843350bcc.mp3"}], "nudge:注意贴弦": [{"t": "嘿！下一遍我们来挑战：注意贴弦！你能做到吗？", "f": "voice/6e2b1acaf295.mp3"}], "nudge:跟纸": [{"t": "嘿！下一遍我们来挑战：跟纸！你能做到吗？", "f": "voice/1d6fd1736d40.mp3"}], "nudge:抬手": [{"t": "嘿！下一遍我们来挑战：抬手！你能做到吗？", "f": "voice/4e72d9dffc06.mp3"}], "nudge:弹错了也不要停": [{"t": "嘿！下一遍我们来挑战：弹错了也不要停！你能做到吗？", "f": "voice/9ab06313f4f9.mp3"}], "nudge:继续弹": [{"t": "嘿！下一遍我们来挑战：继续弹！你能做到吗？", "f": "voice/d1bc779f16af.mp3"}], "nudge:跟弦": [{"t": "嘿！下一遍我们来挑战：跟弦！你能做到吗？", "f": "voice/c4b02d52648d.mp3"}], "nudgeAny": [{"t": "嘿！下一遍我们再仔细一点，看看上面的要点哦！", "f": "voice/0c1ee914d46a.mp3"}], "cheer": [{"t": "刚才那一下好棒！我都看到啦！", "f": "voice/a35dc7739b8a.mp3"}, {"t": "哇，这一下手型真漂亮！", "f": "voice/ddfceb9b7f17.mp3"}, {"t": "就是这样！你真是个认真的小琴童！", "f": "voice/642a437d2cf9.mp3"}, {"t": "这一遍比刚才更好了！", "f": "voice/55b701a0fb3f.mp3"}], "powerFull": [{"t": "魔力瓶装满啦！你认真弹的每一下，都变成了魔法！", "f": "voice/b4096fe78f87.mp3"}, {"t": "哇！魔力瓶满了！魔法学院里的你又变厉害啦！", "f": "voice/883aaf1bfa5c.mp3"}], "musicCard": [{"t": "古筝全部练完啦！快回魔法学院，抽一张音乐魔法卡吧！", "f": "voice/4a4b6dd33bac.mp3"}], "selfAsk": [{"t": "你来当小老师：这一遍，要点做到了吗？", "f": "voice/ae89f06b6ef3.mp3"}, {"t": "这一遍你觉得怎么样？要点做到了吗？", "f": "voice/b1da0f734b4f.mp3"}], "selfNo": [{"t": "没关系！自己发现问题的你真厉害，我们再来一次！", "f": "voice/4b32d23ac3b4.mp3"}, {"t": "好，我们再试一次，这次一定更好！", "f": "voice/424214e960bf.mp3"}], "fx:花开花合": [{"t": "花开花合！握紧小拳头，再用力张开，像花开一样！", "f": "voice/c07ed4ea6b7b.mp3"}], "fx:手指碰碰": [{"t": "手指碰碰！两只手的指尖对好，一对一对碰一碰！", "f": "voice/55a9323eb1d9.mp3"}], "fx:手指跳舞": [{"t": "手指跳舞！五个手指轮流点桌子，像弹钢琴！", "f": "voice/def0f897250b.mp3"}], "fx:甩甩小手": [{"t": "甩甩小手！手腕放松，轻轻甩一甩！", "f": "voice/647eb757b21f.mp3"}], "fx:小鸟啄米": [{"t": "小鸟啄米！大拇指和每个手指轮流捏一捏！", "f": "voice/8b94af0a449e.mp3"}], "fx:小螃蟹爬": [{"t": "小螃蟹爬！手指在桌上一步一步往前爬，再爬回来！", "f": "voice/d517968f6bc8.mp3"}], "fx:转转手腕": [{"t": "转转手腕！两只手握拳，手腕慢慢转圈圈！", "f": "voice/67cee9c7d5b6.mp3"}], "fx:弹弹手指": [{"t": "弹弹手指！用大拇指扣住手指，再一下一下弹出去！", "f": "voice/b28e3b3d68f3.mp3"}], "fx:拉拉手指": [{"t": "拉拉手指！一只手轻轻拉另一只手的每个手指！", "f": "voice/bd38dd8e01e2.mp3"}], "fx:搓搓小手": [{"t": "搓搓小手！两只手掌搓一搓，搓热了捂捂脸！", "f": "voice/21c925aac48a.mp3"}], "fx:小兔耳朵": [{"t": "小兔耳朵！伸出食指和中指，一会儿竖起，一会儿弯下！", "f": "voice/e5eebe994434.mp3"}], "fx:手指数数": [{"t": "手指数数！从大拇指开始，一个一个伸出来数到五，再收回去！", "f": "voice/19fd67f87e49.mp3"}]};
 const NOTES=[293.66,329.63,369.99,440,493.88,587.33,659.25,739.99,880,987.77,1174.66];
 
 let S;
@@ -933,7 +980,7 @@ function startBlock(id){
   $('mBpm').textContent=b.bpm||60;
   $('bridges').innerHTML=Array.from({length:b.reps},()=>'<i></i>').join('');
   $('doneBox').hidden=true;$('play').hidden=true;recUrl=null;
-  rollMood();drawProg(false);show('prac');
+  rollMood();drawProg(false);show('prac');powerDraw();
   sayTip(b).then(()=>{
     if(cur!==id||$('prac').hidden||cnt||!$('doneBox').hidden)return;
     if(b.metro&&!b.count&&!mt)slowIntro(()=>{if(cur===id&&!mt&&!cnt)metroStart()});
@@ -960,7 +1007,7 @@ function hitText(){
   $('hit').textContent=t;$('hit').classList.toggle('counting',!!cnt);
 }
 function repDone(){
-  const b=blk(),R=rec();if(R.r>=b.reps)return;earFast=0;
+  const b=blk(),R=rec();if(R.r>=b.reps)return;earFast=0;powerAdd(1);
   R.r++;pluck(NOTES[Math.min(NOTES.length-1,R.r-1+Math.max(0,5-b.reps))]);drawProg(true);save();
   const bun=$('pBun');bun.classList.remove('idle');anim(bun,'hop');setTimeout(()=>{bun.classList.remove('hop');bun.classList.add('idle')},400);palFlash('great',1300);
   if(R.r>=b.reps){addTime();const D=day();D.n++;R.o=D.n;R.t=Date.now();save();metroStop();if(allDone())ckTick();setTimeout(()=>{gliss();blockDone()},350)}
@@ -979,6 +1026,7 @@ function stepCount(){
 $('hit').onclick=()=>{
   const b=blk(),R=rec();if(R.r>=b.reps)return;
   if(b.count>0){if(cnt){cntStop();hitText()}else slowIntro(cntStart);return}
+  if(S.selfCheck!==false&&tipSegs(b).length){selfAsk(b);return}
   repDone();
 };
 $('undo').onclick=()=>{cntStop();cn=0;const R=rec();if(R.r>0){R.r--;save()}drawProg(false);say('undo');palFlash('calm',2200)};
@@ -988,10 +1036,12 @@ function blockDone(){
   const b=blk();
   $('dTitle').textContent=`${b.name} 练完啦！`;
   const f=S.free>0;
-  $('dText').textContent=f?`真棒！现在可以自由弹 ${S.free} 分钟，想弹什么就弹什么。`:(allDone()?'今天的都练完了！':'休息一下，再选下一个。');
-  $('goFree').hidden=!f;$('goHome').textContent=allDone()?'看看今天的总结':'选下一个';
-  $('goHome').hidden=f;
-  $('doneBox').hidden=false;confetti($('doneBox'));setTimeout(()=>say('block'),900);
+  $('dText').textContent=f?`真棒！可以自由弹 ${S.free} 分钟，也可以做手指操，或者直接继续练。`:(allDone()?'今天的都练完了！':'休息一下，再选下一个。');
+  // free play and finger exercises are offers, not a must: carrying on is always there too
+  $('goFree').hidden=!f;$('goHome').textContent=allDone()?'看看今天的总结':'继续练下一个';
+  $('goHome').hidden=false;
+  $('doneBox').hidden=false;confetti($('doneBox'));setTimeout(()=>say(allDone()?'musicCard':'block'),900);
+  if(allDone())$('dText').textContent+=' 回到打卡，去魔法学院抽一张音乐魔法卡吧！';
 }
 $('back').onclick=()=>{addTime();metroStop();cntStop();cur=null;renderHome();show('home')};
 $('goFree').onclick=()=>startFree();
@@ -1006,6 +1056,52 @@ function metroStart(){metroStop();beat=0;const bpm=+$('mBpm').textContent;audio(
 $('mOn').onclick=()=>{if(cnt)return;mt?metroStop():slowIntro(metroStart)};
 function bpmBy(d){const b=blk();b.bpm=Math.max(30,Math.min(160,(b.bpm||60)+d));$('mBpm').textContent=b.bpm;save();if(mt)metroStart();if(cnt){clearInterval(cnt);cnt=setInterval(stepCount,60000/b.bpm)}}
 $('mMinus').onclick=()=>bpmBy(-5);$('mPlus').onclick=()=>bpmBy(5);
+
+/* ---------- 音乐魔法卡: drawn in 打卡's 魔法学院 on a day 古筝 is done; shown here too (pictures from ../magic/) ---------- */
+const MUSIC=[['m01_littlesong','Little Song',0],['m02_notebutterflies','Note Butterflies',0],['m03_animalconcert','Animal Concert',0],
+  ['m04_moonlight','Moonlight Melody',1],['m05_flowerstage','Flower Stage',1],['m06_starorchestra','Star Orchestra',2]];
+function mcOwned(){const d=ckData();return (d&&d.magic&&d.magic.cards)||{}}
+function mcLabel(){const o=mcOwned();$('mcBtn').textContent=`🎵 音乐卡 ${MUSIC.filter(c=>o[c[0]]).length}/${MUSIC.length}`}
+$('mcBtn').onclick=()=>{const o=mcOwned(),n=MUSIC.filter(c=>o[c[0]]).length;
+  $('mcSub').textContent=n===MUSIC.length?'全部集齐啦！你是古筝小明星！':`已经有 ${n} 张。古筝全部练完的那天，回打卡的魔法学院可以多抽一张！`;
+  $('mcGrid').innerHTML=MUSIC.map(([id,en,r])=>o[id]?`<div class="mcc r${r}"><img src="../magic/cards/${id}.webp" alt=""><b>${en}</b></div>`:`<div class="mcc back">?</div>`).join('');
+  $('mcBox').hidden=false};
+$('mcClose').onclick=()=>{$('mcBox').hidden=true};
+document.body.appendChild($('mcBox'));   // its markup sits in the practice screen; it opens from home, so it lives at the top level
+
+/* ---------- 魔力瓶: careful reps and on-beat notes fill it; a full bottle counts in 打卡's 魔法学院 (it reads S.power.full) ---------- */
+const POWER_CAP=30;
+function powerDraw(){const P=S.power||{n:0,full:0};$('manaFill').style.width=Math.round(P.n/POWER_CAP*100)+'%';$('manaN').textContent=`${P.n}/${POWER_CAP}${P.full?` · 满了 ${P.full} 瓶`:''}`}
+function powerAdd(x){
+  const P=(S.power||={n:0,full:0});P.n+=x;
+  if(P.n>=POWER_CAP){P.n=0;P.full++;save();powerDraw();
+    const m=$('mana');m.classList.remove('pop');void m.offsetWidth;m.classList.add('pop');
+    gliss();confetti($('prac'));palFlash('great',3500);setTimeout(()=>palSays('powerFull'),400);return}
+  save();powerDraw();
+}
+
+/* ---------- the pal speaks for the parent, and the child judges her own rep ---------- */
+// a card's tips = its hint split at ，、；。 (gen_voice.py records one challenge line per tip)
+const tipSegs=b=>(b&&b.hint||'').split(/[，,、；;。]/).map(x=>x.trim()).filter(Boolean);
+function palSays(k,i){const p=VO[k]&&VO[k][i!=null?i:pick(k).i];if(p){$('mT').textContent=p.t;$('mS').textContent='';$('mE').textContent='💬'}anim($('pBun'),'hop');return say(k,i)}
+// long-press the pal (or right-click on a computer) to open the parent's menu; a short tap does nothing new
+(()=>{const el=$('pBun');let t=null;
+  const open=()=>{const b=blk();if(!b)return;
+    $('tipList').innerHTML=tipSegs(b).map(x=>`<button data-tip="${esc(x)}">「${esc(x)}」</button>`).join('')+'<button class="cheer" data-cheer="1">👏 夸一夸</button>';
+    $('tipBox').hidden=false;};
+  el.addEventListener('pointerdown',()=>{clearTimeout(t);t=setTimeout(open,700)});
+  ['pointerup','pointerleave','pointercancel'].forEach(e=>el.addEventListener(e,()=>clearTimeout(t)));
+  el.addEventListener('contextmenu',e=>{e.preventDefault();clearTimeout(t);open()});})();
+$('tipList').onclick=e=>{const x=e.target.closest('button');if(!x)return;$('tipBox').hidden=true;
+  if(x.dataset.cheer){palFlash('great',2500);palSays('cheer')}
+  else{const k='nudge:'+x.dataset.tip;palFlash('start',2500);palSays(VO[k]?k:'nudgeAny')}};
+$('tipClose').onclick=()=>{$('tipBox').hidden=true};
+function selfAsk(b){
+  $('selfHints').innerHTML=tipSegs(b).map(x=>`<span>${esc(x)}</span>`).join('');
+  $('selfBox').hidden=false;setPal();say('selfAsk');
+}
+$('selfYes').onclick=()=>{$('selfBox').hidden=true;stopVoice();powerAdd(2);repDone()};
+$('selfNo').onclick=()=>{$('selfBox').hidden=true;palFlash('calm',3000);palSays('selfNo')};
 // the iPad copy runs under 打卡's offline cache: if a new version takes over right after opening, reload once to show it now
 if('serviceWorker' in navigator&&navigator.serviceWorker.controller){const t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',()=>{if(Date.now()-t0<30000)location.reload()})}
 
@@ -1082,7 +1178,8 @@ function earNote(t){
   if(fast){
     earFast++;earGood=0;earWarned=true;p.classList.add('warn');palFlash('calm',3500);
     if(t-earNag>6){earNag=t;const q=pick('slowFast');$('mT').textContent=q.t;$('mS').textContent='';$('mE').textContent='🐢';say('slowFast',q.i)}
-  }else if(earWarned&&++earGood>=3){
+  }else{powerAdd(1);}
+  if(!fast&&earWarned&&++earGood>=3){
     earWarned=false;p.classList.remove('warn');const q=pick('slowBack');$('mT').textContent=q.t;$('mS').textContent='';$('mE').textContent='👍';say('slowBack',q.i);
   }
 }
@@ -1192,7 +1289,7 @@ $('toParent').onclick=()=>{const a=2+Math.floor(Math.random()*8),b=2+Math.floor(
 $('gGo').onclick=()=>{if(+$('gA').value===ga){$('gate').hidden=true;$('setBox').hidden=false;renderEdit()}else toast('不对哦')};
 $('gA').onkeydown=e=>{if(e.key==='Enter')$('gGo').onclick()};
 function renderEdit(){
-  $('fmN').textContent=S.free?S.free+' 分':'不自由弹';$('vOn').textContent=S.voice===false?'关':'开';
+  $('fmN').textContent=S.free?S.free+' 分':'不自由弹';$('vOn').textContent=S.voice===false?'关':'开';$('scOn').textContent=S.selfCheck===false?'关':'开';
   $('edit').innerHTML=S.blocks.map((b,i)=>`<div class="erow" data-i="${i}">
     <input type="text" id="n_${b.id}" value="${esc(b.name)}" data-k="name" aria-label="名字">
     <div class="ctl"><button data-a="r-">−</button><span class="n">${b.reps}</span><button data-a="r+">+</button><button data-a="u" class="unit">${U(b)}</button><button data-a="up" aria-label="上移">↑</button><button data-a="del" aria-label="删除">删</button></div>
@@ -1226,6 +1323,7 @@ $('edit').onclick=e=>{const a=e.target.dataset.a;if(!a)return;const i=+e.target.
   if(a==='del'){if(e.target.dataset.sure){libPut(b);S.blocks.splice(i,1)}else{e.target.dataset.sure=1;e.target.textContent='确定删？';return}}
   save();renderEdit()};
 $('vOn').onclick=()=>{S.voice=S.voice===false;save();renderEdit();if(S.voice!==false)say('rep')};
+$('scOn').onclick=()=>{S.selfCheck=S.selfCheck===false;save();renderEdit()};
 $('fm-').onclick=()=>{S.free=Math.max(0,S.free-1);save();renderEdit()};
 $('fm+').onclick=()=>{S.free=Math.min(10,S.free+1);save();renderEdit()};
 $('addB').onclick=()=>{S.blocks.push({id:'b'+Date.now().toString(36),name:'新项目',hint:'',reps:5,unit:'遍',count:0,labels:''});save();renderEdit()};
@@ -1244,7 +1342,7 @@ $('palGrid').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;audio
 $('palBtn').onclick=openPal;
 
 /* ---------- start ---------- */
-if(ckData())document.querySelectorAll('.ck').forEach(e=>e.hidden=false);
+if(ckData()){document.querySelectorAll('.ck').forEach(e=>e.hidden=false);mcLabel()}
 setPal();renderHome();
 if(S.palDay!==dkey()&&!location.hash)openPal();
 const h=location.hash;
