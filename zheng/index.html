@@ -212,7 +212,7 @@ a.ghost{text-decoration:none;white-space:nowrap}
 :root{
   /* 星光魔法学院 palette, shared with 打卡: cream ground, plum ink, lilac, gold; wood + string colours below stay for the guzheng */
   --bg:#FBF5EE; --dot1:#F0E6F8; --dot2:#F6EEDF; --card:#FFFDF8; --ink:#4A3A5C; --mute:#8E7FA3; --line:#E6DAF0;
-  --pink:#E07BC0; --orange:#E3A462; --mint:#79B38D; --sky:#8FA8DE; --lav:#9B7BF0; --lemon:#F2C14E; --coral:#9B7BF0; --teal:#6CADAB;
+  --pink:#E07BC0; --orange:#E3A462; --mint:#8E6FD8; --sky:#8FA8DE; --lav:#9B7BF0; --lemon:#F2C14E; --coral:#9B7BF0; --teal:#6CADAB;
   --wood1:#F4E0BC; --wood2:#E3C293; --string:#B88D5F; --gold:#E0AB45;
   --pen:#7A5E48;
   --r1:20px 24px 18px 26px/24px 18px 26px 20px; --r2:14px 18px 13px 17px/17px 13px 18px 14px;
@@ -258,7 +258,7 @@ body{background-color:var(--bg);background-image:var(--paper),
 .count b{color:var(--coral)}
 .now{color:var(--mint)}
 .hit{background:var(--paper),radial-gradient(ellipse at 30% 20%,#E9988A,var(--coral) 70%);--sh:#B9604F;border-radius:30px 36px 28px 34px/34px 28px 36px 30px}
-.hit.counting{background:var(--paper),radial-gradient(ellipse at 30% 20%,#9CCAA9,var(--mint) 70%);--sh:#5C9370}
+.hit.counting{background:var(--paper),radial-gradient(ellipse at 30% 20%,#BCA7EE,var(--mint) 70%);--sh:#6B4FB8}
 .dice{background:var(--paper),var(--lemon);color:#6E4F14;--sh:#C9A24C;border-radius:var(--r2)}
 .tool{background:var(--card);border-color:var(--line);border-radius:var(--r2)}
 .tool .pm{background:var(--dot1);color:var(--coral)}
@@ -266,7 +266,7 @@ body{background-color:var(--bg);background-image:var(--paper),
 .over{background:rgba(248,241,225,.86)}
 .panel{background:var(--paper),var(--card);border:2.5px solid var(--pen);border-radius:30px 36px 28px 38px/36px 28px 38px 30px;box-shadow:0 6px 0 rgba(122,94,72,.18)}
 .panel h2{color:var(--ink)}
-.pbtn{background:var(--paper),radial-gradient(ellipse at 30% 20%,#9CCAA9,var(--mint) 70%);--sh:#5C9370;border-radius:var(--r1)}
+.pbtn{background:var(--paper),radial-gradient(ellipse at 30% 20%,#BCA7EE,var(--mint) 70%);--sh:#6B4FB8;border-radius:var(--r1)}
 .pbtn.alt{background:var(--card);color:color-mix(in srgb,var(--sky) 70%,var(--pen));border:2px solid var(--sky);--sh:color-mix(in srgb,var(--sky) 50%,transparent)}
 .palGrid button{background:var(--card);border:2px solid var(--line);border-radius:var(--r1)}
 .palGrid button.on{border-color:var(--pink);background:color-mix(in srgb,var(--pink) 12%,var(--card))}
@@ -282,6 +282,24 @@ body{background-color:var(--bg);background-image:var(--paper),
 .week i{background:var(--card);border-radius:var(--r2)}
 .week i s{background:linear-gradient(color-mix(in srgb,var(--lemon) 80%,#fff),var(--orange))}
 .sec-t{color:var(--ink)}
+.sec-t small{font-size:14px;color:var(--mute)}
+.insight{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.insight li b{color:var(--lav);font-weight:normal}
+.insight li{background:var(--card);border-radius:16px;padding:10px 14px;font-size:17px;line-height:1.45;box-shadow:0 2px 0 var(--line)}
+.heat{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.heat div{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--mute);background:#F3EEF8;line-height:1.1}
+.heat div b{font-weight:normal;font-size:15px;color:var(--ink)}
+.heat div.h1{background:#E4DAF6}.heat div.h2{background:#CDBBF0}.heat div.h3{background:#B39BEA;color:#fff}.heat div.h3 b{color:#fff}.heat div.h4{background:#8E6FD8;color:#fff}.heat div.h4 b{color:#fff}
+.heat div.today{box-shadow:0 0 0 2.5px var(--lemon)}
+.heat .dow{aspect-ratio:auto;background:none;font-size:13px}
+.ptable{display:flex;flex-direction:column;gap:8px}
+.prow{background:var(--card);border-radius:16px;padding:10px 14px;display:grid;grid-template-columns:minmax(0,1.3fr) repeat(5,minmax(0,1fr));gap:4px 10px;align-items:center;box-shadow:0 2px 0 var(--line)}
+.prow b{font-weight:normal;font-size:18px}.prow span{font-size:14px;color:var(--mute);text-align:center}.prow span em{display:block;font-style:normal;font-size:18px;color:var(--ink)}
+.prow.head{background:none;box-shadow:none;padding:0 14px}.prow.head span{font-size:12px}
+.prow.stale{opacity:.75}
+.trend{font-size:13px}.trend.up{color:#3E9B6B}.trend.down{color:#D9534F}
+.stnote{font-size:13px;color:var(--mute);margin-top:14px}
+@media (max-width:640px){.prow{grid-template-columns:minmax(0,1fr) repeat(3,minmax(0,1fr))}.prow .opt{display:none}}
 .erow{background:var(--card)}
 .erow input[type=text]{background:var(--bg);border-color:var(--line)}
 .ctl button{background:var(--dot1);color:var(--coral)}
@@ -359,6 +377,11 @@ body{background-image:var(--paper),radial-gradient(ellipse 70% 40% at 50% -5%,rg
 .banner .band button{flex:0 1 120px;margin:0 -10px}
 .banner .band img{max-width:none;width:100%;height:auto;aspect-ratio:1;object-fit:contain;filter:none}
 .banner .band button.on img{transform:translateY(-6px) scale(1.1)}
+/* academy tone: summary tiles all in lilac and gold instead of four different colours */
+.tile{background:color-mix(in srgb,var(--lav) 10%,#fff)!important;border-color:color-mix(in srgb,var(--lav) 55%,#fff)!important}
+.tile b{color:var(--lav)!important}
+.tile:nth-child(even){background:color-mix(in srgb,var(--lemon) 14%,#fff)!important;border-color:color-mix(in srgb,var(--lemon) 75%,#fff)!important}
+.tile:nth-child(even) b{color:#C9962A!important}
 .band .bpal{flex:0 1 112px;min-width:0;width:100%;height:auto;max-width:none;aspect-ratio:1;object-fit:contain;margin:0 -6px;animation:bob 3.2s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes bob{50%{transform:translateY(-6px) rotate(-1.5deg)}}
 @media (prefers-reduced-motion: reduce){.band .bpal{animation:none}}
@@ -697,6 +720,18 @@ body:has(#home[hidden])::after{content:"";position:fixed;inset:0;z-index:-1;back
   <div class="order" id="order"></div>
   <div class="sec-t">这一周</div>
   <div class="week" id="week"></div>
+  <button class="pbtn alt chunky" id="toStats" style="margin-top:18px">📈 看全部练习记录</button>
+</section>
+
+<section id="stats" hidden>
+  <div class="top"><h1 class="logo">练习记录</h1><span class="sp"></span><button class="ghost" id="stBack">返回</button></div>
+  <div class="sec-t">最近的发现</div>
+  <ul class="insight" id="stTips"></ul>
+  <div class="sec-t">最近 4 周 <small id="stCalNote"></small></div>
+  <div class="heat" id="stCal"></div>
+  <div class="sec-t">每个项目</div>
+  <div class="ptable" id="stTable"></div>
+  <p class="stnote">节拍稳定率 = 开着"听快慢"时跟上拍的音占多少。从 2026/10/22 开始记录，之前的练习没有这项。</p>
 </section>
 
 <section id="parent" hidden>
@@ -888,7 +923,7 @@ function click(acc){const a=audio();if(!a)return;if(cur&&listensTo(blk()))return
   const o=a.createOscillator(),g=a.createGain();o.frequency.value=acc?1500:1000;g.gain.setValueAtTime(.35,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.05);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.06)}
 
 /* ---------- screens ---------- */
-const SCR=['home','prac','free','rest','sum','parent'];
+const SCR=['home','prac','free','rest','sum','parent','stats'];
 let wake=null;
 function show(id){
   SCR.forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0);if(id!=='home'&&typeof musicKill==='function'&&hm)musicKill();if(typeof homeMusic==='function')homeMusic();
@@ -1118,7 +1153,7 @@ function selfAsk(b){
   $('selfBox').hidden=false;setPal();say('selfAsk');
 }
 $('selfYes').onclick=()=>{$('selfBox').hidden=true;stopVoice();powerAdd(2);repDone()};
-$('selfNo').onclick=()=>{$('selfBox').hidden=true;palFlash('calm',3000);palSays('selfNo')};
+$('selfNo').onclick=()=>{$('selfBox').hidden=true;if(cur){const R=rec();R.redo=(R.redo||0)+1;save()}palFlash('calm',3000);palSays('selfNo')};
 // the iPad copy runs under 打卡's offline cache: if a new version takes over right after opening, reload once to show it now
 if('serviceWorker' in navigator&&navigator.serviceWorker.controller){const t0=Date.now();navigator.serviceWorker.addEventListener('controllerchange',()=>{if(Date.now()-t0<30000)location.reload()})}
 
@@ -1193,6 +1228,7 @@ function earNote(t){
   const e=ear,gap=60/(+$('mBpm').textContent||60),d=e.last>0?t-e.last:Infinity,fast=d<gap*.75;e.last=t;
   const p=$('pace');$('paceT').textContent='';
   earNotes.push({t,f:fast});earNotes=earNotes.filter(n=>n.t>t-8);
+  if(cur){const R=rec();if(fast)R.fast=(R.fast||0)+1;else R.steady=(R.steady||0)+1;R.bpm=+$('mBpm').textContent||R.bpm}   // kept for 练习记录
   if(fast){
     earFast++;earGood=0;earWarned=true;p.classList.add('warn');palFlash('calm',3500);
     if(t-earNag>6){earNag=t;const q=pick('slowFast');$('mT').textContent=q.t;$('mS').textContent='';$('mE').textContent='🐢';say('slowFast',q.i)}
@@ -1299,6 +1335,57 @@ function renderSum(){
 $('moods').onclick=e=>{const b=e.target.closest('button');if(!b)return;day().mood=b.dataset.m;save();renderSum()};
 function showSum(){renderSum();show('sum');say(allDone()?'all':'some')}
 $('toSum').onclick=showSum;
+
+/* ---------- 练习记录: everything kept in S.days, read back as a 4-week calendar, a row per project and plain-language findings ---------- */
+const kOf=d=>dkey(d), back=n=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-n);return d};
+function dayMins(x){if(!x)return 0;return Math.round((Object.values(x.b||{}).reduce((a,r)=>a+(r.s||0),0)+(x.free||0))/60)}
+function blockStats(b,from,to){   // from/to = days back (inclusive), e.g. 0..13 = the last two weeks
+  const o={days:0,reps:0,secs:0,fast:0,steady:0,redo:0,last:null,bpm:null};
+  for(let i=to;i>=from;i--){const k=kOf(back(i)),r=S.days[k]&&S.days[k].b[b.id];if(!r||!r.r)continue;
+    o.days++;o.reps+=r.r;o.secs+=r.s||0;o.fast+=r.fast||0;o.steady+=r.steady||0;o.redo+=r.redo||0;o.bpm=r.bpm||o.bpm;o.last=o.last||k}
+  o.rate=o.fast+o.steady>=10?Math.round(100*o.steady/(o.fast+o.steady)):null;return o}
+function lastDone(b){for(let i=0;i<400;i++){const k=kOf(back(i)),r=S.days[k]&&S.days[k].b[b.id];if(r&&r.r)return i}return null}
+const pct=(a,b)=>b?Math.round((a-b)/b*100):null;
+function renderStats(){
+  // calendar: 4 weeks ending this week (Mon..Sun)
+  const t=back(0),mon=(t.getDay()+6)%7,cells=['一','二','三','四','五','六','日'].map(d=>`<div class="dow">${d}</div>`);
+  let mins=[];
+  for(let i=27+mon;i>=mon-6;i--){const d=back(i),k=kOf(d),m=i<0?null:dayMins(S.days[k]);if(m!==null)mins.push(m);
+    const h=m===null?'':m>=40?'h4':m>=25?'h3':m>=10?'h2':m>0?'h1':'';
+    cells.push(`<div class="${h}${i===0?' today':''}">${d.getMonth()+1}/${d.getDate()}<b>${m===null?'':m?m+'′':'·'}</b></div>`)}
+  $('stCal').innerHTML=cells.join('');
+  const on=mins.filter(m=>m>0).length;$('stCalNote').textContent=`练了 ${on} 天 · 数字是分钟`;
+  // a row per project
+  const rows=S.blocks.map(b=>({b,now:blockStats(b,0,13),before:blockStats(b,14,27),gap:lastDone(b)}));
+  const trend=(a,b)=>a===null||b===null?'':a>b+4?`<span class="trend up">↑ 比前两周 +${a-b}%</span>`:a<b-4?`<span class="trend down">↓ ${a-b}%</span>`:'';
+  $('stTable').innerHTML=`<div class="prow head"><span></span><span>练了几天<br>（2 周）</span><span>一共几遍</span><span>最近一次</span><span class="opt">节拍稳定率</span><span class="opt">再来一次</span></div>`+
+    rows.map(({b,now,before,gap})=>`<div class="prow${gap===null||gap>6?' stale':''}"><b>${esc(b.name)}</b>
+      <span><em>${now.days}</em>天</span><span><em>${now.reps}</em>${esc(MW(b))}</span>
+      <span><em>${gap===null?'—':gap===0?'今天':gap+' 天前'}</em></span>
+      <span class="opt"><em>${now.rate===null?'—':now.rate+'%'}</em>${trend(now.rate,before.rate)}</span>
+      <span class="opt"><em>${now.redo}</em>次</span></div>`).join('');
+  // findings, most useful first, at most five
+  const tips=[];
+  const m14=[...Array(14)].map((_,i)=>dayMins(S.days[kOf(back(i))])),m28=[...Array(14)].map((_,i)=>dayMins(S.days[kOf(back(i+14))]));
+  const avg=a=>{const n=a.filter(x=>x>0);return n.length?Math.round(n.reduce((x,y)=>x+y,0)/n.length):0};
+  const a1=avg(m14),a0=avg(m28),d1=m14.filter(x=>x>0).length;
+  if(d1)tips.push(`最近两周练了 <b>${d1}</b> 天，练的那天平均 <b>${a1}</b> 分钟`+(a0?`，${a1>=a0?'比前两周多':'比前两周少'} ${Math.abs(a1-a0)} 分钟`:'')+'。');
+  else tips.push('最近两周还没有练习记录。');
+  rows.filter(r=>r.gap!==null&&r.gap>=5).sort((x,y)=>y.gap-x.gap).slice(0,2).forEach(r=>tips.push(`<b>${esc(r.b.name)}</b> 已经 ${r.gap} 天没练了。`));
+  rows.filter(r=>r.gap===null).slice(0,1).forEach(r=>tips.push(`<b>${esc(r.b.name)}</b> 还从来没练过。`));
+  rows.filter(r=>r.now.rate!==null&&r.before.rate!==null&&r.now.rate-r.before.rate>=8).slice(0,2).forEach(r=>tips.push(`<b>${esc(r.b.name)}</b> 节拍稳定率从 ${r.before.rate}% 提高到 ${r.now.rate}% 👏`));
+  const hard=rows.filter(r=>r.now.redo>=3).sort((x,y)=>y.now.redo-x.now.redo)[0];
+  if(hard)tips.push(`<b>${esc(hard.b.name)}</b> 最常点"再来一次"（两周 ${hard.now.redo} 次），可能是现在最难的。`);
+  rows.filter(r=>r.now.rate!==null&&r.now.rate<70).slice(0,1).forEach(r=>tips.push(`<b>${esc(r.b.name)}</b> 还常常抢拍（稳定率 ${r.now.rate}%），先别加速，可以再慢 5。`));
+  rows.filter(r=>r.now.rate!==null&&r.now.rate>=90&&r.now.days>=3&&r.now.bpm).slice(0,1).forEach(r=>tips.push(`<b>${esc(r.b.name)}</b> 在 ${r.now.bpm} 的速度已经很稳（${r.now.rate}%），可以试着加到 ${r.now.bpm+5}。`));
+  const hardDays=[...Array(28)].map((_,i)=>S.days[kOf(back(i))]).filter(x=>x&&x.mood==='有点难');
+  if(hardDays.length>=2){const c={};hardDays.forEach(x=>Object.keys(x.b).forEach(id=>c[id]=(c[id]||0)+1));
+    const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0],bb=top&&S.blocks.find(b=>b.id===top[0]);
+    if(bb)tips.push(`选"有点难"的 ${hardDays.length} 天里，都在练 <b>${esc(bb.name)}</b>。`)}
+  $('stTips').innerHTML=tips.slice(0,7).map(x=>`<li>${x}</li>`).join('');
+}
+$('toStats').onclick=()=>{renderStats();show('stats')};
+$('stBack').onclick=()=>showSum();
 $('sHome').onclick=()=>{renderHome();show('home')};
 
 /* ---------- parent ---------- */
