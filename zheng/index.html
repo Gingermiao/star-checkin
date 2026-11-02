@@ -1122,7 +1122,7 @@ $('mcClose').onclick=()=>{$('mcBox').hidden=true};
 document.body.appendChild($('mcBox'));   // its markup sits in the practice screen; it opens from home, so it lives at the top level
 
 /* ---------- 魔力瓶: careful reps and on-beat notes fill it; a full bottle counts in 打卡's 魔法学院 (it reads S.power.full) ---------- */
-const POWER_CAP=30;
+const POWER_CAP=10;
 function powerDraw(){const P=S.power||{n:0,full:0};$('manaFill').style.width=Math.round(P.n/POWER_CAP*100)+'%';$('manaN').textContent=`${P.n}/${POWER_CAP}${P.full?` · 满了 ${P.full} 瓶`:''}`}
 function powerAdd(x){
   const P=(S.power||={n:0,full:0});P.n+=x;
