@@ -1075,10 +1075,10 @@ let metVol=0.7;
 try{ const v=parseInt(localStorage.getItem('zhengMetVol2'),10); if(v>=0&&v<=100) metVol=v/100; }catch(e){}
 // 节拍器：木块一样的「哒」——一小段带通噪声（清脆的起音）+ 很短的音（有点音高），每组第一拍高一点、响一点
 let clickNoise=null;
-function click(t,accent){
-  if(metVol<=0.001) return;
+function click(t,accent,force){
+  if(metVol<=0.001 && !force) return;
   if(!clickNoise||clickNoise.sampleRate!==ctx.sampleRate){ const n=Math.floor(ctx.sampleRate*0.03); clickNoise=ctx.createBuffer(1,n,ctx.sampleRate); const d=clickNoise.getChannelData(0); for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3); }
-  const v=metVol*(accent?1.25:1);
+  const v=(force?Math.max(metVol,0.6):metVol)*(accent?1.25:1);
   const ns=ctx.createBufferSource(); ns.buffer=clickNoise; const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=accent?2600:2000; bp.Q.value=2.5;
   const ng=ctx.createGain(); ng.gain.value=1.7*v; ns.connect(bp).connect(ng).connect(ctx.destination); ns.start(t);
   const o=ctx.createOscillator(), g=ctx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(accent?1400:1050,t); o.frequency.exponentialRampToValueAtTime(accent?1000:780,t+0.04);
@@ -1107,9 +1107,9 @@ function schedule(){
       const nt=seq[kk], pv=seq[(kk-1+seq.length)%seq.length];
       if(nt.gi===0 && nt.leg!==pv.leg){ queue.push({t:nextTime,pauseAt:k}); ended=true; break; }
     }
-    if(isBeat && $('tClick').checked){
+    if(isBeat && ($('tClick').checked || inCount)){
       const accent = (mode==='route' && !inCount) ? seq[kk].gi===0 : beat%2===0;
-      click(nextTime, accent);
+      click(nextTime, accent, inCount);
     }
     if(!inCount){
       const note=seq[kk];
