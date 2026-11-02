@@ -479,6 +479,21 @@ h1,.status,.plan-bar b,.bpm-tag b,.glyph .ch,.sq{color:#D27894}
 .allok{background:rgb(255 238 244/.7);border-color:rgb(240 170 192/.7)}
 .tempo input[type=range],#metVol,.toggle input{accent-color:#EE9DB3}
 
+/* ===== 右上角勾选：一行排下 ===== */
+.pin-top #toggleRow{flex-wrap:nowrap;gap:4px 12px;overflow:hidden}
+.pin-top #toggleRow .toggle{white-space:nowrap;font-size:13px;gap:4px}
+.pin-top #toggleRow .toggle input[type=checkbox]{width:15px;height:15px}
+.pin-top #toggleRow #metVol{width:64px!important}
+/* ===== 谱子紧凑：一行 4 组 ===== */
+.strip{gap:10px 0}
+.bar{padding:0 4px;gap:3px}
+.beat-group .cells{gap:2px;padding-bottom:3px}
+.cell{width:25px;padding:2px 0 4px;gap:3px;border-radius:9px}
+.cell .f{font-size:13px}
+.cell .jp{font-size:15px}
+.cell .c{font-size:10px}
+.cell .jp[data-o="-2"]{margin-bottom:8px}
+.cell .duo{gap:12px;margin:8px 0 8px}
 /* ===== 魔力瓶（和陪练、打卡共用）===== */
 .mana{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:16px;background:rgb(255 255 255/.7);border:1px solid rgb(226 196 206/.9);position:relative}
 .mana .ttl{font-family:var(--cute);font-size:15px;color:#B85A78;white-space:nowrap}
@@ -1474,7 +1489,8 @@ function bottleIcon(frac,size){
   <path d="M19 44c-2 4-2 9-1 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".75"/></svg>`;
 }
 function powerDraw(){
-  const P=powerGet();
+  let P=powerGet();
+  if(P.n>=POWER_CAP){ P.full+=Math.floor(P.n/POWER_CAP); P.n=P.n%POWER_CAP; powerSet(P); }   // 以前 30 点一瓶时攒的点数，换成 10 点一瓶
   $('manaIcon').innerHTML=bottleIcon(P.n/POWER_CAP,30);
   $('manaFill').style.width=Math.round(P.n/POWER_CAP*100)+'%';
   $('manaN').innerHTML=`<b>${P.n}</b> / ${POWER_CAP}${P.full?`　已装满 <b>${P.full}</b> 瓶`:''}`;
