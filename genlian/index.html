@@ -1045,18 +1045,24 @@ function makePluck(freq){
 }
 // 真古筝的声音：家里这台琴录的 21 根弦（托），倍低音1 → 倍高音1，每根 1.5 秒；解不出来就退回电子琴声
 const STR_B64=null;
-let realStr=false; const lastStr=[];
+let realStr=false, starting=false; const lastStr=[];
+// 打开页面就下载琴声（失败自动重试），点「开始」时已经准备好
+const STR_BYTES=Array.from({length:NSTR},(_,i)=>{
+  const url='strings/'+String(i).padStart(2,'0')+'.wav';
+  const get=n=>fetch(url).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).catch(e=>n>0?new Promise(ok=>setTimeout(ok,1500)).then(()=>get(n-1)):Promise.reject(e));
+  return get(6);
+});
+let strReady=0, strFail=0;
 async function loadStrings(){
-  // 21 根一起解码（一根一根等会卡住）；每根最多等 4 秒，解不出来的那根用电子琴声顶上
-  let ok=0;
-  const one=i=>{
-    const dec=fetch('strings/'+String(i).padStart(2,'0')+'.wav').then(r=>r.arrayBuffer()).then(b=>ctx.decodeAudioData(b));
-    const to=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),4000));
-    return Promise.race([dec,to]).then(b=>{ok++;return b;}, ()=>makePluck(strFreq(i)));
-  };
-  const out=await Promise.all(Array.from({length:NSTR},(_,i)=>one(i)));
-  realStr= ok===NSTR; return out;
+  const out=await Promise.all(STR_BYTES.map((p,i)=>p.then(b=>ctx.decodeAudioData(b.slice(0))).then(b=>{ strReady++; updGoLoading(); return b; }, ()=>{ strReady++; strFail++; return makePluck(strFreq(i)); })));
+  realStr=true; return out;
 }
+function updGoLoading(){ const b=document.getElementById('go'); if(b && starting && !running) b.textContent='琴声准备中 '+strReady+'/'+NSTR; }
+// 不点也先建好声音（iPad 上建好是「暂停」状态，点「开始」时再打开），琴声提前解码
+let ctxReady=null;
+function prepCtx(){ if(!ctxReady){ ctx=new (window.AudioContext||window.webkitAudioContext)(); ctxReady=loadStrings().then(b=>{buffers=b;}); } return ctxReady; }
+setTimeout(()=>{ try{ prepCtx().catch(()=>{}); }catch(e){} },0);
+
 function pluck(t,si,gain){
   if(realStr) gain=gain>=0.5?0.95:0.7;
   // 同一根弦再弹时，上一下的余音被手指止住
@@ -1158,8 +1164,10 @@ function setGoUi(){
   document.body.classList.toggle('running',running);
 }
 async function start(fromK=0,resume=false){
-  await ensureCtx();
-  unlockAudio(); try{ await ctx.resume(); }catch(e){}
+  if(starting) return; starting=true;
+  try{ prepCtx(); unlockAudio(); await ensureCtx(); } finally { starting=false; }
+  if(running){ return; }
+  clearInterval(timer);
   if(!fromK) showIdle();
   if(!resume && curRun) runEnd(false);
   if(!curRun) runBegin();
@@ -1178,6 +1186,7 @@ function halt(){
   // 已经排好但还没响的音一起掐掉
   try{ const now=ctx.currentTime; pending.forEach(p=>{ if(p.t>now-0.001) try{p.node.stop();}catch(e){} }); }catch(e){}
   pending=[];
+  try{ const now=ctx.currentTime; lastStr.forEach(p=>{ if(p){ p.g.gain.cancelScheduledValues(now); p.g.gain.setValueAtTime(p.g.gain.value,now); p.g.gain.linearRampToValueAtTime(0,now+0.04); } }); }catch(e){}
   document.querySelectorAll('.s.on').forEach(e=>e.classList.remove('on'));
   try{unlockEl&&unlockEl.pause();}catch(e){} try{wake&&wake.release(); wake=null;}catch(e){}
   setGoUi();
@@ -1221,7 +1230,7 @@ function pickGroup(idx){
   if(mode==='route') $('prog').style.width=(gs/seq.length*100)+'%';
 }
 $('strip').addEventListener('click',e=>{ const c=e.target.closest('.cell'); if(c) pickGroup(+c.dataset.i); });
-function goClick(){ if(running) pause(); else if(paused) start(resumeK,true); else start(0); }
+function goClick(){ if(starting) return; if(running) pause(); else if(paused) start(resumeK,true); else start(0); }
 
 $('go').onclick=goClick;
 $('stopBtn').onclick=()=>stop();
@@ -1393,7 +1402,8 @@ $('palClose').onclick=()=>{ $('palOv').hidden=true; if(palDay!==todayKey()){ pal
 $('palBox').onclick=()=>{ if(!running) openPalPick(); };
 // 语音：晓伊「小兔子嗓音」，从页面里解码（claude.ai 里不能 fetch data:）
 async function ensureCtx(){
-  if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); buffers=await loadStrings(); }
+  const p=prepCtx(); try{ ctx.resume(); }catch(e){}
+  if(!realStr){ updGoLoading(); await p; if(strFail) $('status').textContent='网络不好，有 '+strFail+' 根弦的琴声没下载下来'; }
   try{ await ctx.resume(); }catch(e){}
 }
 const pvCache={}, pvLast={}; let vSrc=null, vTok=0, bubT=null;
