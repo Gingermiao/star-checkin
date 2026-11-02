@@ -640,6 +640,7 @@ h1,.status,.plan-bar b,.bpm-tag b,.glyph .ch,.sq{color:#D27894}
       <label class="toggle"><input type="checkbox" id="tClick" checked> 节拍器</label>
       <label class="toggle" title="节拍器音量">音量 <input type="range" id="metVol" min="0" max="100" value="70" aria-label="节拍器音量" style="width:110px;height:auto;accent-color:var(--accent)"></label>
       <label class="toggle"><input type="checkbox" id="tNotes" checked> 示范琴声</label>
+      <label class="toggle"><input type="checkbox" id="tSynth"> 电子音</label>
       <label class="toggle"><input type="checkbox" id="tCount" checked> 预备拍</label>
       <label class="toggle"><input type="checkbox" id="tVoice" checked> 小伙伴说话</label>
       <label class="toggle" id="loopWrap"><input type="checkbox" id="tLoop"> 一直循环</label>
@@ -1063,11 +1064,15 @@ let ctxReady=null;
 function prepCtx(){ if(!ctxReady){ ctx=new (window.AudioContext||window.webkitAudioContext)(); ctxReady=loadStrings().then(b=>{buffers=b;}); } return ctxReady; }
 setTimeout(()=>{ try{ prepCtx().catch(()=>{}); }catch(e){} },0);
 
+const synBufs=[];
+function synOn(){ const e=document.getElementById('tSynth'); return !!(e&&e.checked); }
+function synBuf(si){ return synBufs[si]||(synBufs[si]=makePluck(strFreq(si))); }
 function pluck(t,si,gain){
-  if(realStr) gain=gain>=0.5?0.95:0.7;
+  const syn=synOn();
+  if(realStr && !syn) gain=gain>=0.5?0.95:0.7;
   // 同一根弦再弹时，上一下的余音被手指止住
   const prev=lastStr[si]; if(prev && prev.t<t){ try{ prev.g.gain.setValueAtTime(prev.gain,t); prev.g.gain.linearRampToValueAtTime(0,t+0.02); }catch(e){} }
-  const src=ctx.createBufferSource(); src.buffer=buffers[si]; const g=ctx.createGain(); g.gain.value=gain; src.connect(g).connect(ctx.destination); src.start(t);
+  const src=ctx.createBufferSource(); src.buffer=syn?synBuf(si):buffers[si]; const g=ctx.createGain(); g.gain.value=gain; src.connect(g).connect(ctx.destination); src.start(t);
   lastStr[si]={g,t,gain}; pending.push({node:src,t});
 }
 // 节拍器：柔和的木鱼声（正弦 + 很快衰减），音量可调，每组第一拍音高一点
@@ -1386,6 +1391,8 @@ let palK='cat', palDay='';
 try{ const p=JSON.parse(localStorage.getItem('zhengGL2pal')||'null'); if(p&&PIMG[p.k]){ palK=p.k; palDay=p.day||''; } }catch(e){}
 function savePal(){ try{ localStorage.setItem('zhengGL2pal',JSON.stringify({k:palK,day:palDay})); }catch(e){} }
 try{ if(localStorage.getItem('zhengGL2voice')==='0') $('tVoice').checked=false; }catch(e){}
+try{ if(localStorage.getItem('zhengGL2synth')==='1') $('tSynth').checked=true; }catch(e){}
+$('tSynth').onchange=()=>{ try{ localStorage.setItem('zhengGL2synth',$('tSynth').checked?'1':'0'); }catch(e){} };
 $('tVoice').onchange=()=>{ try{ localStorage.setItem('zhengGL2voice',$('tVoice').checked?'1':'0'); }catch(e){} if(!$('tVoice').checked) stopVoice(); };
 const palName=()=>(PALS.find(p=>p[0]===palK)||PALS[0])[1];
 let sceneT=null;
@@ -1403,7 +1410,8 @@ $('palBox').onclick=()=>{ if(!running) openPalPick(); };
 // 语音：晓伊「小兔子嗓音」，从页面里解码（claude.ai 里不能 fetch data:）
 async function ensureCtx(){
   const p=prepCtx(); try{ ctx.resume(); }catch(e){}
-  if(!realStr){ updGoLoading(); await p; if(strFail) $('status').textContent='网络不好，有 '+strFail+' 根弦的琴声没下载下来'; }
+  if(synOn()){ for(let i=0;i<NSTR;i++) synBuf(i); }
+  else if(!realStr){ updGoLoading(); await p; if(strFail) $('status').textContent='网络不好，有 '+strFail+' 根弦的琴声没下载下来'; }
   try{ await ctx.resume(); }catch(e){}
 }
 const pvCache={}, pvLast={}; let vSrc=null, vTok=0, bubT=null;
