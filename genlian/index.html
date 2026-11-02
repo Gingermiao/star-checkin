@@ -204,6 +204,12 @@ body{box-sizing:border-box;height:100vh;height:100dvh;overflow:hidden;padding-bo
 .demo-note{font-size:12px;color:var(--accent)}
 .empty{font-size:13px;color:var(--muted);padding:6px 0}
 .tr4{display:flex;gap:2px;height:26px}
+.tline{position:relative;height:30px;border-radius:6px;overflow:hidden;background:var(--s0)}
+.tline span{position:absolute;top:0;bottom:0;min-width:2px;box-shadow:inset -1px 0 0 rgb(255 255 255/.9)}
+.taxis{position:relative;height:18px;margin-top:4px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.taxis b,.taxis em{position:absolute;top:0;font-style:normal;font-weight:600;white-space:nowrap}
+.taxis em{transform:translateX(-50%);font-weight:400}
+.taxis em::before{content:'';position:absolute;left:50%;top:-4px;height:3px;border-left:1px solid var(--line)}
 .tr4 span{height:100%}
 .tr4 span:last-child{border-radius:0 4px 4px 0}
 /* 小动物 */
@@ -861,7 +867,7 @@ const hm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'
 const dur=ms=>{const s=Math.round(ms/1000), m=Math.floor(s/60), h=Math.floor(m/60); return h?`${h} 小时 ${m%60} 分`:m?`${m} 分 ${s%60} 秒`:`${s} 秒`;};
 const clk=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
 function runBegin(){ curRun={ex: mode==='route'?ex().name:'单练 '+pattern.join(''), id: mode==='route'?ex().id:'free', h:hand, fh:fromHigh, hand: hand?'右手':'左手', s:Date.now(), play:0, seg:0}; }
-function playStop(){ if(curRun&&curRun.seg){ curRun.play+=Date.now()-curRun.seg; curRun.seg=0; } }
+function playStop(){ if(curRun&&curRun.seg){ const n=Date.now(); curRun.play+=n-curRun.seg; (curRun.ps=curRun.ps||[]).push([curRun.seg,n]); curRun.seg=0; } }
 function runEnd(ok){
   if(!curRun) return; playStop(); const r={...curRun,e:Date.now(),ok:!!ok}; delete r.seg; curRun=null;
   if(r.e-r.s<3000){ renderLog(); return; }   // 不到 3 秒的不记
@@ -1617,12 +1623,36 @@ function kpiHtml(p,S,P){
 }
 const legendParts=()=>'<div class="legend">'+PARTS.map(([,n,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('')+'</div>';
 // 时间都花在哪：一根横条，四段
+function timeline(I){
+  const runs=I.filter(r=>r.k!=='fx'), fxs=I.filter(r=>r.k==='fx');
+  if(!I.length) return '';
+  let a=Infinity,b=0; I.forEach(r=>{ a=Math.min(a,r.s); b=Math.max(b,r.e); }); if(b<=a) return '';
+  // 每一小段属于哪一类：手指操 > 弹琴 > 暂停 > 休息
+  const iv=[]; // [s,e,kind]
+  runs.forEach(r=>{ iv.push([r.s,r.e,'pause']);
+    if(r.ps&&r.ps.length) r.ps.forEach(([x,y])=>iv.push([Math.max(r.s,x),Math.min(r.e,y),'play']));
+    else { const p=r.play!=null?Math.min(r.play,r.e-r.s):(r.e-r.s); iv.push([r.s,r.s+p,'play']); } });
+  fxs.forEach(f=>iv.push([f.s,f.e,'fx']));
+  const pts=[...new Set([a,b,...iv.flatMap(x=>[x[0],x[1]])])].filter(t=>t>=a&&t<=b).sort((x,y)=>x-y);
+  const rank={rest:0,pause:1,play:2,fx:3}, seg=[];
+  for(let i=0;i<pts.length-1;i++){ const x=pts[i], y=pts[i+1], m=(x+y)/2; let k='rest';
+    iv.forEach(v=>{ if(v[0]<=m&&m<v[1]&&rank[v[2]]>rank[k]) k=v[2]; });
+    const L=seg[seg.length-1]; if(L&&L.k===k) L.e=y; else seg.push({s:x,e:y,k}); }
+  const W=b-a, pc=t=>((t-a)/W*100).toFixed(3)+'%', name={}, col={}; PARTS.forEach(([k,n,c])=>{ name[k]=n; col[k]=c; });
+  const bars=seg.map(g=>`<span style="left:${pc(g.s)};width:${pc(a+g.e-g.s)};background:${col[g.k]}" data-tip="${name[g.k]}｜${hm(g.s)} – ${hm(g.e)}｜${fmtMin(g.e-g.s)}"></span>`).join('');
+  const stepM=[5,10,15,20,30,60,120,180].find(m=>W/(m*60000)<=6)||240, ticks=[];
+  const t0=new Date(a); t0.setSeconds(0,0); t0.setMinutes(Math.ceil(t0.getMinutes()/stepM)*stepM);
+  for(let t=t0.getTime(); t<b; t+=stepM*60000){ if(t-a>W*0.08 && b-t>W*0.08) ticks.push(t); }
+  const lab=[`<b style="left:0">${hm(a)}</b>`, ...ticks.map(t=>`<em style="left:${pc(t)}">${hm(t)}</em>`), `<b style="right:0">${hm(b)}</b>`].join('');
+  return `<div class="tline">${bars}</div><div class="taxis">${lab}</div>`;
+}
 function whereHtml(S){
   if(!S.span) return '<div class="card"><h3>时间都花在哪</h3><div class="empty">这段时间没有练琴记录</div></div>';
   const tot=S.play+S.pause+S.fx+S.rest||1;
   const segs=PARTS.map(([k,n,c])=>S[k]>0?`<span style="width:${S[k]/tot*100}%;background:${c}" data-tip="${n}｜${fmtMin(S[k])}（${Math.round(S[k]/tot*100)}%）"></span>`:'').join('');
   const nums=PARTS.map(([k,n,c])=>`<span><i style="background:${c}"></i>${n} <b style="color:var(--ink)">${fmtMin(S[k])}</b> ${Math.round(S[k]/tot*100)}%</span>`).join('');
-  return `<div class="card"><h3>时间都花在哪<span class="sub">前后一共 ${fmtMin(S.span)}</span></h3><div class="tr4">${segs}</div><div class="legend" style="margin-top:8px">${nums}</div></div>`;
+  const tl=sumP==='day'?timeline(S.I):'';
+  return `<div class="card"><h3>时间都花在哪<span class="sub">${tl?'从左到右按时间排 · ':''}前后一共 ${fmtMin(S.span)}</span></h3>${tl||`<div class="tr4">${segs}</div>`}<div class="legend" style="margin-top:8px">${nums}</div></div>`;
 }
 const playOf=r=>r.play!=null?Math.min(r.play,r.e-r.s):(r.e-r.s);
 // 分项目：每个练习左手（蓝）/右手（橙）实际弹了多久、几次、弹完率
