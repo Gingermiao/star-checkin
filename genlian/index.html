@@ -504,10 +504,13 @@ h1,.status,.plan-bar b,.bpm-tag b,.glyph .ch,.sq{color:#D27894}
 .beat-group .cells{gap:2px;padding-bottom:3px}
 .cell{width:25px;padding:2px 0 4px;gap:3px;border-radius:9px}
 .cell .f{font-size:13px}
-.cell .jp{font-size:15px}
+.cell .jp{font-size:13px;margin:9px 0}
+.cell .jp[data-o="-2"],.cell .jp[data-o="2"]{margin:9px 0}
+.cell .jp::before,.cell .jp::after{width:3px!important;height:3px!important;margin-left:-1.5px!important}
+.cell .jp[data-o="1"]::before{top:-5px}.cell .jp[data-o="-1"]::after{bottom:-5px}
+.cell .jp[data-o="2"]::before{top:-9px;box-shadow:0 4px 0 currentColor}.cell .jp[data-o="-2"]::after{bottom:-9px;box-shadow:0 -4px 0 currentColor}
 .cell .c{font-size:10px}
-.cell .jp[data-o="-2"]{margin-bottom:8px}
-.cell .duo{gap:12px;margin:8px 0 8px}
+.cell .duo{display:flex;flex-direction:column;align-items:center;gap:12px;margin:9px 0}
 /* ===== 魔力瓶（和陪练、打卡共用）===== */
 .mana{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:16px;background:rgb(255 255 255/.7);border:1px solid rgb(226 196 206/.9);position:relative}
 .mana .ttl{font-family:var(--cute);font-size:15px;color:#B85A78;white-space:nowrap}
